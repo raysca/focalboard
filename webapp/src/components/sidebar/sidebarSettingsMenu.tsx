@@ -52,25 +52,36 @@ const SidebarSettingsMenu = (props: Props) => {
         setRandomIcons(!randomIcons)
     }
 
+    const getThemeDisplayName = (themeId: string): string => {
+        switch (themeId) {
+        case defaultThemeName:
+            return intl.formatMessage({id: 'Sidebar.default-theme', defaultMessage: 'Default theme'})
+        case darkThemeName:
+            return intl.formatMessage({id: 'Sidebar.dark-theme', defaultMessage: 'Dark theme'})
+        case lightThemeName:
+            return intl.formatMessage({id: 'Sidebar.light-theme', defaultMessage: 'Light theme'})
+        case systemThemeName:
+            return intl.formatMessage({id: 'Sidebar.system-theme', defaultMessage: 'System theme'})
+        default:
+            return themeId
+        }
+    }
+
     const themes = [
         {
             id: defaultThemeName,
-            displayName: 'Default theme',
             theme: defaultTheme,
         },
         {
             id: darkThemeName,
-            displayName: 'Dark theme',
             theme: darkTheme,
         },
         {
             id: lightThemeName,
-            displayName: 'Light theme',
             theme: lightTheme,
         },
         {
             id: systemThemeName,
-            displayName: 'System theme',
             theme: null,
         },
     ]
@@ -150,7 +161,7 @@ const SidebarSettingsMenu = (props: Props) => {
                                     <Menu.Text
                                         key={theme.id}
                                         id={theme.id}
-                                        name={intl.formatMessage({id: `Sidebar.${theme.id}`, defaultMessage: theme.displayName})}
+                                        name={getThemeDisplayName(theme.id)}
                                         onClick={async () => updateTheme(theme.theme, theme.id)}
                                         rightIcon={themeName === theme.id ? <CheckIcon/> : null}
                                     />

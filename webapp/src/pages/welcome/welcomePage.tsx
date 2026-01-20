@@ -5,8 +5,8 @@ import {FormattedMessage} from 'react-intl'
 
 import {useLocation, useHistory} from 'react-router-dom'
 
-import BoardWelcomePNG from '../../../static/boards-welcome.png'
-import BoardWelcomeSmallPNG from '../../../static/boards-welcome-small.png'
+const BoardWelcomePNG = '/static/boards-welcome.png'
+const BoardWelcomeSmallPNG = '/static/boards-welcome-small.png'
 
 import Button from '../../widgets/buttons/button'
 import CompassIcon from '../../widgets/icons/compassIcon'

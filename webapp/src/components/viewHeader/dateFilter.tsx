@@ -8,6 +8,7 @@ import DayPicker from 'react-day-picker/DayPicker'
 
 import moment from 'moment'
 
+import '../../momentLocales'
 import mutator from '../../mutator'
 
 import Editable from '../../widgets/editable'
@@ -35,8 +36,6 @@ type Props = {
     view: BoardView
     filter: FilterClause
 }
-
-const loadedLocales: Record<string, moment.Locale> = {}
 
 function DateFilter(props: Props): JSX.Element {
     const {filter, view} = props
@@ -91,10 +90,6 @@ function DateFilter(props: Props): JSX.Element {
     const [input, setInput] = useState<string>(getDisplayDate(offsetDate))
 
     const locale = intl.locale.toLowerCase()
-    if (locale && locale !== 'en' && !loadedLocales[locale]) {
-        // eslint-disable-next-line global-require
-        loadedLocales[locale] = require(`moment/locale/${locale}`)
-    }
 
     const handleTodayClick = (day: Date) => {
         day.setHours(12)

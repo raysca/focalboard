@@ -8,6 +8,7 @@ import DayPicker from 'react-day-picker/DayPicker'
 
 import moment from 'moment'
 
+import '../../momentLocales'
 import mutator from '../../mutator'
 
 import Editable from '../../widgets/editable'
@@ -50,8 +51,6 @@ export function createDatePropertyFromString(initialValue: string): DateProperty
 function datePropertyToString(dateProperty: DateProperty): string {
     return dateProperty.from || dateProperty.to ? JSON.stringify(dateProperty) : ''
 }
-
-const loadedLocales: Record<string, moment.Locale> = {}
 
 function DateRange(props: PropertyProps): JSX.Element {
     const {propertyValue, propertyTemplate, showEmptyPlaceholder, readOnly, board, card} = props
@@ -96,10 +95,6 @@ function DateRange(props: PropertyProps): JSX.Element {
     const isRange = dateTo !== undefined
 
     const locale = intl.locale.toLowerCase()
-    if (locale && locale !== 'en' && !loadedLocales[locale]) {
-        // eslint-disable-next-line global-require
-        loadedLocales[locale] = require(`moment/locale/${locale}`)
-    }
 
     const handleDayClick = (day: Date) => {
         const range: DateProperty = {}

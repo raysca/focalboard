@@ -8,7 +8,7 @@ import {useMeasurePunchouts} from '../../tutorial_tour_tip/hooks'
 
 import './add_comments.scss'
 import {Utils} from '../../../utils'
-import addComment from '../../../../static/comment.gif'
+const addComment = '/static/comment.gif'
 
 import {CardTourSteps, TOUR_CARD} from '../index'
 import TourTipRenderer from '../tourTipRenderer/tourTipRenderer'
