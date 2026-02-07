@@ -1,41 +1,23 @@
-import { serve } from "bun";
-import index from "./index.html";
+import {createApp} from "./backend/index.ts";
+import {db} from "./backend/db/index.ts";
+import {createAuth} from "./backend/auth/index.ts";
+import {config} from "./backend/config.ts";
 
-const server = serve({
-  routes: {
-    // Serve index.html for all unmatched routes.
-    "/*": index,
+const auth = createAuth(db);
+const app = createApp({db, auth});
 
-    "/api/hello": {
-      async GET(req) {
-        return Response.json({
-          message: "Hello, world!",
-          method: "GET",
-        });
-      },
-      async PUT(req) {
-        return Response.json({
-          message: "Hello, world!",
-          method: "PUT",
-        });
-      },
-    },
-
-    "/api/hello/:name": async req => {
-      const name = req.params.name;
-      return Response.json({
-        message: `Hello, ${name}!`,
-      });
-    },
-  },
-
-  development: process.env.NODE_ENV !== "production" && {
-    // Enable browser hot reloading in development
-    hmr: true,
-
-    // Echo console logs from the browser to the server
-    console: true,
-  },
+// SPA fallback: serve frontend for non-API routes
+app.get("*", (c) => {
+  return new Response(Bun.file("./src/webapp/index.html"));
 });
 
-console.log(`🚀 Server running at ${server.url}`);
+export default {
+  fetch: app.fetch,
+  port: config.port,
+  development: process.env.NODE_ENV !== "production" && {
+    hmr: true,
+    console: true,
+  },
+};
+
+console.log(`Server running on port ${config.port}`);
