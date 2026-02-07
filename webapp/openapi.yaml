@@ -1,0 +1,1024 @@
+openapi: 3.0.0
+info:
+  title: Focalboard API
+  description: API documentation for the Focalboard backend, generated from frontend source analysis.
+  version: 2.0.0
+servers:
+  - url: /api/v2
+    description: V2 API
+  - url: /
+    description: Base URL
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Block:
+      type: object
+      properties:
+        id:
+          type: string
+        boardId:
+          type: string
+        parentId:
+          type: string
+        createdBy:
+          type: string
+        modifiedBy:
+          type: string
+        schema:
+          type: integer
+        type:
+          type: string
+          enum: [text, image, divider, checkbox, h1, h2, h3, list-item, attachment, quote, video, board, view, card, comment, unknown]
+        title:
+          type: string
+        fields:
+          type: object
+          additionalProperties: true
+        createAt:
+          type: integer
+        updateAt:
+          type: integer
+        deleteAt:
+          type: integer
+        limited:
+          type: boolean
+
+    BlockPatch:
+      type: object
+      properties:
+        parentId:
+          type: string
+        schema:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        updatedFields:
+          type: object
+          additionalProperties: true
+        deletedFields:
+          type: array
+          items:
+            type: string
+        deleteAt:
+          type: integer
+
+    Board:
+      type: object
+      properties:
+        id:
+          type: string
+        teamId:
+          type: string
+        channelId:
+          type: string
+        createdBy:
+          type: string
+        modifiedBy:
+          type: string
+        type:
+          type: string
+          enum: [O, P]
+        minimumRole:
+          type: string
+          enum: [viewer, commenter, editor, admin, ""]
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        showDescription:
+          type: boolean
+        isTemplate:
+          type: boolean
+        templateVersion:
+          type: integer
+        properties:
+          type: object
+          additionalProperties: {}
+        cardProperties:
+          type: array
+          items:
+            $ref: '#/components/schemas/IPropertyTemplate'
+        createAt:
+          type: integer
+        updateAt:
+          type: integer
+        deleteAt:
+          type: integer
+
+    BoardPatch:
+      type: object
+      properties:
+        type:
+          type: string
+        minimumRole:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        showDescription:
+          type: boolean
+        updatedProperties:
+          type: object
+          additionalProperties: true
+        deletedProperties:
+          type: array
+          items:
+            type: string
+        updatedCardProperties:
+          type: array
+          items:
+            $ref: '#/components/schemas/IPropertyTemplate'
+        deletedCardProperties:
+          type: array
+          items:
+            type: string
+
+    IPropertyTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/IPropertyOption'
+
+    IPropertyOption:
+      type: object
+      properties:
+        id:
+          type: string
+        value:
+          type: string
+        color:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        nickname:
+          type: string
+        firstname:
+          type: string
+        lastname:
+          type: string
+        props:
+          type: object
+          additionalProperties: true
+        create_at:
+          type: integer
+        update_at:
+          type: integer
+        is_bot:
+          type: boolean
+        is_guest:
+          type: boolean
+        permissions:
+          type: array
+          items:
+            type: string
+        roles:
+          type: string
+
+    UserPreference:
+      type: object
+      properties:
+        user_id:
+          type: string
+        category:
+          type: string
+        name:
+          type: string
+        value:
+          type: string
+
+    UserConfigPatch:
+      type: object
+      properties:
+        updatedFields:
+          type: object
+          additionalProperties:
+            type: string
+        deletedFields:
+          type: array
+          items:
+            type: string
+
+    Team:
+      type: object
+      additionalProperties: true
+
+    ClientConfig:
+      type: object
+      additionalProperties: true
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        type:
+          type: string
+          default: normal
+
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        token:
+          type: string
+
+    ChangePasswordRequest:
+      type: object
+      properties:
+        oldPassword:
+          type: string
+        newPassword:
+          type: string
+
+    FileInfo:
+      type: object
+      properties:
+        url:
+          type: string
+        archived:
+          type: boolean
+        extension:
+          type: string
+        name:
+          type: string
+        size:
+          type: integer
+        fileId:
+          type: string
+
+    BoardsAndBlocks:
+      type: object
+      properties:
+        boards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Board'
+        blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Block'
+
+    BoardsAndBlocksPatch:
+      type: object
+      properties:
+        boardIDs:
+          type: array
+          items:
+            type: string
+        boardPatches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoardPatch'
+        blockIDs:
+          type: array
+          items:
+            type: string
+        blockPatches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlockPatch'
+
+    BoardMember:
+      type: object
+      properties:
+        boardId:
+          type: string
+        userId:
+          type: string
+        roles:
+          type: string
+        minimumRole:
+          type: string
+        schemeAdmin:
+          type: boolean
+        schemeEditor:
+          type: boolean
+        schemeCommenter:
+          type: boolean
+        schemeViewer:
+          type: boolean
+        synthetic:
+          type: boolean
+
+    Subscription:
+      type: object
+      properties:
+        blockType:
+          type: string
+        blockId:
+          type: string
+        subscriberType:
+          type: string
+        subscriberId:
+          type: string
+
+security:
+  - BearerAuth: []
+
+paths:
+  /login:
+    post:
+      summary: Login user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+  /logout:
+    post:
+      summary: Logout user
+      responses:
+        '200':
+          description: Logout successful
+
+  /clientConfig:
+    get:
+      summary: Get client configuration
+      responses:
+        '200':
+          description: Client config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientConfig'
+
+  /register:
+    post:
+      summary: Register new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /users/me:
+    get:
+      summary: Get current user
+      parameters:
+        - name: teamID
+          in: query
+          schema:
+            type: string
+        - name: channelID
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/me/memberships:
+    get:
+      summary: Get current user's board memberships
+      responses:
+        '200':
+          description: List of board memberships
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BoardMember'
+
+  /users/me/config:
+    get:
+      summary: Get current user's configuration
+      responses:
+        '200':
+          description: User configuration
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPreference'
+
+  /users/{userId}:
+    get:
+      summary: Get user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users:
+    post:
+      summary: Get list of users by IDs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /users/{userId}/changepassword:
+    post:
+      summary: Change user password
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /users/{userId}/config:
+    put:
+      summary: Update user configuration
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserConfigPatch'
+      responses:
+        '200':
+          description: Updated config
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPreference'
+
+  /teams:
+    get:
+      summary: Get all teams
+      responses:
+        '200':
+          description: List of teams
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+
+  /teams/{teamId}:
+    get:
+      summary: Get team by ID
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Team info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+
+  /teams/{teamId}/blocks:
+    get:
+      summary: Get blocks for team
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: parent_id
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of blocks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Block'
+    patch:
+      summary: Patch multiple blocks
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                block_ids:
+                  type: array
+                  items:
+                    type: string
+                block_patches:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/BlockPatch'
+      responses:
+        '200':
+          description: Blocks patched
+
+  /boards/{boardId}:
+    get:
+      summary: Get board
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: read_token
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Board info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Board'
+    patch:
+      summary: Patch board
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoardPatch'
+      responses:
+        '200':
+          description: Board patched
+
+    delete:
+      summary: Delete board
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Board deleted
+
+  /boards/{boardId}/blocks:
+    get:
+      summary: Get blocks for board
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: block_id
+          in: query
+          schema:
+            type: string
+        - name: all
+          in: query
+          schema:
+            type: boolean
+        - name: read_token
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of blocks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Block'
+    post:
+      summary: Insert blocks into board
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: sourceBoardID
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Block'
+      responses:
+        '200':
+          description: Blocks inserted
+
+  /boards/{boardId}/blocks/{blockId}:
+    patch:
+      summary: Patch specific block
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: blockId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockPatch'
+      responses:
+        '200':
+          description: Block patched
+    delete:
+      summary: Delete specific block
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: blockId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Block deleted
+
+  /boards-and-blocks:
+    post:
+      summary: Create boards and blocks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoardsAndBlocks'
+      responses:
+        '200':
+          description: Created
+    delete:
+      summary: Delete boards and blocks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                boards:
+                  type: array
+                  items:
+                    type: string
+                blocks:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Deleted
+    patch:
+      summary: Patch boards and blocks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoardsAndBlocksPatch'
+      responses:
+        '200':
+          description: Patched
+
+  /boards/{boardId}/members:
+    post:
+      summary: Add board member
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoardMember'
+      responses:
+        '200':
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardMember'
+    get:
+      summary: Get board members
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BoardMember'
+
+  /boards/{boardId}/members/{userId}:
+    put:
+      summary: Update board member
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoardMember'
+      responses:
+        '200':
+          description: Member updated
+    delete:
+      summary: Remove board member
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Member removed
+
+  /boards/{boardId}/join:
+    post:
+      summary: Join board
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: allow_admin
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Joined board
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardMember'
+
+  /subscriptions:
+    post:
+      summary: Subscribe to block
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription'
+      responses:
+        '200':
+          description: Subscribed
+
+  /subscriptions/{blockId}/{userId}:
+    delete:
+      summary: Unsubscribe from block
+      parameters:
+        - name: blockId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Unsubscribed
+
+  /teams/{teamId}/{rootID}/files:
+    post:
+      summary: Upload file
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: rootID
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileId:
+                    type: string
+
+  /files/teams/{teamId}/{boardId}/{fileId}/info:
+    get:
+      summary: Get file info
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: read_token
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+
+  /boards/{boardId}/duplicate:
+    post:
+      summary: Duplicate board
+      parameters:
+        - name: boardId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: asTemplate
+          in: query
+          schema:
+            type: boolean
+        - name: toTeam
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Board duplicated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardsAndBlocks'
