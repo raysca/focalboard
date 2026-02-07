@@ -6,9 +6,14 @@ import {config} from "./backend/config.ts";
 const auth = createAuth(db);
 const app = createApp({db, auth});
 
-// SPA fallback: serve frontend for non-API routes
-app.get("*", (c) => {
-  return new Response(Bun.file("./src/webapp/index.html"));
+// Serve static files from dist
+app.get("*", async (c) => {
+  const path = c.req.path === "/" ? "/index.html" : c.req.path;
+  const file = Bun.file(`./dist${path}`);
+  if (await file.exists()) {
+    return new Response(file);
+  }
+  return new Response(Bun.file("./dist/index.html"));
 });
 
 export default {

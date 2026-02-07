@@ -1,0 +1,6 @@
+export const DEFAULT_TEAM_ID = '0'
+export const TOKEN_KEY = 'focalboardSessionId'
+export const THEME_KEY = 'focalboardTheme'
+export const LAST_BOARD_KEY = 'focalboardLastBoard'
+export const LAST_VIEW_KEY = 'focalboardLastView'
+export const SIDEBAR_COLLAPSED_KEY = 'focalboardSidebarCollapsed'

@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+@theme {
+    /* Core backgrounds */
+    --color-center-bg: #ffffff;
+    --color-center-fg: #3f4350;
+    --color-sidebar-bg: #1e3254;
+    --color-sidebar-fg: #ffffff;
+    --color-sidebar-text-primary: rgba(255, 255, 255, 0.9);
+    --color-sidebar-text-secondary: rgba(255, 255, 255, 0.64);
+
+    /* Interactive */
+    --color-button-bg: #1c58d9;
+    --color-button-fg: #ffffff;
+    --color-button-hover: #1850c5;
+    --color-button-danger: #d24b4e;
+    --color-link: #386fe5;
+    --color-error: #d24b4e;
+    --color-success: #3db887;
+    --color-warning: #f5ab00;
+
+    /* Borders */
+    --color-border-default: rgba(63, 67, 80, 0.12);
+    --color-border-subtle: rgba(63, 67, 80, 0.08);
+
+    /* Hover / active states */
+    --color-hover: rgba(63, 67, 80, 0.08);
+    --color-active: rgba(63, 67, 80, 0.16);
+
+    /* Property label colors */
+    --color-prop-default: #ffffff;
+    --color-prop-gray: #ededed;
+    --color-prop-brown: #f7ddc3;
+    --color-prop-orange: #ffd3c1;
+    --color-prop-yellow: #f7f0b6;
+    --color-prop-green: #c7eac3;
+    --color-prop-blue: #b1d1f6;
+    --color-prop-purple: #e6d0ff;
+    --color-prop-pink: #ffd6e9;
+    --color-prop-red: #ffa9a9;
+
+    /* Property text colors */
+    --color-prop-text-default: #3f4350;
+    --color-prop-text-gray: #3f4350;
+    --color-prop-text-brown: #64370b;
+    --color-prop-text-orange: #6e3206;
+    --color-prop-text-yellow: #5c5313;
+    --color-prop-text-green: #1b5e20;
+    --color-prop-text-blue: #0d3b85;
+    --color-prop-text-purple: #441879;
+    --color-prop-text-pink: #85144b;
+    --color-prop-text-red: #8b0000;
+
+    /* Shadows */
+    --shadow-elevation-1: 0 2px 3px 0 rgba(0, 0, 0, 0.08);
+    --shadow-elevation-2: 0 4px 6px 0 rgba(0, 0, 0, 0.12);
+    --shadow-elevation-3: 0 6px 14px 0 rgba(0, 0, 0, 0.12);
+    --shadow-elevation-4: 0 8px 24px 0 rgba(0, 0, 0, 0.12);
+
+    /* Card shadow */
+    --shadow-card: rgba(63, 67, 80, 0.1) 0 0 0 1px, rgba(63, 67, 80, 0.1) 0 2px 4px;
+    --shadow-login-card: rgba(63, 67, 80, 0.1) 0 0 0 1px, rgba(63, 67, 80, 0.3) 0 4px 8px;
+
+    /* Radius */
+    --radius-default: 4px;
+    --radius-modal: 8px;
+    --radius-pill: 20px;
+
+    /* Layout sizes */
+    --sidebar-width: 240px;
+    --kanban-column-width: 260px;
+
+    /* Font */
+    --font-sans: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] {
+    --color-center-bg: #373535;
+    --color-center-fg: #dcdcdc;
+    --color-sidebar-bg: #4b4943;
+    --color-sidebar-fg: #ffffff;
+    --color-border-default: rgba(255, 255, 255, 0.16);
+    --color-border-subtle: rgba(255, 255, 255, 0.08);
+    --color-hover: rgba(255, 255, 255, 0.08);
+    --color-active: rgba(255, 255, 255, 0.16);
+    --color-prop-default: #4a4a4a;
+    --color-prop-gray: #5a5a5a;
+    --shadow-card: rgba(255, 255, 255, 0.06) 0 0 0 1px, rgba(0, 0, 0, 0.3) 0 2px 4px;
+    --shadow-login-card: rgba(255, 255, 255, 0.06) 0 0 0 1px, rgba(0, 0, 0, 0.4) 0 4px 8px;
+}
+
+/* Light theme overrides */
+[data-theme="light"] {
+    --color-sidebar-bg: #f7f6f3;
+    --color-sidebar-fg: #373535;
+    --color-sidebar-text-primary: rgba(55, 53, 53, 0.9);
+    --color-sidebar-text-secondary: rgba(55, 53, 53, 0.56);
+}
+
+/* Base reset */
+@layer base {
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        font-family: var(--font-sans);
+    }
+
+    body {
+        background-color: var(--color-center-bg);
+        color: var(--color-center-fg);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    #root {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    a {
+        color: var(--color-link);
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    ::selection {
+        background-color: var(--color-button-bg);
+        color: var(--color-button-fg);
+    }
+}
