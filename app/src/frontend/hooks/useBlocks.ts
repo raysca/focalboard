@@ -27,7 +27,7 @@ export function useBoardDataQuery(boardId: string) {
 export function useInsertBlocksMutation(boardId: string) {
     const queryClient = useQueryClient()
     return useMutation({
-        mutationFn: (blocks: Partial<Block>[]) => blocksApi.insertBlocks(blocks),
+        mutationFn: (blocks: Partial<Block>[]) => blocksApi.insertBlocks(boardId, blocks),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['blocks', boardId]})
         },

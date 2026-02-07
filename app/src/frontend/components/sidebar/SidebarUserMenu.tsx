@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import {LogOut, Settings, Sun, Moon, Monitor} from 'lucide-react'
+import {LogOut, Settings, Sun, Moon, Monitor, Palette} from 'lucide-react'
 import {useAuth} from '../../contexts/AuthContext'
 import {useUI} from '../../contexts/UIContext'
 import {useLogoutMutation} from '../../hooks/useAuth'
@@ -15,9 +15,10 @@ export function SidebarUserMenu() {
     const initials = displayName.charAt(0).toUpperCase()
 
     const themeOptions = [
-        {value: 'system' as const, label: 'System', icon: Monitor},
-        {value: 'light' as const, label: 'Light', icon: Sun},
+        {value: 'default' as const, label: 'Default', icon: Palette},
         {value: 'dark' as const, label: 'Dark', icon: Moon},
+        {value: 'light' as const, label: 'Light', icon: Sun},
+        {value: 'system' as const, label: 'System', icon: Monitor},
     ]
 
     return (

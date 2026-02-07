@@ -1,11 +1,13 @@
 import React, {createContext, useContext, useState, useEffect} from 'react'
 import {THEME_KEY} from '../lib/constants'
 
+export type ThemeOption = 'default' | 'light' | 'dark' | 'system'
+
 interface UIContextType {
     sidebarCollapsed: boolean
     toggleSidebar: () => void
-    theme: 'light' | 'dark' | 'system'
-    setTheme: (theme: 'light' | 'dark' | 'system') => void
+    theme: ThemeOption
+    setTheme: (theme: ThemeOption) => void
     activeCardId: string | null
     setActiveCardId: (id: string | null) => void
 }
@@ -15,15 +17,17 @@ const UIContext = createContext<UIContextType | undefined>(undefined)
 export function UIProvider({children}: {children: React.ReactNode}) {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
     const [activeCardId, setActiveCardId] = useState<string | null>(null)
-    const [theme, setThemeState] = useState<'light' | 'dark' | 'system'>(() => {
-        return (localStorage.getItem(THEME_KEY) as 'light' | 'dark' | 'system') || 'system'
+    const [theme, setThemeState] = useState<ThemeOption>(() => {
+        return (localStorage.getItem(THEME_KEY) as ThemeOption) || 'default'
     })
 
     useEffect(() => {
         const root = window.document.documentElement
         root.removeAttribute('data-theme')
 
-        if (theme === 'system') {
+        if (theme === 'default') {
+            // No data-theme attribute — uses base @theme tokens (navy sidebar)
+        } else if (theme === 'system') {
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
             root.setAttribute('data-theme', systemTheme)
         } else {
@@ -32,7 +36,7 @@ export function UIProvider({children}: {children: React.ReactNode}) {
         localStorage.setItem(THEME_KEY, theme)
     }, [theme])
 
-    const setTheme = (t: 'light' | 'dark' | 'system') => {
+    const setTheme = (t: ThemeOption) => {
         setThemeState(t)
     }
 

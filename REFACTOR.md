@@ -34,3 +34,5 @@ Modernise the frontend
 - TanStack Query
 - TanStack Router
 - TypeScript
+- Vite
+- Static Build Served by Bun
