@@ -1,26 +1,38 @@
 {
-  "name": "bun-react-template",
+  "name": "focalboard",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "bun --hot src/index.ts",
     "start": "NODE_ENV=production bun src/index.ts",
-    "build": "bun run build.ts"
+    "build": "bun run build.ts",
+    "test": "bun test",
+    "test:integration": "bun test tests/integration/",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:migrate": "bun src/backend/db/migrate.ts",
+    "db:seed": "bun src/backend/db/seed.ts"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.20",
+    "@tanstack/react-router": "^1.158.4",
     "better-auth": "^1.4.18",
     "bun-plugin-tailwind": "^0.1.2",
+    "clsx": "^2.1.1",
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.11.8",
+    "lucide-react": "^0.563.0",
     "react": "^19",
     "react-dom": "^19",
+    "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
+    "@better-auth/cli": "^1.4.18",
+    "@tanstack/router-devtools": "^1.158.4",
+    "@types/bun": "latest",
     "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@types/bun": "latest"
+    "@types/react-dom": "^19"
   }
 }
