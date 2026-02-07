@@ -1,8 +1,9 @@
 import React, {useMemo, useState} from 'react'
 import {createRoute, Outlet, useNavigate} from '@tanstack/react-router'
 import {Route as authRoute} from './_auth'
-import {useBoardQuery} from '../hooks/useBoards'
+import {useBoardQuery, usePatchBoardMutation} from '../hooks/useBoards'
 import {useBoardDataQuery} from '../hooks/useBlocks'
+import {Editable} from '../components/ui/Editable'
 import {ViewHeader} from '../components/viewHeader/ViewHeader'
 import {KanbanView} from '../components/board/KanbanView'
 import {TableView} from '../components/board/TableView'
@@ -23,6 +24,7 @@ function BoardPage() {
     const navigate = useNavigate()
     const {data: board, isLoading: boardLoading} = useBoardQuery(boardId)
     const {data: blockData, isLoading: blocksLoading} = useBoardDataQuery(boardId)
+    const patchBoard = usePatchBoardMutation()
 
     const views = blockData?.views || []
     const cards = blockData?.cards || []
@@ -64,10 +66,22 @@ function BoardPage() {
             <div className="px-6 pt-5 pb-2">
                 <div className="flex items-center gap-2">
                     {board.icon && <span className="text-2xl">{board.icon}</span>}
-                    <h1 className="text-xl font-bold text-center-fg">{board.title || 'Untitled'}</h1>
+                    <Editable
+                        value={board.title || ''}
+                        onChange={(title) => patchBoard.mutate({boardId: board.id, patch: {title}})}
+                        placeholder="Untitled"
+                        className="text-xl font-bold text-center-fg"
+                        inputClassName="text-xl font-bold"
+                    />
                 </div>
                 {board.showDescription && board.description && (
-                    <p className="text-sm text-center-fg/60 mt-1">{board.description}</p>
+                    <Editable
+                        value={board.description}
+                        onChange={(description) => patchBoard.mutate({boardId: board.id, patch: {description}})}
+                        placeholder="Add a description..."
+                        className="text-sm text-center-fg/60 mt-1"
+                        inputClassName="text-sm"
+                    />
                 )}
             </div>
 

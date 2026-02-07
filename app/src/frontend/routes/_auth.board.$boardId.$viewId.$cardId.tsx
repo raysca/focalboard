@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useMemo} from 'react'
 import {createRoute, useNavigate} from '@tanstack/react-router'
 import {Route as boardRoute} from './_auth.board.$boardId'
-import {X} from 'lucide-react'
+import {X, Trash2} from 'lucide-react'
 import {useBoardQuery} from '../hooks/useBoards'
 import {usePatchBlockMutation, useInsertBlocksMutation, useDeleteBlockMutation, useBoardDataQuery} from '../hooks/useBlocks'
 import {CardDetailProperties} from '../components/card/CardDetailProperties'
@@ -27,6 +27,7 @@ function CardDialog() {
     const [card, setCard] = useState<Card | null>(null)
     const [title, setTitle] = useState('')
     const [loading, setLoading] = useState(true)
+    const [confirmDelete, setConfirmDelete] = useState(false)
 
     useEffect(() => {
         api.get<Card>(`/cards/${cardId}`)
@@ -108,13 +109,26 @@ function CardDialog() {
         insertBlocks.mutate([newComment])
     }
 
+    const handleDeleteCard = () => {
+        if (!card) return
+        deleteBlock.mutate(card.id, {
+            onSuccess: () => handleClose(),
+        })
+    }
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') handleClose()
+            if (e.key === 'Escape') {
+                if (confirmDelete) {
+                    setConfirmDelete(false)
+                } else {
+                    handleClose()
+                }
+            }
         }
         window.addEventListener('keydown', handleKeyDown)
         return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [])
+    }, [confirmDelete])
 
     if (loading) return null
 
@@ -157,12 +171,30 @@ function CardDialog() {
                             placeholder="Untitled"
                         />
                     </div>
-                    <button
-                        onClick={handleClose}
-                        className="p-2 rounded hover:bg-hover transition-colors cursor-pointer text-center-fg/50 hover:text-center-fg"
-                    >
-                        <X size={18} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                        {!confirmDelete ? (
+                            <button
+                                onClick={() => setConfirmDelete(true)}
+                                className="p-2 rounded hover:bg-red-500/10 transition-colors cursor-pointer text-center-fg/30 hover:text-red-500"
+                                title="Delete card"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleDeleteCard}
+                                className="px-3 py-1 rounded bg-red-500 text-white text-xs font-medium hover:bg-red-600 transition-colors cursor-pointer"
+                            >
+                                Delete
+                            </button>
+                        )}
+                        <button
+                            onClick={handleClose}
+                            className="p-2 rounded hover:bg-hover transition-colors cursor-pointer text-center-fg/50 hover:text-center-fg"
+                        >
+                            <X size={18} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Divider */}
