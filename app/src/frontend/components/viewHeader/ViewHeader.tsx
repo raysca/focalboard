@@ -35,13 +35,22 @@ export function ViewHeader({board, views, activeView, onViewChange, cards}: View
     const [showMenu, setShowMenu] = useState(false)
 
     const handleNewCard = () => {
+        // Default new card to the first option of the groupBy property
+        const properties: Record<string, string> = {}
+        const groupByPropId = activeView?.fields?.groupById
+        if (groupByPropId) {
+            const groupByProp = board.cardProperties?.find((p) => p.id === groupByPropId)
+            if (groupByProp?.options?.length) {
+                properties[groupByPropId] = groupByProp.options[0].id
+            }
+        }
         const newCard: any = {
             boardId: board.id,
             parentId: board.id,
             type: 'card',
             title: '',
             fields: {
-                properties: {},
+                properties,
                 contentOrder: [],
             },
             schema: 1,

@@ -4,11 +4,43 @@ import {Plus, Search, ChevronLeft, ChevronRight} from 'lucide-react'
 import {cn} from '../../lib/cn'
 import {DEFAULT_TEAM_ID} from '../../lib/constants'
 import {useBoardsQuery, useCreateBoardMutation} from '../../hooks/useBoards'
+import {useInsertBlocksMutation} from '../../hooks/useBlocks'
 import {useCategoriesQuery} from '../../hooks/useCategories'
 import {useUI} from '../../contexts/UIContext'
 import {SidebarCategory} from './SidebarCategory'
 import {SidebarUserMenu} from './SidebarUserMenu'
 import type {Board, Category} from '../../api/types'
+
+function defaultCardProperties() {
+    const statusId = crypto.randomUUID()
+    const priorityId = crypto.randomUUID()
+    return {
+        statusId,
+        priorityId,
+        cardProperties: [
+            {
+                id: statusId,
+                name: 'Status',
+                type: 'select',
+                options: [
+                    {id: crypto.randomUUID(), value: 'To Do', color: 'default'},
+                    {id: crypto.randomUUID(), value: 'In Progress', color: 'yellow'},
+                    {id: crypto.randomUUID(), value: 'Done', color: 'green'},
+                ],
+            },
+            {
+                id: priorityId,
+                name: 'Priority',
+                type: 'select',
+                options: [
+                    {id: crypto.randomUUID(), value: 'High', color: 'red'},
+                    {id: crypto.randomUUID(), value: 'Medium', color: 'orange'},
+                    {id: crypto.randomUUID(), value: 'Low', color: 'blue'},
+                ],
+            },
+        ],
+    }
+}
 
 interface SidebarProps {
     activeBoardId?: string
@@ -35,13 +67,38 @@ export function Sidebar({activeBoardId}: SidebarProps) {
     const uncategorizedBoards = filteredBoards.filter((b: Board) => !categorizedBoardIds.has(b.id))
 
     const handleAddBoard = () => {
+        const {statusId, priorityId, cardProperties} = defaultCardProperties()
         createBoard.mutate(
             {
                 title: 'Untitled Board',
                 type: 'private',
+                cardProperties,
             },
             {
                 onSuccess: (board) => {
+                    // Create a default kanban view
+                    const viewBlock = {
+                        boardId: board.id,
+                        parentId: board.id,
+                        type: 'view',
+                        title: 'Board',
+                        fields: {
+                            viewType: 'board',
+                            groupById: statusId,
+                            visiblePropertyIds: [priorityId],
+                            sortOptions: [],
+                            filter: {operation: 'and', filters: []},
+                            cardOrder: [],
+                            collapsedOptionIds: [],
+                            hiddenOptionIds: [],
+                            columnWidths: {},
+                        },
+                        schema: 1,
+                    }
+                    // Fire and forget — the board page will pick it up on query refetch
+                    import('../../api/blocks').then(({blocksApi}) => {
+                        blocksApi.insertBlocks(board.id, [viewBlock as any])
+                    })
                     navigate({to: '/board/$boardId', params: {boardId: board.id}})
                 },
             }

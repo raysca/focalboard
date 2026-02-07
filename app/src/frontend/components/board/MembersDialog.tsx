@@ -4,7 +4,9 @@ import {Dialog} from '../ui/Dialog'
 import {Input} from '../ui/Input'
 import {Button} from '../ui/Button'
 import {membersApi} from '../../api/members'
-import type {BoardMember} from '../../api/types'
+import {api} from '../../api/client'
+import {DEFAULT_TEAM_ID} from '../../lib/constants'
+import type {BoardMember, User} from '../../api/types'
 
 interface MembersDialogProps {
     open: boolean
@@ -14,6 +16,7 @@ interface MembersDialogProps {
 
 export function MembersDialog({open, onClose, boardId}: MembersDialogProps) {
     const [members, setMembers] = useState<BoardMember[]>([])
+    const [userMap, setUserMap] = useState<Record<string, User>>({})
     const [loading, setLoading] = useState(true)
     const [newUserId, setNewUserId] = useState('')
     const [adding, setAdding] = useState(false)
@@ -23,6 +26,18 @@ export function MembersDialog({open, onClose, boardId}: MembersDialogProps) {
         try {
             const data = await membersApi.getMembers(boardId)
             setMembers(data)
+            // Fetch user details for all member userIds
+            const userIds = data.map((m: BoardMember) => m.userId)
+            if (userIds.length > 0) {
+                try {
+                    const users = await api.post<User[]>(`/teams/${DEFAULT_TEAM_ID}/users`, userIds)
+                    const map: Record<string, User> = {}
+                    users.forEach((u: User) => { map[u.id] = u })
+                    setUserMap(map)
+                } catch {
+                    // user fetch failed, fall back to IDs
+                }
+            }
         } catch {
             setMembers([])
         }
@@ -68,17 +83,24 @@ export function MembersDialog({open, onClose, boardId}: MembersDialogProps) {
         }
     }
 
-    const getRoleLabel = (member: BoardMember) => {
-        if (member.schemeAdmin) return 'Admin'
-        if (member.schemeEditor) return 'Editor'
-        if (member.schemeViewer) return 'Viewer'
-        return 'Member'
-    }
-
     const getRoleIcon = (member: BoardMember) => {
         if (member.schemeAdmin) return Shield
         if (member.schemeEditor) return Pencil
         return Eye
+    }
+
+    const getMemberDisplay = (member: BoardMember) => {
+        const user = userMap[member.userId]
+        if (user) {
+            return {
+                name: user.username || user.email || member.userId,
+                initials: (user.username || user.email || '?').charAt(0).toUpperCase(),
+            }
+        }
+        return {
+            name: member.userId,
+            initials: member.userId.charAt(0).toUpperCase(),
+        }
     }
 
     return (
@@ -89,7 +111,7 @@ export function MembersDialog({open, onClose, boardId}: MembersDialogProps) {
                     <Input
                         value={newUserId}
                         onChange={(e) => setNewUserId(e.target.value)}
-                        placeholder="User ID"
+                        placeholder="Username or email"
                         className="flex-1 h-9 text-sm"
                         onKeyDown={(e) => { if (e.key === 'Enter') handleAddMember() }}
                     />
@@ -111,13 +133,14 @@ export function MembersDialog({open, onClose, boardId}: MembersDialogProps) {
                     <div className="space-y-1">
                         {members.map((member) => {
                             const RoleIcon = getRoleIcon(member)
+                            const display = getMemberDisplay(member)
                             return (
                                 <div key={member.userId} className="flex items-center gap-3 h-10 px-2 rounded hover:bg-hover">
                                     <div className="w-7 h-7 rounded-full bg-button-bg/20 flex items-center justify-center text-xs font-bold text-button-bg shrink-0">
-                                        {member.userId.charAt(0).toUpperCase()}
+                                        {display.initials}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="text-sm truncate">{member.userId}</div>
+                                        <div className="text-sm truncate">{display.name}</div>
                                     </div>
 
                                     {/* Role selector */}
