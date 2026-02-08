@@ -1,5 +1,6 @@
-import React, {useState} from 'react'
+import React, {useState, useMemo} from 'react'
 import {Send} from 'lucide-react'
+import {useUsersByIdsQuery, getUserDisplay} from '../../hooks/useUsers'
 import type {Block} from '../../api/types'
 
 interface CommentsListProps {
@@ -9,6 +10,27 @@ interface CommentsListProps {
 
 export function CommentsList({comments, onAddComment}: CommentsListProps) {
     const [draft, setDraft] = useState('')
+
+    // Collect unique user IDs from all comments and resolve them
+    const userIds = useMemo(() => {
+        const ids = new Set<string>()
+        for (const c of comments) {
+            if (c.createdBy) ids.add(c.createdBy)
+        }
+        return Array.from(ids)
+    }, [comments])
+
+    const {data: users} = useUsersByIdsQuery(userIds)
+
+    const userMap = useMemo(() => {
+        const map: Record<string, {name: string; initials: string}> = {}
+        if (users) {
+            for (const u of users) {
+                map[u.id] = getUserDisplay(u)
+            }
+        }
+        return map
+    }, [users])
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -51,26 +73,33 @@ export function CommentsList({comments, onAddComment}: CommentsListProps) {
 
             {/* Comment list */}
             <div className="space-y-3">
-                {sortedComments.map((comment) => (
-                    <div key={comment.id} className="flex gap-2">
-                        <div className="w-6 h-6 rounded-full bg-button-bg/20 flex items-center justify-center text-[10px] font-bold text-button-bg shrink-0 mt-0.5">
-                            {(comment.createdBy || 'U').charAt(0).toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-baseline gap-2 mb-0.5">
-                                <span className="text-xs font-medium text-center-fg/80">
-                                    {comment.createdBy || 'User'}
-                                </span>
-                                <span className="text-[10px] text-center-fg/30">
-                                    {comment.createAt ? new Date(comment.createAt).toLocaleString() : ''}
-                                </span>
+                {sortedComments.map((comment) => {
+                    const display = userMap[comment.createdBy] || {
+                        name: comment.createdBy || 'User',
+                        initials: (comment.createdBy || 'U').charAt(0).toUpperCase(),
+                    }
+
+                    return (
+                        <div key={comment.id} className="flex gap-2">
+                            <div className="w-6 h-6 rounded-full bg-button-bg/20 flex items-center justify-center text-[10px] font-bold text-button-bg shrink-0 mt-0.5">
+                                {display.initials}
                             </div>
-                            <div className="text-sm text-center-fg/80 whitespace-pre-wrap">
-                                {comment.title}
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-baseline gap-2 mb-0.5">
+                                    <span className="text-xs font-medium text-center-fg/80">
+                                        {display.name}
+                                    </span>
+                                    <span className="text-[10px] text-center-fg/30">
+                                        {comment.createAt ? new Date(comment.createAt).toLocaleString() : ''}
+                                    </span>
+                                </div>
+                                <div className="text-sm text-center-fg/80 whitespace-pre-wrap">
+                                    {comment.title}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    )
+                })}
 
                 {sortedComments.length === 0 && (
                     <div className="text-xs text-center-fg/30">

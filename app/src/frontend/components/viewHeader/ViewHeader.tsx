@@ -1,10 +1,11 @@
-import React, {useState} from 'react'
-import {Plus, LayoutGrid, Table, Image, Calendar, Share2, Users, MoreHorizontal} from 'lucide-react'
+import React, {useState, useCallback} from 'react'
+import {Plus, LayoutGrid, Table, Image, Calendar, Share2, Users, Filter} from 'lucide-react'
 import {cn} from '../../lib/cn'
-import {useInsertBlocksMutation} from '../../hooks/useBlocks'
+import {useInsertBlocksMutation, usePatchBlockMutation} from '../../hooks/useBlocks'
 import {ShareBoardDialog} from '../board/ShareBoardDialog'
 import {MembersDialog} from '../board/MembersDialog'
-import type {Board, BoardView, Card} from '../../api/types'
+import {FilterComponent} from './FilterComponent'
+import type {Board, BoardView, Card, FilterGroup} from '../../api/types'
 
 interface ViewHeaderProps {
     board: Board
@@ -30,9 +31,26 @@ const viewTypeLabels: Record<string, string> = {
 
 export function ViewHeader({board, views, activeView, onViewChange, cards}: ViewHeaderProps) {
     const insertBlocks = useInsertBlocksMutation(board.id)
+    const patchBlock = usePatchBlockMutation(board.id)
     const [showShareDialog, setShowShareDialog] = useState(false)
     const [showMembersDialog, setShowMembersDialog] = useState(false)
-    const [showMenu, setShowMenu] = useState(false)
+    const [showFilter, setShowFilter] = useState(false)
+
+    const filterGroup: FilterGroup = activeView?.fields?.filter || {operation: 'and', filters: []}
+    const activeFilterCount = filterGroup.filters?.length || 0
+
+    const handleFilterChange = useCallback((newFilterGroup: FilterGroup) => {
+        if (!activeView) return
+        patchBlock.mutate({
+            blockId: activeView.id,
+            patch: {
+                fields: {
+                    ...activeView.fields,
+                    filter: newFilterGroup,
+                },
+            },
+        })
+    }, [activeView, patchBlock])
 
     const handleNewCard = () => {
         // Default new card to the first option of the groupBy property
@@ -84,6 +102,33 @@ export function ViewHeader({board, views, activeView, onViewChange, cards}: View
                             </button>
                         )
                     })}
+                </div>
+
+                {/* Filter button */}
+                <div className="relative">
+                    <button
+                        onClick={() => setShowFilter(!showFilter)}
+                        className={cn(
+                            'flex items-center gap-1.5 h-8 px-2.5 rounded text-sm transition-colors cursor-pointer',
+                            activeFilterCount > 0
+                                ? 'bg-button-bg/10 text-button-bg font-medium'
+                                : 'text-center-fg/50 hover:text-center-fg hover:bg-hover',
+                        )}
+                        title="Filter"
+                    >
+                        <Filter size={14} />
+                        {activeFilterCount > 0 && (
+                            <span className="text-xs">{activeFilterCount}</span>
+                        )}
+                    </button>
+
+                    <FilterComponent
+                        open={showFilter}
+                        onClose={() => setShowFilter(false)}
+                        properties={board.cardProperties || []}
+                        filterGroup={filterGroup}
+                        onChange={handleFilterChange}
+                    />
                 </div>
 
                 {/* Spacer */}

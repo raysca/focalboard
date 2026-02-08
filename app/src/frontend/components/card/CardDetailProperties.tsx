@@ -5,6 +5,7 @@ import {MultiSelectPropertyEditor} from './properties/MultiSelectPropertyEditor'
 import {TextPropertyEditor} from './properties/TextPropertyEditor'
 import {CheckboxPropertyEditor} from './properties/CheckboxPropertyEditor'
 import {DatePropertyEditor} from './properties/DatePropertyEditor'
+import {PersonPropertyEditor} from './properties/PersonPropertyEditor'
 
 interface CardDetailPropertiesProps {
     properties: Record<string, any>
@@ -75,6 +76,14 @@ function renderPropertyEditor(
         case 'date':
             return (
                 <DatePropertyEditor
+                    value={value || ''}
+                    onChange={onChange}
+                />
+            )
+
+        case 'person':
+            return (
+                <PersonPropertyEditor
                     value={value || ''}
                     onChange={onChange}
                 />

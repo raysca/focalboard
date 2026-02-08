@@ -11,6 +11,7 @@ import {GalleryView} from '../components/board/GalleryView'
 import {CalendarView} from '../components/board/CalendarView'
 import {SkeletonKanban} from '../components/ui/Skeleton'
 import {ErrorBoundary} from '../components/ui/ErrorBoundary'
+import {applyFilterGroup} from '../lib/cardFilter'
 import type {BoardView, Card} from '../api/types'
 
 export const Route = createRoute({
@@ -38,6 +39,16 @@ function BoardPage() {
         }
         return views[0]
     }, [activeViewId, views])
+
+    // Apply active view's filters to cards
+    const filteredCards = useMemo(() => {
+        if (!board || !activeView) return cards
+        return applyFilterGroup(
+            activeView.fields?.filter,
+            board.cardProperties || [],
+            cards,
+        )
+    }, [cards, activeView, board])
 
     if (boardLoading || blocksLoading) {
         return (
@@ -100,7 +111,7 @@ function BoardPage() {
                 {viewType === 'board' && (
                     <KanbanView
                         board={board}
-                        cards={cards}
+                        cards={filteredCards}
                         activeView={activeView}
                         contents={contents}
                     />
@@ -108,21 +119,21 @@ function BoardPage() {
                 {viewType === 'table' && (
                     <TableView
                         board={board}
-                        cards={cards}
+                        cards={filteredCards}
                         activeView={activeView}
                     />
                 )}
                 {viewType === 'gallery' && (
                     <GalleryView
                         board={board}
-                        cards={cards}
+                        cards={filteredCards}
                         activeView={activeView}
                     />
                 )}
                 {viewType === 'calendar' && (
                     <CalendarView
                         board={board}
-                        cards={cards}
+                        cards={filteredCards}
                         activeView={activeView}
                     />
                 )}

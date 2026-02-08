@@ -1,5 +1,6 @@
 import React from 'react'
 import {cn} from '../../lib/cn'
+import {useUsersByIdsQuery, getUserDisplay} from '../../hooks/useUsers'
 import type {IPropertyTemplate, IPropertyOption} from '../../api/types'
 
 interface PropertyValueProps {
@@ -91,6 +92,10 @@ export function PropertyValue({template, value, className}: PropertyValueProps) 
             )
         }
 
+        case 'person': {
+            return <PersonValue userId={String(value)} className={className} />
+        }
+
         default:
             return (
                 <span className={cn('text-xs text-center-fg/70', className)}>
@@ -98,4 +103,27 @@ export function PropertyValue({template, value, className}: PropertyValueProps) 
                 </span>
             )
     }
+}
+
+function PersonValue({userId, className}: {userId: string; className?: string}) {
+    const {data: users} = useUsersByIdsQuery([userId])
+    const user = users?.[0]
+
+    if (!user) {
+        return (
+            <span className={cn('text-xs text-center-fg/70', className)}>
+                {userId.slice(0, 8)}...
+            </span>
+        )
+    }
+
+    const display = getUserDisplay(user)
+    return (
+        <span className={cn('inline-flex items-center gap-1', className)}>
+            <span className="w-4 h-4 rounded-full bg-button-bg/20 flex items-center justify-center text-[8px] font-bold text-button-bg shrink-0">
+                {display.initials}
+            </span>
+            <span className="text-xs text-center-fg/70">{display.name}</span>
+        </span>
+    )
 }

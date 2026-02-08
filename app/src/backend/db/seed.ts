@@ -122,7 +122,7 @@ const cardProperties = [
     {
         id: assigneePropId,
         name: 'Assignee',
-        type: 'text',
+        type: 'person',
         options: [],
     },
     {
@@ -217,23 +217,24 @@ const viewBlocks = [
 ]
 
 // 5. Create cards across all columns
+// Assignee values are user IDs (person property type)
 const cardData = [
     // To Do cards
-    {title: 'Design landing page mockups', icon: '🎨', status: statusTodoId, priority: priorityHighId, assignee: 'Alice'},
-    {title: 'Write API documentation', icon: '📝', status: statusTodoId, priority: priorityMediumId, assignee: 'Bob'},
-    {title: 'Create onboarding email sequence', icon: '📧', status: statusTodoId, priority: priorityLowId, assignee: 'Carol'},
-    {title: 'Set up error monitoring (Sentry)', icon: '🐛', status: statusTodoId, priority: priorityHighId, assignee: 'Dave'},
+    {title: 'Design landing page mockups', icon: '🎨', status: statusTodoId, priority: priorityHighId, assignee: DEMO_USER_ID},
+    {title: 'Write API documentation', icon: '📝', status: statusTodoId, priority: priorityMediumId, assignee: DEMO_USER_ID},
+    {title: 'Create onboarding email sequence', icon: '📧', status: statusTodoId, priority: priorityLowId, assignee: DEMO_USER_ID},
+    {title: 'Set up error monitoring (Sentry)', icon: '🐛', status: statusTodoId, priority: priorityHighId, assignee: DEMO_USER_ID},
 
     // In Progress cards
-    {title: 'Build authentication flow', icon: '🔐', status: statusInProgressId, priority: priorityHighId, assignee: 'Alice'},
-    {title: 'Implement payment integration', icon: '💳', status: statusInProgressId, priority: priorityHighId, assignee: 'Bob'},
-    {title: 'Configure CI/CD pipeline', icon: '⚙️', status: statusInProgressId, priority: priorityMediumId, assignee: 'Dave'},
+    {title: 'Build authentication flow', icon: '🔐', status: statusInProgressId, priority: priorityHighId, assignee: DEMO_USER_ID},
+    {title: 'Implement payment integration', icon: '💳', status: statusInProgressId, priority: priorityHighId, assignee: DEMO_USER_ID},
+    {title: 'Configure CI/CD pipeline', icon: '⚙️', status: statusInProgressId, priority: priorityMediumId, assignee: DEMO_USER_ID},
 
     // Done cards
-    {title: 'Set up project repository', icon: '📁', status: statusDoneId, priority: priorityHighId, assignee: 'Dave'},
-    {title: 'Define product requirements', icon: '📋', status: statusDoneId, priority: priorityHighId, assignee: 'Alice'},
-    {title: 'Choose tech stack', icon: '🏗️', status: statusDoneId, priority: priorityMediumId, assignee: 'Bob'},
-    {title: 'Design database schema', icon: '🗄️', status: statusDoneId, priority: priorityHighId, assignee: 'Carol'},
+    {title: 'Set up project repository', icon: '📁', status: statusDoneId, priority: priorityHighId, assignee: DEMO_USER_ID},
+    {title: 'Define product requirements', icon: '📋', status: statusDoneId, priority: priorityHighId, assignee: DEMO_USER_ID},
+    {title: 'Choose tech stack', icon: '🏗️', status: statusDoneId, priority: priorityMediumId, assignee: DEMO_USER_ID},
+    {title: 'Design database schema', icon: '🗄️', status: statusDoneId, priority: priorityHighId, assignee: DEMO_USER_ID},
 ]
 
 const cardBlocks = cardData.map((card, i) => ({
