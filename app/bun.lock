@@ -21,6 +21,7 @@
         "react-dom": "^19",
         "tailwind-merge": "^3.4.0",
         "tailwindcss": "^4.1.11",
+        "zod": "^4.3.6",
       },
       "devDependencies": {
         "@better-auth/cli": "^1.4.18",
