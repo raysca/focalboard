@@ -8,6 +8,13 @@
       "when": 1770456607859,
       "tag": "0000_fair_redwing",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1739049600000,
+      "tag": "0001_add_card_dependencies",
+      "breakpoints": true
     }
   ]
 }

@@ -410,3 +410,34 @@ export const systemSettings = sqliteTable("system_settings", {
   id: text("id").primaryKey(),
   value: text("value").notNull().default(""),
 });
+
+// -- Card Dependencies --
+export const cardDependencies = sqliteTable(
+  "card_dependencies",
+  {
+    id: text("id").primaryKey(),
+    sourceCardId: text("source_card_id").notNull(),
+    targetCardId: text("target_card_id").notNull(),
+    dependencyType: text("dependency_type").notNull(), // 'blocks' | 'blocked_by' | 'related' | 'duplicate' | 'parent' | 'child'
+    createdBy: text("created_by").notNull(),
+    createdAt: integer("created_at", { mode: "number" }).notNull(),
+    updatedAt: integer("updated_at", { mode: "number" }).notNull(),
+    deletedAt: integer("deleted_at", { mode: "number" }).notNull().default(0),
+    boardId: text("board_id").notNull(),
+    metadata: text("metadata", { mode: "json" })
+      .$type<Record<string, unknown>>()
+      .default({}),
+  },
+  (table) => [
+    index("idx_card_deps_source").on(table.sourceCardId, table.deletedAt),
+    index("idx_card_deps_target").on(table.targetCardId, table.deletedAt),
+    index("idx_card_deps_board").on(table.boardId, table.deletedAt),
+    index("idx_card_deps_type").on(table.dependencyType, table.deletedAt),
+    index("idx_card_deps_inverse").on(
+      table.targetCardId,
+      table.sourceCardId,
+      table.dependencyType,
+      table.deletedAt
+    ),
+  ]
+);

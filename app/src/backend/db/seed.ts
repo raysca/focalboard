@@ -7,7 +7,7 @@
 
 import {migrate} from 'drizzle-orm/bun-sqlite/migrator'
 import {db} from './index.ts'
-import {teams, boards, blocks, boardMembers, user, account, userProfiles} from './schema.ts'
+import {teams, boards, blocks, boardMembers, user, account, userProfiles, cardDependencies} from './schema.ts'
 import {eq} from 'drizzle-orm'
 
 // Run migrations first
@@ -238,7 +238,7 @@ const cardData = [
 ]
 
 const cardBlocks = cardData.map((card, i) => ({
-    id: crypto.randomUUID(),
+    id: `card-${i}`, // Use consistent IDs for dependency creation
     boardId: BOARD_ID,
     parentId: BOARD_ID,
     createdBy: DEMO_USER_ID,
@@ -267,8 +267,107 @@ for (const block of allBlocks) {
 }
 
 console.log(`✅ Created ${viewBlocks.length} views and ${cardBlocks.length} cards`)
+
+// 6. Create example dependencies to demonstrate the dependency feature
+const dependencies = [
+    // Blocking dependencies - realistic workflow
+    // "Design database schema" blocks "Build authentication flow"
+    {
+        sourceCardId: 'card-10', // Design database schema (done)
+        targetCardId: 'card-4', // Build authentication flow (in progress)
+        type: 'blocks',
+    },
+    // "Set up project repository" blocks "Configure CI/CD pipeline"
+    {
+        sourceCardId: 'card-7', // Set up project repository (done)
+        targetCardId: 'card-6', // Configure CI/CD pipeline (in progress)
+        type: 'blocks',
+    },
+    // "Build authentication flow" blocks "Implement payment integration"
+    {
+        sourceCardId: 'card-4', // Build authentication flow (in progress)
+        targetCardId: 'card-5', // Implement payment integration (in progress)
+        type: 'blocks',
+    },
+    // "Choose tech stack" blocks "Set up error monitoring"
+    {
+        sourceCardId: 'card-9', // Choose tech stack (done)
+        targetCardId: 'card-3', // Set up error monitoring (todo)
+        type: 'blocks',
+    },
+
+    // Related dependencies
+    // "Design landing page mockups" related to "Build authentication flow"
+    {
+        sourceCardId: 'card-0', // Design landing page mockups
+        targetCardId: 'card-4', // Build authentication flow
+        type: 'related',
+    },
+    // "Write API documentation" related to "Build authentication flow"
+    {
+        sourceCardId: 'card-1', // Write API documentation
+        targetCardId: 'card-4', // Build authentication flow
+        type: 'related',
+    },
+    // "Create onboarding email sequence" related to "Implement payment integration"
+    {
+        sourceCardId: 'card-2', // Create onboarding email sequence
+        targetCardId: 'card-5', // Implement payment integration
+        type: 'related',
+    },
+]
+
+// Insert dependencies with their inverse relationships
+const dependencyBlocks = []
+for (const dep of dependencies) {
+    const depId = crypto.randomUUID()
+    const inverseDep = crypto.randomUUID()
+
+    // Create the main dependency
+    dependencyBlocks.push({
+        id: depId,
+        sourceCardId: dep.sourceCardId,
+        targetCardId: dep.targetCardId,
+        dependencyType: dep.type,
+        createdBy: DEMO_USER_ID,
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: 0,
+        boardId: BOARD_ID,
+        metadata: dep.type === 'blocks' ? {enforceBlocking: true} : {},
+    })
+
+    // Create inverse dependency
+    const inverseType = dep.type === 'blocks' ? 'blocked_by' : dep.type
+    dependencyBlocks.push({
+        id: inverseDep,
+        sourceCardId: dep.targetCardId,
+        targetCardId: dep.sourceCardId,
+        dependencyType: inverseType,
+        createdBy: DEMO_USER_ID,
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: 0,
+        boardId: BOARD_ID,
+        metadata: dep.type === 'blocks' ? {enforceBlocking: true} : {},
+    })
+}
+
+// Insert all dependencies
+for (const dependency of dependencyBlocks) {
+    db.insert(cardDependencies).values(dependency).run()
+}
+
+console.log(`✅ Created ${dependencies.length} dependencies (${dependencyBlocks.length} total with inverses)`)
 console.log('')
 console.log('🎉 Seed complete! You can now:')
 console.log('   1. Run: bun dev')
 console.log('   2. Log in with: demo@example.com / demo1234')
 console.log('   3. Open the "Product Launch 🚀" board')
+console.log('   4. Click any card to see its dependencies!')
+console.log('')
+console.log('📊 Example dependencies created:')
+console.log('   • "Build authentication flow" is blocked by "Design database schema"')
+console.log('   • "Implement payment integration" is blocked by "Build authentication flow"')
+console.log('   • "Configure CI/CD pipeline" is blocked by "Set up project repository"')
+console.log('   • Several cards have "related" relationships')

@@ -1,5 +1,5 @@
 import {api} from './client'
-import {User} from './types'
+import type {User} from './types'
 
 export const auth = {
     login: (data: {email?: string; username?: string; password?: string}) =>
@@ -14,4 +14,7 @@ export const auth = {
 
     changePassword: (userId: string, data: {oldPassword?: string; newPassword?: string}) =>
         api.post(`/users/${userId}/changepassword`, data),
+
+    updateMe: (userId: string, data: Partial<User>) =>
+        api.patch<User>(`/users/${userId}`, data),
 }

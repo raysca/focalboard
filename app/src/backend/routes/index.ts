@@ -19,6 +19,7 @@ import onboardingRoutes from "./onboarding.ts";
 import statisticsRoutes from "./statistics.ts";
 import complianceRoutes from "./compliance.ts";
 import archiveRoutes from "./archives.ts";
+import dependencyRoutes from "./dependencies.ts";
 
 const api = new Hono();
 
@@ -41,6 +42,7 @@ api.route("/", blockRoutes);
 api.route("/", cardRoutes);
 api.route("/", contentBlockRoutes);
 api.route("/", boardsAndBlocksRoutes);
+api.route("/", dependencyRoutes);
 
 // Membership & sharing
 api.route("/", memberRoutes);

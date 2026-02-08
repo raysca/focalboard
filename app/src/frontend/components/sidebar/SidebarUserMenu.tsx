@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
 import {LogOut, Settings, Sun, Moon, Monitor, Palette} from 'lucide-react'
+import {Link} from '@tanstack/react-router'
 import {useAuth} from '../../contexts/AuthContext'
 import {useUI} from '../../contexts/UIContext'
 import {useLogoutMutation} from '../../hooks/useAuth'
@@ -11,8 +12,9 @@ export function SidebarUserMenu() {
     const logoutMutation = useLogoutMutation()
     const [showMenu, setShowMenu] = useState(false)
 
-    const displayName = user?.username || user?.email || 'User'
-    const initials = displayName.charAt(0).toUpperCase()
+    const fullName = [user?.firstname, user?.lastname].filter(Boolean).join(' ')
+    const displayName = user?.nickname || fullName || user?.username || user?.email || 'User'
+    const initials = (user?.nickname || user?.firstname || user?.username || user?.email || 'U').charAt(0).toUpperCase()
 
     const themeOptions = [
         {value: 'default' as const, label: 'Default', icon: Palette},
@@ -58,6 +60,18 @@ export function SidebarUserMenu() {
                                 ))}
                             </div>
                         </div>
+
+                        <div className="h-px bg-border-default mx-2 my-1" />
+
+                        {/* Settings */}
+                        <Link
+                            to="/settings"
+                            className="flex items-center w-full h-8 px-3 text-sm text-center-fg/80 hover:bg-hover transition-colors cursor-pointer"
+                            onClick={() => setShowMenu(false)}
+                        >
+                            <Settings size={14} className="mr-2" />
+                            Settings
+                        </Link>
 
                         <div className="h-px bg-border-default mx-2 my-1" />
 
