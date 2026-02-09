@@ -34,7 +34,10 @@ async function request<T>(path: string, opts: RequestInit = {}): Promise<T> {
 
     if (!res.ok) {
         if (res.status === 401) {
-            // Optional: handle unauthorized globally (e.g. redirect to login)
+            // Clear expired/invalid token and redirect to login
+            localStorage.removeItem(TOKEN_KEY)
+            window.location.href = '/login'
+            throw new ApiError(res.status, {message: 'Session expired. Please log in again.'})
         }
         throw new ApiError(res.status, await res.json().catch(() => ({})))
     }
