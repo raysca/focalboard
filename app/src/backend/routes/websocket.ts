@@ -7,7 +7,7 @@
  * Endpoint: GET /api/v2/ws
  *
  * Authentication:
- * - Session validated from request headers (Better Auth)
+ * - Session validated from cookies (Better Auth)
  * - Unauthenticated connections rejected with code 1008
  *
  * Message Protocol:
@@ -40,14 +40,14 @@ websocketRoutes.get(
                     const auth = c.get('auth') as Auth
                     const realtimeService = c.get('realtimeService') as RealtimeService
 
-                    // Validate Better Auth session from headers
+                    // Validate session from cookies (Better Auth automatically reads from headers)
                     const sessionResult = await auth.api.getSession({
                         headers: c.req.raw.headers
                     })
 
                     if (!sessionResult) {
-                        console.log('[WebSocket] Unauthenticated connection attempt')
-                        ws.close(1008, 'Unauthorized')
+                        console.log('[WebSocket] No valid session found')
+                        ws.close(1008, 'Authentication required')
                         return
                     }
 

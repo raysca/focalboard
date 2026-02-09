@@ -1,15 +1,16 @@
 import React from 'react'
 import {createRoute, Outlet, redirect, useParams} from '@tanstack/react-router'
 import {Route as rootRoute} from './__root'
-import {api} from '../api/client'
+import {auth} from '../api/auth'
 import {Sidebar} from '../components/sidebar/Sidebar'
 
 export const Route = createRoute({
     getParentRoute: () => rootRoute,
     id: 'auth',
-    beforeLoad: () => {
-        const token = api.getToken()
-        if (!token) {
+    beforeLoad: async () => {
+        try {
+            await auth.getMe()
+        } catch (error) {
             throw redirect({to: '/login'})
         }
     },

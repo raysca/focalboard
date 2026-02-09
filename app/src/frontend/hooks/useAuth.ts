@@ -1,6 +1,5 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {auth} from '../api/auth'
-import {api} from '../api/client'
 import {useNavigate} from '@tanstack/react-router'
 
 export function useLoginMutation() {
@@ -10,7 +9,6 @@ export function useLoginMutation() {
     return useMutation({
         mutationFn: auth.login,
         onSuccess: (data) => {
-            api.setToken(data.token)
             queryClient.setQueryData(['me'], data.user)
             navigate({to: '/'})
         },
@@ -24,7 +22,6 @@ export function useRegisterMutation() {
     return useMutation({
         mutationFn: auth.register,
         onSuccess: (data) => {
-            api.setToken(data.token)
             queryClient.setQueryData(['me'], data.user)
             navigate({to: '/'})
         },
@@ -38,8 +35,8 @@ export function useLogoutMutation() {
     return useMutation({
         mutationFn: auth.logout,
         onSettled: () => {
-            api.clearToken()
             queryClient.setQueryData(['me'], null)
+            queryClient.clear()
             navigate({to: '/login'})
         },
     })
@@ -50,6 +47,5 @@ export function useMeQuery() {
         queryKey: ['me'],
         queryFn: auth.getMe,
         retry: false,
-        enabled: !!api.getToken(),
     })
 }

@@ -41,6 +41,19 @@ export function createAuth(db: BunSQLiteDatabase<typeof schema>) {
     session: {
       expiresIn: config.sessionExpireTime,
       updateAge: config.sessionRefreshTime,
+      cookieCache: {
+        enabled: true,
+        maxAge: config.sessionExpireTime,
+      },
+    },
+    cookies: {
+      sessionToken: {
+        name: "focalboard.session",
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+      },
     },
     databaseHooks: {
       user: {

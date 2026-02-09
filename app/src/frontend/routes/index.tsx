@@ -1,17 +1,18 @@
 import {createRoute, redirect} from '@tanstack/react-router'
 import {Route as rootRoute} from './__root'
-import {api} from '../api/client'
+import {auth} from '../api/auth'
 
 export const Route = createRoute({
     getParentRoute: () => rootRoute,
     path: '/',
     beforeLoad: async () => {
-        const token = api.getToken()
-        if (!token) {
+        try {
+            await auth.getMe()
+            // Redirect authenticated users to dashboard
+            throw redirect({to: '/dashboard'})
+        } catch {
             throw redirect({to: '/login'})
         }
-        // Redirect authenticated users to dashboard
-        throw redirect({to: '/dashboard'})
     },
     component: () => <div>Redirecting...</div>,
 })

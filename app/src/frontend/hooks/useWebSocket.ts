@@ -114,7 +114,10 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
             case 'block.created':
             case 'block.updated':
             case 'block.deleted':
+            case 'block.moved':
             case 'comment.created':
+            case 'comment.updated':
+            case 'comment.deleted':
                 // Invalidate blocks for the board
                 if (event.meta.boardId) {
                     queryClient.invalidateQueries({
@@ -125,6 +128,12 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
                 if (event.meta.blockId) {
                     queryClient.invalidateQueries({
                         queryKey: ['block', event.meta.blockId]
+                    })
+                }
+                // For moved blocks, also invalidate old board if different
+                if (event.type === 'block.moved' && event.meta.oldBoardId && event.meta.oldBoardId !== event.meta.boardId) {
+                    queryClient.invalidateQueries({
+                        queryKey: ['blocks', event.meta.oldBoardId]
                     })
                 }
                 break
@@ -155,6 +164,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         }
 
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        // WebSocket will use cookies automatically for authentication
         const ws = new WebSocket(`${protocol}//${window.location.host}/api/v2/ws`)
 
         ws.onopen = () => {

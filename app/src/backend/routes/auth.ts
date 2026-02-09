@@ -30,26 +30,42 @@ authRoutes.post("/login", async (c) => {
     throw new BadRequestError("email or username is required");
   }
 
+  // Sign in with Better Auth - this will set the session cookie
   const response = await auth.api.signInEmail({
     body: {email: loginEmail, password},
+    asResponse: true,
+    headers: c.req.raw.headers,
   });
 
-  if (!response?.token) {
+  if (!response || response.status !== 200) {
+    throw new UnauthorizedError("invalid credentials");
+  }
+
+  // Parse the response to get user info
+  const data = await response.json();
+
+  if (!data.user) {
     throw new UnauthorizedError("invalid credentials");
   }
 
   const profile = db
     .select()
     .from(userProfiles)
-    .where(eq(userProfiles.userId, response.user.id))
+    .where(eq(userProfiles.userId, data.user.id))
     .get();
 
+  // Copy Set-Cookie headers from Better Auth response to our response
+  const setCookieHeader = response.headers.get("Set-Cookie");
+  if (setCookieHeader) {
+    c.header("Set-Cookie", setCookieHeader);
+  }
+
   return c.json({
-    token: response.token,
+    token: data.session?.token || "",
     user: {
-      id: response.user.id,
-      username: profile?.username ?? response.user.email?.split("@")[0] ?? "",
-      email: response.user.email,
+      id: data.user.id,
+      username: profile?.username ?? data.user.email?.split("@")[0] ?? "",
+      email: data.user.email,
       nickname: profile?.nickname ?? "",
       firstname: profile?.firstName ?? "",
       lastname: profile?.lastName ?? "",
