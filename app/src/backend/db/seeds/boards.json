@@ -1,0 +1,177 @@
+[
+  {
+    "id": "board-product-launch",
+    "teamId": "team-engineering",
+    "createdBy": "user-alice-dev",
+    "modifiedBy": "user-alice-dev",
+    "type": "private",
+    "title": "Product Launch 🚀",
+    "description": "Track all tasks for the upcoming SaaS product launch",
+    "icon": "🚀",
+    "showDescription": true,
+    "isTemplate": false,
+    "cardProperties": [
+      {
+        "id": "prop-status",
+        "name": "Status",
+        "type": "select",
+        "options": [
+          {"id": "status-todo", "value": "To Do", "color": "default"},
+          {"id": "status-in-progress", "value": "In Progress", "color": "yellow"},
+          {"id": "status-review", "value": "In Review", "color": "blue"},
+          {"id": "status-done", "value": "Done", "color": "green"}
+        ]
+      },
+      {
+        "id": "prop-priority",
+        "name": "Priority",
+        "type": "select",
+        "options": [
+          {"id": "priority-critical", "value": "Critical", "color": "red"},
+          {"id": "priority-high", "value": "High", "color": "orange"},
+          {"id": "priority-medium", "value": "Medium", "color": "yellow"},
+          {"id": "priority-low", "value": "Low", "color": "blue"}
+        ]
+      },
+      {
+        "id": "prop-assignee",
+        "name": "Assignee",
+        "type": "person",
+        "options": []
+      },
+      {
+        "id": "prop-due-date",
+        "name": "Due Date",
+        "type": "date",
+        "options": []
+      },
+      {
+        "id": "prop-estimate",
+        "name": "Story Points",
+        "type": "number",
+        "options": []
+      }
+    ]
+  },
+  {
+    "id": "board-api-development",
+    "teamId": "team-engineering",
+    "createdBy": "user-bob-backend",
+    "modifiedBy": "user-bob-backend",
+    "type": "private",
+    "title": "API Development 🔌",
+    "description": "Backend API endpoints and microservices development tracking",
+    "icon": "🔌",
+    "showDescription": true,
+    "isTemplate": false,
+    "cardProperties": [
+      {
+        "id": "prop-api-status",
+        "name": "Status",
+        "type": "select",
+        "options": [
+          {"id": "api-status-backlog", "value": "Backlog", "color": "default"},
+          {"id": "api-status-design", "value": "Design", "color": "purple"},
+          {"id": "api-status-development", "value": "Development", "color": "yellow"},
+          {"id": "api-status-testing", "value": "Testing", "color": "blue"},
+          {"id": "api-status-deployed", "value": "Deployed", "color": "green"}
+        ]
+      },
+      {
+        "id": "prop-api-method",
+        "name": "HTTP Method",
+        "type": "select",
+        "options": [
+          {"id": "method-get", "value": "GET", "color": "green"},
+          {"id": "method-post", "value": "POST", "color": "blue"},
+          {"id": "method-put", "value": "PUT", "color": "orange"},
+          {"id": "method-delete", "value": "DELETE", "color": "red"}
+        ]
+      },
+      {
+        "id": "prop-api-assignee",
+        "name": "Assignee",
+        "type": "person",
+        "options": []
+      }
+    ]
+  },
+  {
+    "id": "board-ui-components",
+    "teamId": "team-design",
+    "createdBy": "user-carol-frontend",
+    "modifiedBy": "user-carol-frontend",
+    "type": "private",
+    "title": "UI Component Library 🎨",
+    "description": "Design system and reusable React components",
+    "icon": "🎨",
+    "showDescription": true,
+    "isTemplate": false,
+    "cardProperties": [
+      {
+        "id": "prop-ui-status",
+        "name": "Status",
+        "type": "select",
+        "options": [
+          {"id": "ui-status-ideation", "value": "Ideation", "color": "purple"},
+          {"id": "ui-status-design", "value": "Design", "color": "pink"},
+          {"id": "ui-status-development", "value": "Development", "color": "yellow"},
+          {"id": "ui-status-complete", "value": "Complete", "color": "green"}
+        ]
+      },
+      {
+        "id": "prop-ui-component-type",
+        "name": "Component Type",
+        "type": "select",
+        "options": [
+          {"id": "type-atom", "value": "Atom", "color": "blue"},
+          {"id": "type-molecule", "value": "Molecule", "color": "green"},
+          {"id": "type-organism", "value": "Organism", "color": "orange"}
+        ]
+      },
+      {
+        "id": "prop-ui-assignee",
+        "name": "Assignee",
+        "type": "person",
+        "options": []
+      }
+    ]
+  },
+  {
+    "id": "board-sprint-planning",
+    "teamId": "team-engineering",
+    "createdBy": "user-alice-dev",
+    "modifiedBy": "user-alice-dev",
+    "type": "private",
+    "title": "Sprint 23 - Q1 2024 🏃",
+    "description": "Two-week sprint planning and execution tracking",
+    "icon": "🏃",
+    "showDescription": true,
+    "isTemplate": false,
+    "cardProperties": [
+      {
+        "id": "prop-sprint-status",
+        "name": "Status",
+        "type": "select",
+        "options": [
+          {"id": "sprint-todo", "value": "To Do", "color": "default"},
+          {"id": "sprint-in-progress", "value": "In Progress", "color": "yellow"},
+          {"id": "sprint-blocked", "value": "Blocked", "color": "red"},
+          {"id": "sprint-done", "value": "Done", "color": "green"}
+        ]
+      },
+      {
+        "id": "prop-sprint-points",
+        "name": "Story Points",
+        "type": "number",
+        "options": []
+      },
+      {
+        "id": "prop-sprint-assignee",
+        "name": "Assignee",
+        "type": "person",
+        "options": []
+      }
+    ]
+  }
+]

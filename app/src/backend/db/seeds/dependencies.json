@@ -1,0 +1,135 @@
+[
+  {
+    "sourceCardId": "card-database-schema",
+    "targetCardId": "card-auth-flow",
+    "type": "blocks",
+    "boardId": "board-product-launch",
+    "metadata": {"enforceBlocking": true, "reason": "Auth needs DB schema"}
+  },
+  {
+    "sourceCardId": "card-auth-flow",
+    "targetCardId": "card-payment-integration",
+    "type": "blocks",
+    "boardId": "board-product-launch",
+    "metadata": {"enforceBlocking": true, "reason": "Payment needs user accounts"}
+  },
+  {
+    "sourceCardId": "card-database-schema",
+    "targetCardId": "card-websocket",
+    "type": "blocks",
+    "boardId": "board-product-launch",
+    "metadata": {"enforceBlocking": true, "reason": "WebSocket needs DB schema"}
+  },
+  {
+    "sourceCardId": "card-error-monitoring",
+    "targetCardId": "card-ci-cd",
+    "type": "blocks",
+    "boardId": "board-product-launch",
+    "metadata": {"enforceBlocking": true, "reason": "CI/CD should include error tracking"}
+  },
+  {
+    "sourceCardId": "card-auth-flow",
+    "targetCardId": "card-api-docs",
+    "type": "related",
+    "boardId": "board-product-launch",
+    "metadata": {"reason": "API docs should cover authentication"}
+  },
+  {
+    "sourceCardId": "card-landing-page",
+    "targetCardId": "card-mobile-responsive",
+    "type": "related",
+    "boardId": "board-product-launch",
+    "metadata": {"reason": "Landing page needs mobile optimization"}
+  },
+  {
+    "sourceCardId": "card-ci-cd",
+    "targetCardId": "card-e2e-tests",
+    "type": "blocks",
+    "boardId": "board-product-launch",
+    "metadata": {"enforceBlocking": true, "reason": "CI/CD should run E2E tests"}
+  },
+  {
+    "sourceCardId": "card-websocket",
+    "targetCardId": "card-e2e-tests",
+    "type": "related",
+    "boardId": "board-product-launch",
+    "metadata": {"reason": "E2E tests should cover real-time sync"}
+  },
+  {
+    "sourceCardId": "api-user-create",
+    "targetCardId": "api-boards-list",
+    "type": "blocks",
+    "boardId": "board-api-development",
+    "metadata": {"enforceBlocking": true, "reason": "Users must exist before boards"}
+  },
+  {
+    "sourceCardId": "api-boards-list",
+    "targetCardId": "api-cards-update",
+    "type": "blocks",
+    "boardId": "board-api-development",
+    "metadata": {"enforceBlocking": true, "reason": "Boards must exist before cards"}
+  },
+  {
+    "sourceCardId": "api-webhooks",
+    "targetCardId": "api-search",
+    "type": "related",
+    "boardId": "board-api-development",
+    "metadata": {"reason": "Webhooks can trigger on search events"}
+  },
+  {
+    "sourceCardId": "ui-button-component",
+    "targetCardId": "ui-modal-component",
+    "type": "blocks",
+    "boardId": "board-ui-components",
+    "metadata": {"enforceBlocking": true, "reason": "Modal uses button components"}
+  },
+  {
+    "sourceCardId": "ui-button-component",
+    "targetCardId": "ui-dropdown",
+    "type": "blocks",
+    "boardId": "board-ui-components",
+    "metadata": {"enforceBlocking": true, "reason": "Dropdown uses button for trigger"}
+  },
+  {
+    "sourceCardId": "ui-dropdown",
+    "targetCardId": "ui-kanban-board",
+    "type": "blocks",
+    "boardId": "board-ui-components",
+    "metadata": {"enforceBlocking": true, "reason": "Kanban board uses dropdowns for filters"}
+  },
+  {
+    "sourceCardId": "ui-toast",
+    "targetCardId": "ui-kanban-board",
+    "type": "related",
+    "boardId": "board-ui-components",
+    "metadata": {"reason": "Kanban shows toast notifications"}
+  },
+  {
+    "sourceCardId": "sprint-docker",
+    "targetCardId": "sprint-websocket-impl",
+    "type": "blocks",
+    "boardId": "board-sprint-planning",
+    "metadata": {"enforceBlocking": true, "reason": "Need dev env for WebSocket testing"}
+  },
+  {
+    "sourceCardId": "sprint-websocket-impl",
+    "targetCardId": "sprint-card-dependencies",
+    "type": "blocks",
+    "boardId": "board-sprint-planning",
+    "metadata": {"enforceBlocking": true, "reason": "Dependencies use real-time sync"}
+  },
+  {
+    "sourceCardId": "sprint-card-dependencies",
+    "targetCardId": "sprint-performance",
+    "type": "related",
+    "boardId": "board-sprint-planning",
+    "metadata": {"reason": "Performance optimization includes dependency rendering"}
+  },
+  {
+    "sourceCardId": "sprint-security-audit",
+    "targetCardId": "sprint-docker",
+    "type": "related",
+    "boardId": "board-sprint-planning",
+    "metadata": {"reason": "Docker setup should follow security best practices"}
+  }
+]

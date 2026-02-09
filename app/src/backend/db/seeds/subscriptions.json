@@ -1,0 +1,100 @@
+[
+  {
+    "blockType": "card",
+    "blockId": "card-auth-flow",
+    "subscriberType": "user",
+    "subscriberId": "user-alice-dev",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "card-auth-flow",
+    "subscriberType": "user",
+    "subscriberId": "user-bob-backend",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "card-payment-integration",
+    "subscriberType": "user",
+    "subscriberId": "user-alice-dev",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "card-payment-integration",
+    "subscriberType": "user",
+    "subscriberId": "user-bob-backend",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "card-landing-page",
+    "subscriberType": "user",
+    "subscriberId": "user-eve-designer",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "card-landing-page",
+    "subscriberType": "user",
+    "subscriberId": "user-carol-frontend",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "card-ci-cd",
+    "subscriberType": "user",
+    "subscriberId": "user-dave-devops",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "card-websocket",
+    "subscriberType": "user",
+    "subscriberId": "user-bob-backend",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "card-websocket",
+    "subscriberType": "user",
+    "subscriberId": "user-alice-dev",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "ui-modal-component",
+    "subscriberType": "user",
+    "subscriberId": "user-carol-frontend",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "ui-kanban-board",
+    "subscriberType": "user",
+    "subscriberId": "user-carol-frontend",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "card",
+    "blockId": "ui-kanban-board",
+    "subscriberType": "user",
+    "subscriberId": "user-eve-designer",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "board",
+    "blockId": "board-product-launch",
+    "subscriberType": "user",
+    "subscriberId": "user-alice-dev",
+    "notifiedAt": 0
+  },
+  {
+    "blockType": "board",
+    "blockId": "board-sprint-planning",
+    "subscriberType": "user",
+    "subscriberId": "user-alice-dev",
+    "notifiedAt": 0
+  }
+]

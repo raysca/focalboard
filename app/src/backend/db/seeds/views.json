@@ -1,0 +1,171 @@
+[
+  {
+    "id": "view-product-board",
+    "boardId": "board-product-launch",
+    "parentId": "board-product-launch",
+    "createdBy": "user-alice-dev",
+    "title": "Board View",
+    "type": "view",
+    "fields": {
+      "viewType": "board",
+      "groupById": "prop-status",
+      "visiblePropertyIds": ["prop-priority", "prop-assignee", "prop-estimate"],
+      "sortOptions": [],
+      "filter": {"operation": "and", "filters": []},
+      "cardOrder": [],
+      "collapsedOptionIds": [],
+      "hiddenOptionIds": [],
+      "columnWidths": {}
+    }
+  },
+  {
+    "id": "view-product-table",
+    "boardId": "board-product-launch",
+    "parentId": "board-product-launch",
+    "createdBy": "user-alice-dev",
+    "title": "Table View",
+    "type": "view",
+    "fields": {
+      "viewType": "table",
+      "visiblePropertyIds": ["prop-status", "prop-priority", "prop-assignee", "prop-due-date", "prop-estimate"],
+      "sortOptions": [{"propertyId": "prop-priority", "reversed": false}],
+      "filter": {"operation": "and", "filters": []},
+      "cardOrder": [],
+      "columnWidths": {
+        "prop-status": 120,
+        "prop-priority": 100,
+        "prop-assignee": 150,
+        "prop-due-date": 120,
+        "prop-estimate": 80
+      }
+    }
+  },
+  {
+    "id": "view-product-calendar",
+    "boardId": "board-product-launch",
+    "parentId": "board-product-launch",
+    "createdBy": "user-alice-dev",
+    "title": "Timeline",
+    "type": "view",
+    "fields": {
+      "viewType": "calendar",
+      "dateDisplayPropertyId": "prop-due-date",
+      "visiblePropertyIds": ["prop-assignee", "prop-priority"],
+      "sortOptions": [],
+      "filter": {"operation": "and", "filters": []},
+      "cardOrder": []
+    }
+  },
+  {
+    "id": "view-api-board",
+    "boardId": "board-api-development",
+    "parentId": "board-api-development",
+    "createdBy": "user-bob-backend",
+    "title": "Board View",
+    "type": "view",
+    "fields": {
+      "viewType": "board",
+      "groupById": "prop-api-status",
+      "visiblePropertyIds": ["prop-api-method", "prop-api-assignee"],
+      "sortOptions": [],
+      "filter": {"operation": "and", "filters": []},
+      "cardOrder": [],
+      "collapsedOptionIds": [],
+      "hiddenOptionIds": [],
+      "columnWidths": {}
+    }
+  },
+  {
+    "id": "view-api-table",
+    "boardId": "board-api-development",
+    "parentId": "board-api-development",
+    "createdBy": "user-bob-backend",
+    "title": "Endpoints List",
+    "type": "view",
+    "fields": {
+      "viewType": "table",
+      "visiblePropertyIds": ["prop-api-status", "prop-api-method", "prop-api-assignee"],
+      "sortOptions": [{"propertyId": "prop-api-method", "reversed": false}],
+      "filter": {"operation": "and", "filters": []},
+      "cardOrder": [],
+      "columnWidths": {
+        "prop-api-status": 120,
+        "prop-api-method": 100,
+        "prop-api-assignee": 150
+      }
+    }
+  },
+  {
+    "id": "view-ui-board",
+    "boardId": "board-ui-components",
+    "parentId": "board-ui-components",
+    "createdBy": "user-carol-frontend",
+    "title": "Board View",
+    "type": "view",
+    "fields": {
+      "viewType": "board",
+      "groupById": "prop-ui-status",
+      "visiblePropertyIds": ["prop-ui-component-type", "prop-ui-assignee"],
+      "sortOptions": [],
+      "filter": {"operation": "and", "filters": []},
+      "cardOrder": [],
+      "collapsedOptionIds": [],
+      "hiddenOptionIds": [],
+      "columnWidths": {}
+    }
+  },
+  {
+    "id": "view-ui-gallery",
+    "boardId": "board-ui-components",
+    "parentId": "board-ui-components",
+    "createdBy": "user-eve-designer",
+    "title": "Component Gallery",
+    "type": "view",
+    "fields": {
+      "viewType": "gallery",
+      "visiblePropertyIds": ["prop-ui-component-type"],
+      "sortOptions": [{"propertyId": "prop-ui-component-type", "reversed": false}],
+      "filter": {"operation": "and", "filters": []},
+      "cardOrder": []
+    }
+  },
+  {
+    "id": "view-sprint-board",
+    "boardId": "board-sprint-planning",
+    "parentId": "board-sprint-planning",
+    "createdBy": "user-alice-dev",
+    "title": "Sprint Board",
+    "type": "view",
+    "fields": {
+      "viewType": "board",
+      "groupById": "prop-sprint-status",
+      "visiblePropertyIds": ["prop-sprint-points", "prop-sprint-assignee"],
+      "sortOptions": [],
+      "filter": {"operation": "and", "filters": []},
+      "cardOrder": [],
+      "collapsedOptionIds": [],
+      "hiddenOptionIds": [],
+      "columnWidths": {}
+    }
+  },
+  {
+    "id": "view-sprint-table",
+    "boardId": "board-sprint-planning",
+    "parentId": "board-sprint-planning",
+    "createdBy": "user-alice-dev",
+    "title": "Sprint Backlog",
+    "type": "view",
+    "fields": {
+      "viewType": "table",
+      "visiblePropertyIds": ["prop-sprint-status", "prop-sprint-points", "prop-sprint-assignee"],
+      "sortOptions": [{"propertyId": "prop-sprint-points", "reversed": true}],
+      "filter": {"operation": "and", "filters": []},
+      "cardOrder": [],
+      "columnWidths": {
+        "prop-sprint-status": 120,
+        "prop-sprint-points": 80,
+        "prop-sprint-assignee": 150
+      }
+    }
+  }
+]

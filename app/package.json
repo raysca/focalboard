@@ -11,7 +11,8 @@
     "test:integration": "bun test tests/integration/",
     "db:generate": "bunx drizzle-kit generate",
     "db:migrate": "bun src/backend/db/migrate.ts",
-    "db:seed": "bun seed/index.ts"
+    "db:seed": "bun src/backend/db/seed.ts",
+    "db:seed:force": "bun src/backend/db/seed.ts --force"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

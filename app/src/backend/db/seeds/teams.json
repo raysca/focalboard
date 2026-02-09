@@ -1,0 +1,33 @@
+[
+  {
+    "id": "team-default",
+    "title": "Default Team",
+    "signupToken": "",
+    "settings": {
+      "enablePublicBoards": true,
+      "allowGuestAccess": false
+    },
+    "modifiedBy": "system"
+  },
+  {
+    "id": "team-engineering",
+    "title": "Engineering Team",
+    "signupToken": "eng-token-2024",
+    "settings": {
+      "enablePublicBoards": false,
+      "allowGuestAccess": false,
+      "defaultBoardType": "private"
+    },
+    "modifiedBy": "user-alice-dev"
+  },
+  {
+    "id": "team-design",
+    "title": "Design Team",
+    "signupToken": "design-token-2024",
+    "settings": {
+      "enablePublicBoards": true,
+      "allowGuestAccess": true
+    },
+    "modifiedBy": "user-eve-designer"
+  }
+]

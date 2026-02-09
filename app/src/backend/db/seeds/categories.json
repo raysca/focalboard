@@ -1,0 +1,68 @@
+[
+  {
+    "id": "cat-alice-favorites",
+    "name": "⭐ Favorites",
+    "userId": "user-alice-dev",
+    "teamId": "team-engineering",
+    "collapsed": false,
+    "sortOrder": 0,
+    "sorting": "manual",
+    "type": "custom",
+    "boards": ["board-product-launch", "board-sprint-planning"]
+  },
+  {
+    "id": "cat-alice-work",
+    "name": "🏢 Work in Progress",
+    "userId": "user-alice-dev",
+    "teamId": "team-engineering",
+    "collapsed": false,
+    "sortOrder": 1,
+    "sorting": "recent",
+    "type": "custom",
+    "boards": ["board-product-launch"]
+  },
+  {
+    "id": "cat-bob-backend",
+    "name": "⚙️ Backend Projects",
+    "userId": "user-bob-backend",
+    "teamId": "team-engineering",
+    "collapsed": false,
+    "sortOrder": 0,
+    "sorting": "manual",
+    "type": "custom",
+    "boards": ["board-api-development", "board-product-launch"]
+  },
+  {
+    "id": "cat-carol-frontend",
+    "name": "🎨 Frontend Work",
+    "userId": "user-carol-frontend",
+    "teamId": "team-design",
+    "collapsed": false,
+    "sortOrder": 0,
+    "sorting": "alphabetical",
+    "type": "custom",
+    "boards": ["board-ui-components", "board-product-launch"]
+  },
+  {
+    "id": "cat-dave-infrastructure",
+    "name": "🚀 Infrastructure & DevOps",
+    "userId": "user-dave-devops",
+    "teamId": "team-engineering",
+    "collapsed": false,
+    "sortOrder": 0,
+    "sorting": "manual",
+    "type": "custom",
+    "boards": ["board-product-launch", "board-sprint-planning"]
+  },
+  {
+    "id": "cat-eve-design",
+    "name": "✨ Design System",
+    "userId": "user-eve-designer",
+    "teamId": "team-design",
+    "collapsed": false,
+    "sortOrder": 0,
+    "sorting": "manual",
+    "type": "custom",
+    "boards": ["board-ui-components"]
+  }
+]

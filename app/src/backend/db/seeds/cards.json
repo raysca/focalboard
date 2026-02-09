@@ -1,0 +1,312 @@
+[
+  {
+    "id": "card-auth-flow",
+    "boardId": "board-product-launch",
+    "title": "Implement OAuth 2.0 authentication flow",
+    "icon": "🔐",
+    "properties": {
+      "prop-status": "status-in-progress",
+      "prop-priority": "priority-critical",
+      "prop-assignee": "user-bob-backend",
+      "prop-estimate": 8
+    },
+    "content": "Implement OAuth 2.0 with support for Google, GitHub, and email/password providers using Better Auth library."
+  },
+  {
+    "id": "card-database-schema",
+    "boardId": "board-product-launch",
+    "title": "Design and implement database schema",
+    "icon": "🗄️",
+    "properties": {
+      "prop-status": "status-done",
+      "prop-priority": "priority-critical",
+      "prop-assignee": "user-bob-backend",
+      "prop-estimate": 13
+    },
+    "content": "Create Drizzle ORM schema for users, boards, cards, and relationships. Include migration scripts."
+  },
+  {
+    "id": "card-landing-page",
+    "boardId": "board-product-launch",
+    "title": "Design hero section for landing page",
+    "icon": "🎨",
+    "properties": {
+      "prop-status": "status-review",
+      "prop-priority": "priority-high",
+      "prop-assignee": "user-eve-designer",
+      "prop-estimate": 5
+    },
+    "content": "Create modern, responsive hero section with animated gradient background and compelling CTA."
+  },
+  {
+    "id": "card-api-docs",
+    "boardId": "board-product-launch",
+    "title": "Write comprehensive API documentation",
+    "icon": "📝",
+    "properties": {
+      "prop-status": "status-todo",
+      "prop-priority": "priority-medium",
+      "prop-assignee": "user-bob-backend",
+      "prop-estimate": 8
+    },
+    "content": "Document all REST API endpoints with OpenAPI/Swagger spec. Include examples and authentication flow."
+  },
+  {
+    "id": "card-ci-cd",
+    "boardId": "board-product-launch",
+    "title": "Set up CI/CD pipeline with GitHub Actions",
+    "icon": "⚙️",
+    "properties": {
+      "prop-status": "status-in-progress",
+      "prop-priority": "priority-high",
+      "prop-assignee": "user-dave-devops",
+      "prop-estimate": 13
+    },
+    "content": "Configure automated testing, linting, building, and deployment to staging/production environments."
+  },
+  {
+    "id": "card-payment-integration",
+    "boardId": "board-product-launch",
+    "title": "Integrate Stripe payment processing",
+    "icon": "💳",
+    "properties": {
+      "prop-status": "status-todo",
+      "prop-priority": "priority-critical",
+      "prop-assignee": "user-bob-backend",
+      "prop-estimate": 13
+    },
+    "content": "Implement subscription billing with Stripe. Support multiple tiers and payment methods."
+  },
+  {
+    "id": "card-error-monitoring",
+    "boardId": "board-product-launch",
+    "title": "Configure Sentry error tracking",
+    "icon": "🐛",
+    "properties": {
+      "prop-status": "status-done",
+      "prop-priority": "priority-high",
+      "prop-assignee": "user-dave-devops",
+      "prop-estimate": 3
+    },
+    "content": "Set up Sentry for both frontend and backend error monitoring with source maps."
+  },
+  {
+    "id": "card-websocket",
+    "boardId": "board-product-launch",
+    "title": "Build real-time WebSocket synchronization",
+    "icon": "🔄",
+    "properties": {
+      "prop-status": "status-in-progress",
+      "prop-priority": "priority-high",
+      "prop-assignee": "user-bob-backend",
+      "prop-estimate": 21
+    },
+    "content": "Implement WebSocket server for real-time board updates. Handle reconnection and conflict resolution."
+  },
+  {
+    "id": "card-e2e-tests",
+    "boardId": "board-product-launch",
+    "title": "Write E2E tests with Playwright",
+    "icon": "🧪",
+    "properties": {
+      "prop-status": "status-todo",
+      "prop-priority": "priority-medium",
+      "prop-assignee": "user-frank-qa",
+      "prop-estimate": 13
+    },
+    "content": "Create comprehensive E2E test suite covering critical user journeys and edge cases."
+  },
+  {
+    "id": "card-mobile-responsive",
+    "boardId": "board-product-launch",
+    "title": "Optimize for mobile responsive design",
+    "icon": "📱",
+    "properties": {
+      "prop-status": "status-review",
+      "prop-priority": "priority-high",
+      "prop-assignee": "user-carol-frontend",
+      "prop-estimate": 8
+    },
+    "content": "Ensure all views work seamlessly on mobile devices. Test on iOS and Android."
+  },
+  {
+    "id": "api-user-create",
+    "boardId": "board-api-development",
+    "title": "POST /api/users - Create user account",
+    "icon": "👤",
+    "properties": {
+      "prop-api-status": "api-status-deployed",
+      "prop-api-method": "method-post",
+      "prop-api-assignee": "user-bob-backend"
+    },
+    "content": "Endpoint for user registration with email verification."
+  },
+  {
+    "id": "api-boards-list",
+    "boardId": "board-api-development",
+    "title": "GET /api/boards - List all boards",
+    "icon": "📋",
+    "properties": {
+      "prop-api-status": "api-status-deployed",
+      "prop-api-method": "method-get",
+      "prop-api-assignee": "user-bob-backend"
+    },
+    "content": "Retrieve paginated list of boards with filtering and sorting."
+  },
+  {
+    "id": "api-cards-update",
+    "boardId": "board-api-development",
+    "title": "PUT /api/cards/:id - Update card",
+    "icon": "✏️",
+    "properties": {
+      "prop-api-status": "api-status-testing",
+      "prop-api-method": "method-put",
+      "prop-api-assignee": "user-bob-backend"
+    },
+    "content": "Update card properties, content, and position with optimistic locking."
+  },
+  {
+    "id": "api-webhooks",
+    "boardId": "board-api-development",
+    "title": "POST /api/webhooks - Register webhook",
+    "icon": "🪝",
+    "properties": {
+      "prop-api-status": "api-status-development",
+      "prop-api-method": "method-post",
+      "prop-api-assignee": "user-bob-backend"
+    },
+    "content": "Allow third-party integrations to subscribe to board events."
+  },
+  {
+    "id": "api-search",
+    "boardId": "board-api-development",
+    "title": "GET /api/search - Full-text search",
+    "icon": "🔍",
+    "properties": {
+      "prop-api-status": "api-status-design",
+      "prop-api-method": "method-get",
+      "prop-api-assignee": "user-bob-backend"
+    },
+    "content": "Search across boards, cards, and comments with relevance ranking."
+  },
+  {
+    "id": "ui-button-component",
+    "boardId": "board-ui-components",
+    "title": "Button Component with variants",
+    "icon": "🔘",
+    "properties": {
+      "prop-ui-status": "ui-status-complete",
+      "prop-ui-component-type": "type-atom",
+      "prop-ui-assignee": "user-carol-frontend"
+    },
+    "content": "Primary, secondary, ghost, and danger button variants with size options."
+  },
+  {
+    "id": "ui-modal-component",
+    "boardId": "board-ui-components",
+    "title": "Modal Dialog Component",
+    "icon": "🪟",
+    "properties": {
+      "prop-ui-status": "ui-status-development",
+      "prop-ui-component-type": "type-molecule",
+      "prop-ui-assignee": "user-carol-frontend"
+    },
+    "content": "Accessible modal with focus trap, ESC key handling, and backdrop click to close."
+  },
+  {
+    "id": "ui-kanban-board",
+    "boardId": "board-ui-components",
+    "title": "Kanban Board Layout",
+    "icon": "📊",
+    "properties": {
+      "prop-ui-status": "ui-status-development",
+      "prop-ui-component-type": "type-organism",
+      "prop-ui-assignee": "user-carol-frontend"
+    },
+    "content": "Drag-and-drop kanban board with virtual scrolling for performance."
+  },
+  {
+    "id": "ui-dropdown",
+    "boardId": "board-ui-components",
+    "title": "Dropdown Select Component",
+    "icon": "▼",
+    "properties": {
+      "prop-ui-status": "ui-status-complete",
+      "prop-ui-component-type": "type-molecule",
+      "prop-ui-assignee": "user-carol-frontend"
+    },
+    "content": "Single and multi-select dropdown with search and keyboard navigation."
+  },
+  {
+    "id": "ui-toast",
+    "boardId": "board-ui-components",
+    "title": "Toast Notification System",
+    "icon": "🔔",
+    "properties": {
+      "prop-ui-status": "ui-status-design",
+      "prop-ui-component-type": "type-molecule",
+      "prop-ui-assignee": "user-eve-designer"
+    },
+    "content": "Non-blocking notifications with success, error, warning, and info variants."
+  },
+  {
+    "id": "sprint-websocket-impl",
+    "boardId": "board-sprint-planning",
+    "title": "Complete WebSocket real-time sync",
+    "icon": "🔄",
+    "properties": {
+      "prop-sprint-status": "sprint-in-progress",
+      "prop-sprint-points": 13,
+      "prop-sprint-assignee": "user-bob-backend"
+    },
+    "content": "Finish WebSocket implementation with reconnection handling."
+  },
+  {
+    "id": "sprint-card-dependencies",
+    "boardId": "board-sprint-planning",
+    "title": "Add card dependency visualization",
+    "icon": "🔗",
+    "properties": {
+      "prop-sprint-status": "sprint-done",
+      "prop-sprint-points": 8,
+      "prop-sprint-assignee": "user-carol-frontend"
+    },
+    "content": "Show visual connections between dependent cards."
+  },
+  {
+    "id": "sprint-performance",
+    "boardId": "board-sprint-planning",
+    "title": "Optimize board rendering performance",
+    "icon": "⚡",
+    "properties": {
+      "prop-sprint-status": "sprint-todo",
+      "prop-sprint-points": 5,
+      "prop-sprint-assignee": "user-carol-frontend"
+    },
+    "content": "Implement virtualization for large boards with 1000+ cards."
+  },
+  {
+    "id": "sprint-docker",
+    "boardId": "board-sprint-planning",
+    "title": "Create Docker compose setup",
+    "icon": "🐳",
+    "properties": {
+      "prop-sprint-status": "sprint-done",
+      "prop-sprint-points": 3,
+      "prop-sprint-assignee": "user-dave-devops"
+    },
+    "content": "One-command local development environment with all services."
+  },
+  {
+    "id": "sprint-security-audit",
+    "boardId": "board-sprint-planning",
+    "title": "Run security audit and fix vulnerabilities",
+    "icon": "🔒",
+    "properties": {
+      "prop-sprint-status": "sprint-blocked",
+      "prop-sprint-points": 8,
+      "prop-sprint-assignee": "user-dave-devops"
+    },
+    "content": "OWASP top 10 security review and dependency audit."
+  }
+]

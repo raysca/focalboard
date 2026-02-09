@@ -1,0 +1,137 @@
+[
+  {
+    "boardId": "board-product-launch",
+    "userId": "user-alice-dev",
+    "roles": "admin",
+    "schemeAdmin": true,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-product-launch",
+    "userId": "user-bob-backend",
+    "roles": "editor",
+    "schemeAdmin": false,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-product-launch",
+    "userId": "user-carol-frontend",
+    "roles": "editor",
+    "schemeAdmin": false,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-product-launch",
+    "userId": "user-dave-devops",
+    "roles": "editor",
+    "schemeAdmin": false,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-product-launch",
+    "userId": "user-eve-designer",
+    "roles": "editor",
+    "schemeAdmin": false,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-product-launch",
+    "userId": "user-frank-qa",
+    "roles": "commenter",
+    "schemeAdmin": false,
+    "schemeEditor": false,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-api-development",
+    "userId": "user-bob-backend",
+    "roles": "admin",
+    "schemeAdmin": true,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-api-development",
+    "userId": "user-alice-dev",
+    "roles": "editor",
+    "schemeAdmin": false,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-ui-components",
+    "userId": "user-carol-frontend",
+    "roles": "admin",
+    "schemeAdmin": true,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-ui-components",
+    "userId": "user-eve-designer",
+    "roles": "editor",
+    "schemeAdmin": false,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-ui-components",
+    "userId": "user-alice-dev",
+    "roles": "viewer",
+    "schemeAdmin": false,
+    "schemeEditor": false,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-sprint-planning",
+    "userId": "user-alice-dev",
+    "roles": "admin",
+    "schemeAdmin": true,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-sprint-planning",
+    "userId": "user-bob-backend",
+    "roles": "editor",
+    "schemeAdmin": false,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-sprint-planning",
+    "userId": "user-carol-frontend",
+    "roles": "editor",
+    "schemeAdmin": false,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  },
+  {
+    "boardId": "board-sprint-planning",
+    "userId": "user-dave-devops",
+    "roles": "editor",
+    "schemeAdmin": false,
+    "schemeEditor": true,
+    "schemeCommenter": true,
+    "schemeViewer": true
+  }
+]
