@@ -14,16 +14,21 @@ import {
 import type { Board } from "../types/index.ts"
 import type { CreateBoardInput, UpdateBoardInput } from "../validation/schemas.ts"
 import { ForbiddenError, NotFoundError } from "../errors.ts"
+import type { EventService } from "./event.service.ts"
+import { EventType, EventScope } from "../types/events.ts"
 
 export class BoardService {
-    constructor(private db: DB) {}
+    constructor(
+        private db: DB,
+        private eventService?: EventService
+    ) {}
 
     /**
      * Create a new board and auto-add creator as admin member
      * Uses transaction to ensure atomic operation
      */
     async create(userId: string, data: CreateBoardInput): Promise<Board> {
-        return withTransaction(this.db, async (tx) => {
+        const board = await withTransaction(this.db, async (tx) => {
             const boardRepo = createBoardRepository(tx)
             const memberRepo = createMembershipRepository(tx)
 
@@ -67,6 +72,25 @@ export class BoardService {
 
             return board
         })
+
+        // Publish event AFTER transaction commits
+        if (this.eventService) {
+            await this.eventService.publish({
+                id: crypto.randomUUID(),
+                type: EventType.BOARD_CREATED,
+                scope: EventScope.TEAM,
+                timestamp: Date.now(),
+                actor: { userId },
+                meta: { teamId: board.teamId, boardId: board.id },
+                entity: { type: 'board', id: board.id },
+                changes: {
+                    before: null,
+                    after: { ...board }
+                }
+            })
+        }
+
+        return board
     }
 
     /**
@@ -204,26 +228,76 @@ export class BoardService {
         boardId: string,
         updates: UpdateBoardInput
     ): Promise<Board> {
+        const boardRepo = createBoardRepository(this.db)
+
+        // Get before state
+        const before = boardRepo.findById(boardId)
+        if (!before) {
+            throw new NotFoundError("Board not found")
+        }
+
         // Check editor access
         requireBoardEditor(this.db, userId, boardId)
 
-        const boardRepo = createBoardRepository(this.db)
-        return boardRepo.updateWithHistory(boardId, {
+        const after = boardRepo.updateWithHistory(boardId, {
             ...updates,
             modifiedBy: userId,
             updateAt: Date.now()
         } as Partial<Board>)
+
+        // Publish event AFTER successful DB operation
+        if (this.eventService) {
+            await this.eventService.publish({
+                id: crypto.randomUUID(),
+                type: EventType.BOARD_UPDATED,
+                scope: EventScope.BOARD,
+                timestamp: Date.now(),
+                actor: { userId },
+                meta: { teamId: before.teamId, boardId },
+                entity: { type: 'board', id: boardId },
+                changes: {
+                    before: { ...before },
+                    after: { ...after }
+                }
+            })
+        }
+
+        return after
     }
 
     /**
      * Soft delete board with permission check
      */
     async delete(userId: string, boardId: string): Promise<void> {
+        const boardRepo = createBoardRepository(this.db)
+
+        // Get before state
+        const before = boardRepo.findById(boardId)
+        if (!before) {
+            throw new NotFoundError("Board not found")
+        }
+
         // Check admin access
         requireBoardAdmin(this.db, userId, boardId)
 
-        const boardRepo = createBoardRepository(this.db)
         boardRepo.softDeleteWithHistory(boardId)
+
+        // Publish event AFTER successful DB operation
+        if (this.eventService) {
+            await this.eventService.publish({
+                id: crypto.randomUUID(),
+                type: EventType.BOARD_DELETED,
+                scope: EventScope.BOARD,
+                timestamp: Date.now(),
+                actor: { userId },
+                meta: { teamId: before.teamId, boardId },
+                entity: { type: 'board', id: boardId },
+                changes: {
+                    before: { ...before },
+                    after: null
+                }
+            })
+        }
     }
 
     /**
@@ -252,6 +326,6 @@ export class BoardService {
 /**
  * Factory function to create BoardService
  */
-export function createBoardService(db: DB): BoardService {
-    return new BoardService(db)
+export function createBoardService(db: DB, eventService?: EventService): BoardService {
+    return new BoardService(db, eventService)
 }

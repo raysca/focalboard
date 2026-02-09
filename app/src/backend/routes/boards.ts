@@ -18,7 +18,7 @@ boardRoutes.get("/teams/:teamID/boards", sessionRequired, async (c) => {
   const teamId = c.req.param("teamID");
   const userId = c.get("userId") as string;
 
-  const boardService = createBoardService(db);
+  const boardService = createBoardService(db, c.get("eventService"));
   const teamBoards = boardService.listByTeam(userId, teamId);
 
   return c.json(teamBoards);
@@ -30,7 +30,7 @@ boardRoutes.post("/boards", sessionRequired, validateRequest(createBoardSchema),
   const userId = c.get("userId") as string;
   const data = c.get("validatedData");
 
-  const boardService = createBoardService(db);
+  const boardService = createBoardService(db, c.get("eventService"));
   const board = await boardService.create(userId, data);
 
   return c.json(board);
@@ -43,7 +43,7 @@ boardRoutes.get("/boards/:boardID", attachSession, async (c) => {
   const userId = c.get("userId") as string | undefined;
   const readToken = c.req.query("read_token");
 
-  const boardService = createBoardService(db);
+  const boardService = createBoardService(db, c.get("eventService"));
   const board = boardService.getByIdOrFail(boardId, userId, readToken);
 
   return c.json(board);
@@ -56,7 +56,7 @@ boardRoutes.patch("/boards/:boardID", sessionRequired, validateRequest(updateBoa
   const userId = c.get("userId") as string;
   const updates = c.get("validatedData");
 
-  const boardService = createBoardService(db);
+  const boardService = createBoardService(db, c.get("eventService"));
   const board = await boardService.update(userId, boardId, updates);
 
   return c.json(board);
@@ -68,7 +68,7 @@ boardRoutes.delete("/boards/:boardID", sessionRequired, async (c) => {
   const boardId = c.req.param("boardID");
   const userId = c.get("userId") as string;
 
-  const boardService = createBoardService(db);
+  const boardService = createBoardService(db, c.get("eventService"));
   await boardService.delete(userId, boardId);
 
   return c.json({}, 200);
@@ -80,7 +80,7 @@ boardRoutes.post("/boards/:boardID/duplicate", sessionRequired, async (c) => {
   const boardId = c.req.param("boardID");
   const userId = c.get("userId") as string;
 
-  const boardService = createBoardService(db);
+  const boardService = createBoardService(db, c.get("eventService"));
   const board = await boardService.duplicate(userId, boardId);
 
   return c.json(board);
@@ -92,7 +92,7 @@ boardRoutes.post("/boards/:boardID/undelete", sessionRequired, async (c) => {
   const boardId = c.req.param("boardID");
   const userId = c.get("userId") as string;
 
-  const boardService = createBoardService(db);
+  const boardService = createBoardService(db, c.get("eventService"));
   const board = await boardService.undelete(userId, boardId);
 
   return c.json(board);
@@ -104,7 +104,7 @@ boardRoutes.get("/boards/:boardID/metadata", sessionRequired, async (c) => {
   const boardId = c.req.param("boardID");
   const userId = c.get("userId") as string;
 
-  const boardService = createBoardService(db);
+  const boardService = createBoardService(db, c.get("eventService"));
   const board = boardService.getByIdOrFail(boardId, userId);
 
   // Count blocks

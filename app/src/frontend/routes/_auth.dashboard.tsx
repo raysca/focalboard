@@ -1,11 +1,17 @@
-import React from 'react'
+import React, {useState, useMemo} from 'react'
 import {createRoute, Link} from '@tanstack/react-router'
 import {Route as authRoute} from './_auth'
 import {Layout, Plus, User as UserIcon} from 'lucide-react'
 import {useMeQuery} from '../hooks/useAuth'
 import {useBoardsQuery} from '../hooks/useBoards'
+import {useQueries} from '@tanstack/react-query'
+import {blocksApi} from '../api/blocks'
 import {DEFAULT_TEAM_ID} from '../lib/constants'
 import {Skeleton} from '../components/ui/Skeleton'
+import {CreateBoardDialog} from '../components/board/CreateBoardDialog'
+import {DashboardStats} from '../components/dashboard/DashboardStats'
+import {AssignedCards} from '../components/dashboard/AssignedCards'
+import type {Block} from '../api/types'
 
 export const Route = createRoute({
     getParentRoute: () => authRoute,
@@ -16,7 +22,22 @@ export const Route = createRoute({
 function DashboardComponent() {
     const {data: user, isLoading: isUserLoading} = useMeQuery()
     const {data: boards, isLoading: isBoardsLoading} = useBoardsQuery(DEFAULT_TEAM_ID)
+    const [showCreateDialog, setShowCreateDialog] = useState(false)
 
+    // Fetch cards from all boards
+    const cardQueries = useQueries({
+        queries: (boards || []).map((board) => ({
+            queryKey: ['blocks', board.id],
+            queryFn: () => blocksApi.getBlocks(board.id, {type: 'card'}),
+            enabled: !!board.id,
+        })),
+    })
+
+    const allCards = useMemo(() => {
+        return cardQueries.flatMap((query) => (query.data || []) as Block[])
+    }, [cardQueries])
+
+    const isCardsLoading = cardQueries.some((q) => q.isLoading)
     const isLoading = isUserLoading || isBoardsLoading
 
     if (isLoading) {
@@ -37,8 +58,8 @@ function DashboardComponent() {
     const username = user?.username || user?.nickname || 'User'
 
     return (
-        <div className="flex-1 p-8 max-w-5xl mx-auto w-full overflow-y-auto">
-            <header className="mb-10">
+        <div className="flex-1 p-8 max-w-6xl mx-auto w-full overflow-y-auto">
+            <header className="mb-8">
                 <h1 className="text-3xl font-semibold text-center-fg mb-2">
                     Welcome back, {username}
                 </h1>
@@ -46,6 +67,16 @@ function DashboardComponent() {
                     Here's what's happening in your workspace.
                 </p>
             </header>
+
+            {/* Dashboard Stats */}
+            {boards && boards.length > 0 && !isCardsLoading && (
+                <DashboardStats boards={boards} cards={allCards} />
+            )}
+
+            {/* Assigned Cards */}
+            {user && boards && boards.length > 0 && !isCardsLoading && allCards.length > 0 && (
+                <AssignedCards cards={allCards} boards={boards} userId={user.id} />
+            )}
 
             <section className="mb-12">
                 <div className="flex items-center justify-between mb-4">
@@ -76,8 +107,11 @@ function DashboardComponent() {
                             </Link>
                         ))}
 
-                        {/* New Board Button (Placeholder functionality for now) */}
-                        <button className="flex flex-col items-center justify-center p-5 rounded-[var(--radius-default)] border border-dashed border-black/20 hover:border-blue-500/50 hover:bg-blue-50/50 transition-all duration-200 group h-full min-h-[140px]">
+                        {/* New Board Button */}
+                        <button
+                            onClick={() => setShowCreateDialog(true)}
+                            className="flex flex-col items-center justify-center p-5 rounded-[var(--radius-default)] border border-dashed border-black/20 hover:border-blue-500/50 hover:bg-blue-50/50 transition-all duration-200 group h-full min-h-[140px]"
+                        >
                             <div className="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center mb-3 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
                                 <Plus size={20} />
                             </div>
@@ -89,7 +123,10 @@ function DashboardComponent() {
                         <Layout className="w-12 h-12 mx-auto text-center-fg/20 mb-3" />
                         <h3 className="text-lg font-medium text-center-fg/70 mb-1">No boards yet</h3>
                         <p className="text-center-fg/50 mb-4">Create your first board to get started.</p>
-                        <button className="px-4 py-2 bg-button-bg text-button-fg rounded-[var(--radius-default)] hover:opacity-90 transition-opacity font-medium">
+                        <button
+                            onClick={() => setShowCreateDialog(true)}
+                            className="px-4 py-2 bg-button-bg text-button-fg rounded-[var(--radius-default)] hover:opacity-90 transition-opacity font-medium"
+                        >
                             Create Board
                         </button>
                     </div>
@@ -115,6 +152,9 @@ function DashboardComponent() {
                     </p>
                 </div>
             </section>
+
+            {/* Create Board Dialog */}
+            <CreateBoardDialog open={showCreateDialog} onClose={() => setShowCreateDialog(false)} teamId={DEFAULT_TEAM_ID} />
         </div>
     )
 }

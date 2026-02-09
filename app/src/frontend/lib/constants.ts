@@ -1,4 +1,4 @@
-export const DEFAULT_TEAM_ID = '0'
+export const DEFAULT_TEAM_ID = 'team-engineering'
 export const TOKEN_KEY = 'focalboardSessionId'
 export const THEME_KEY = 'focalboardTheme'
 export const LAST_BOARD_KEY = 'focalboardLastBoard'

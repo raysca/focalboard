@@ -13,9 +13,14 @@ import type {
     UpsertBlockInput
 } from "../validation/schemas.ts"
 import { ForbiddenError, NotFoundError, BadRequestError } from "../errors.ts"
+import type { EventService } from "./event.service.ts"
+import { EventType, EventScope } from "../types/events.ts"
 
 export class BlockService {
-    constructor(private db: DB) {}
+    constructor(
+        private db: DB,
+        private eventService?: EventService
+    ) {}
 
     /**
      * Create a new block
@@ -34,7 +39,7 @@ export class BlockService {
         const now = Date.now()
         const id = data.id ?? crypto.randomUUID()
 
-        return blockRepo.create({
+        const block = blockRepo.create({
             id,
             parentId: data.parentId,
             createdBy: userId,
@@ -48,6 +53,25 @@ export class BlockService {
             updateAt: now,
             deleteAt: 0
         })
+
+        // Publish event AFTER successful DB operation
+        if (this.eventService) {
+            await this.eventService.publish({
+                id: crypto.randomUUID(),
+                type: EventType.BLOCK_CREATED,
+                scope: EventScope.BOARD,
+                timestamp: Date.now(),
+                actor: { userId },
+                meta: { boardId, blockId: id, parentId: data.parentId },
+                entity: { type: 'block', id },
+                changes: {
+                    before: null,
+                    after: { ...block }
+                }
+            })
+        }
+
+        return block
     }
 
     /**
@@ -61,20 +85,43 @@ export class BlockService {
     ): Promise<Block> {
         const blockRepo = createBlockRepository(this.db)
 
-        // Get block to find its board
-        const block = blockRepo.findById(blockId)
-        if (!block) {
+        // Get block to find its board AND capture before state
+        const before = blockRepo.findById(blockId)
+        if (!before) {
             throw new NotFoundError("Block not found")
         }
 
         // Check editor access to the board
-        requireBoardEditor(this.db, userId, block.boardId)
+        requireBoardEditor(this.db, userId, before.boardId)
 
-        return blockRepo.updateWithHistory(blockId, {
+        const after = blockRepo.updateWithHistory(blockId, {
             ...updates,
             modifiedBy: userId,
             updateAt: Date.now()
         } as Partial<Block>)
+
+        // Publish event AFTER successful DB operation
+        if (this.eventService) {
+            await this.eventService.publish({
+                id: crypto.randomUUID(),
+                type: EventType.BLOCK_UPDATED,
+                scope: EventScope.BOARD,
+                timestamp: Date.now(),
+                actor: { userId },
+                meta: {
+                    boardId: before.boardId,
+                    blockId,
+                    parentId: before.parentId
+                },
+                entity: { type: 'block', id: blockId },
+                changes: {
+                    before: { ...before },
+                    after: { ...after }
+                }
+            })
+        }
+
+        return after
     }
 
     /**
@@ -84,16 +131,37 @@ export class BlockService {
     async delete(userId: string, blockId: string): Promise<void> {
         const blockRepo = createBlockRepository(this.db)
 
-        // Get block to find its board
-        const block = blockRepo.findById(blockId)
-        if (!block) {
+        // Get block to find its board AND capture before state
+        const before = blockRepo.findById(blockId)
+        if (!before) {
             throw new NotFoundError("Block not found")
         }
 
         // Check editor access to the board
-        requireBoardEditor(this.db, userId, block.boardId)
+        requireBoardEditor(this.db, userId, before.boardId)
 
         blockRepo.softDeleteWithHistory(blockId)
+
+        // Publish event AFTER successful DB operation
+        if (this.eventService) {
+            await this.eventService.publish({
+                id: crypto.randomUUID(),
+                type: EventType.BLOCK_DELETED,
+                scope: EventScope.BOARD,
+                timestamp: Date.now(),
+                actor: { userId },
+                meta: {
+                    boardId: before.boardId,
+                    blockId,
+                    parentId: before.parentId
+                },
+                entity: { type: 'block', id: blockId },
+                changes: {
+                    before: { ...before },
+                    after: null
+                }
+            })
+        }
     }
 
     /**
@@ -249,6 +317,6 @@ export class BlockService {
 /**
  * Factory function to create BlockService
  */
-export function createBlockService(db: DB): BlockService {
-    return new BlockService(db)
+export function createBlockService(db: DB, eventService?: EventService): BlockService {
+    return new BlockService(db, eventService)
 }

@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
-import {useNavigate} from '@tanstack/react-router'
-import {Plus, Search, ChevronLeft, ChevronRight} from 'lucide-react'
+import {Link, useNavigate} from '@tanstack/react-router'
+import {Plus, Search, ChevronLeft, ChevronRight, Home} from 'lucide-react'
 import {cn} from '../../lib/cn'
 import {DEFAULT_TEAM_ID} from '../../lib/constants'
 import {useBoardsQuery, useCreateBoardMutation} from '../../hooks/useBoards'
@@ -146,6 +146,19 @@ export function Sidebar({activeBoardId}: SidebarProps) {
                     />
                 </div>
             </div>
+
+            {/* Dashboard link */}
+            <Link
+                to="/dashboard"
+                className={cn(
+                    'flex items-center h-8 px-5 mx-3 mb-2 rounded-[var(--radius-default)] cursor-pointer transition-colors no-underline',
+                    'text-sidebar-fg/80 hover:bg-white/10 hover:text-sidebar-fg',
+                    !activeBoardId && 'bg-white/20 text-sidebar-fg font-medium'
+                )}
+            >
+                <Home size={16} className="mr-2 shrink-0" />
+                <span className="text-sm">Dashboard</span>
+            </Link>
 
             {/* Board list */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden pb-4">

@@ -1,16 +1,16 @@
-import { Hono } from "hono";
-import type { Auth } from "../auth/index.ts";
-import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import {Hono} from "hono";
+import type {Auth} from "../auth/index.ts";
+import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite";
 import type * as schemaType from "../db/schema.ts";
-import { userProfiles, teams } from "../db/schema.ts";
-import { sessionRequired } from "../middleware/auth.ts";
-import { eq } from "drizzle-orm";
+import {userProfiles, teams, boards, boardMembers, blocks} from "../db/schema.ts";
+import {sessionRequired} from "../middleware/auth.ts";
+import {eq} from "drizzle-orm";
 import {
   BadRequestError,
   UnauthorizedError,
   ForbiddenError,
 } from "../errors.ts";
-import { config } from "../config.ts";
+import {config} from "../config.ts";
 
 const authRoutes = new Hono();
 
@@ -19,7 +19,7 @@ authRoutes.post("/login", async (c) => {
   const auth = c.get("auth") as Auth;
   const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
   const body = await c.req.json();
-  const { email, username, password } = body;
+  const {email, username, password} = body;
 
   if (!password) {
     throw new BadRequestError("password is required");
@@ -31,7 +31,7 @@ authRoutes.post("/login", async (c) => {
   }
 
   const response = await auth.api.signInEmail({
-    body: { email: loginEmail, password },
+    body: {email: loginEmail, password},
   });
 
   if (!response?.token) {
@@ -77,7 +77,7 @@ authRoutes.post("/register", async (c) => {
   const auth = c.get("auth") as Auth;
   const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
   const body = await c.req.json();
-  const { email, username, password, token } = body;
+  const {email, username, password, token} = body;
 
   if (!email || !password) {
     throw new BadRequestError("email and password are required");
@@ -101,9 +101,111 @@ authRoutes.post("/register", async (c) => {
 
   if (username) {
     db.update(userProfiles)
-      .set({ username, updateAt: Date.now() })
+      .set({username, updateAt: Date.now()})
       .where(eq(userProfiles.userId, response.user.id))
       .run();
+  }
+
+  // Auto-create personal board for new user
+  const now = Date.now();
+  const boardId = crypto.randomUUID();
+  const viewId = crypto.randomUUID();
+  const displayName = username || email.split("@")[0];
+
+  // Get the default team (should always exist)
+  const defaultTeam = db.select().from(teams).get();
+  const teamId = defaultTeam?.id || "team-engineering";
+
+  try {
+    // Create personal board
+    db.insert(boards)
+      .values({
+        id: boardId,
+        teamId,
+        createdBy: response.user.id,
+        modifiedBy: response.user.id,
+        type: "private",
+        title: `${displayName}'s Personal Board`,
+        description: "Your personal workspace for tasks and notes",
+        icon: "📋",
+        showDescription: true,
+        isTemplate: false,
+        cardProperties: [
+          {
+            id: "prop-status",
+            name: "Status",
+            type: "select",
+            options: [
+              {id: "status-todo", value: "To Do", color: "default"},
+              {id: "status-in-progress", value: "In Progress", color: "yellow"},
+              {id: "status-done", value: "Done", color: "green"},
+            ],
+          },
+          {
+            id: "prop-priority",
+            name: "Priority",
+            type: "select",
+            options: [
+              {id: "priority-high", value: "High", color: "red"},
+              {id: "priority-medium", value: "Medium", color: "yellow"},
+              {id: "priority-low", value: "Low", color: "blue"},
+            ],
+          },
+          {
+            id: "prop-due-date",
+            name: "Due Date",
+            type: "date",
+            options: [],
+          },
+        ],
+        createAt: now,
+        updateAt: now,
+        deleteAt: 0,
+      })
+      .run();
+
+    // Add user as board member with full permissions
+    db.insert(boardMembers)
+      .values({
+        boardId,
+        userId: response.user.id,
+        roles: "",
+        minimumRole: "",
+        schemeAdmin: true,
+        schemeEditor: true,
+        schemeCommenter: true,
+        schemeViewer: true,
+      })
+      .run();
+
+    // Create default board view (Kanban)
+    db.insert(blocks)
+      .values({
+        id: viewId,
+        boardId,
+        parentId: boardId,
+        createdBy: response.user.id,
+        modifiedBy: response.user.id,
+        type: "view",
+        title: "Board View",
+        schema: 1,
+        fields: {
+          viewType: "board",
+          visiblePropertyIds: ["prop-status", "prop-priority", "prop-due-date"],
+          hiddenOptionIds: [],
+          collapsedOptionIds: [],
+          sortOptions: [],
+          filter: {operation: "and", filters: []},
+          cardOrder: [],
+        },
+        createAt: now,
+        updateAt: now,
+        deleteAt: 0,
+      })
+      .run();
+  } catch (error) {
+    // Log error but don't fail registration if board creation fails
+    console.error("Failed to create personal board for new user:", error);
   }
 
   return c.json({
@@ -134,7 +236,7 @@ authRoutes.post(
       .where(eq(teams.id, teamId))
       .run();
 
-    return c.json({ token: newToken });
+    return c.json({token: newToken});
   },
 );
 
@@ -152,7 +254,7 @@ authRoutes.post(
     }
 
     const body = await c.req.json();
-    const { oldPassword, newPassword } = body;
+    const {oldPassword, newPassword} = body;
 
     if (!oldPassword || !newPassword) {
       throw new BadRequestError("oldPassword and newPassword are required");
@@ -160,7 +262,7 @@ authRoutes.post(
 
     try {
       await auth.api.changePassword({
-        body: { currentPassword: oldPassword, newPassword },
+        body: {currentPassword: oldPassword, newPassword},
         headers: c.req.raw.headers,
       });
     } catch {

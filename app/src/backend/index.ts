@@ -5,6 +5,9 @@ import type { Auth } from "./auth/index.ts";
 import { onError } from "./middleware/error.ts";
 import { csrfCheck } from "./middleware/csrf.ts";
 import apiRoutes from "./routes/index.ts";
+import websocketRoutes from "./routes/websocket.ts";
+import { createEventService } from "./services/event.service.ts";
+import { createRealtimeService } from "./services/realtime.service.ts";
 
 export interface AppDeps {
   db: BunSQLiteDatabase<typeof schema>;
@@ -14,21 +17,42 @@ export interface AppDeps {
 export function createApp(deps: AppDeps) {
   const app = new Hono();
 
+  // Initialize real-time services
+  const eventService = createEventService();
+  const realtimeService = createRealtimeService(deps.db, eventService);
+
+  // Wire EventService to RealtimeService for broadcasting
+  eventService.setBroadcastHandler((event) => {
+    realtimeService.broadcast(event);
+  });
+
   // Global error handler
   app.onError(onError);
 
-  // Inject db and auth into context for all routes
+  // Inject dependencies into context for all routes
   app.use("*", async (c, next) => {
     c.set("db", deps.db);
     c.set("auth", deps.auth);
+    c.set("eventService", eventService);
+    c.set("realtimeService", realtimeService);
     await next();
   });
 
-  // CSRF check on all API v2 routes
-  app.use("/api/v2/*", csrfCheck);
+  // CSRF check on all API v2 routes (except WebSocket)
+  app.use("/api/v2/*", async (c, next) => {
+    // Skip CSRF check for WebSocket upgrade
+    if (c.req.path === "/api/v2/ws") {
+      await next();
+      return;
+    }
+    await csrfCheck(c, next);
+  });
 
   // Mount API v2 routes
   app.route("/api/v2", apiRoutes);
+
+  // Mount WebSocket route
+  app.route("/api/v2", websocketRoutes);
 
   return app;
 }
