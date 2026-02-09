@@ -1,7 +1,6 @@
-import React, {createContext, useContext} from 'react'
-import {api} from '../api/client'
+import React, {createContext, useContext, useState, useEffect} from 'react'
 import type {User} from '../api/types'
-import {useQuery, useQueryClient} from '@tanstack/react-query'
+import {useQueryClient} from '@tanstack/react-query'
 
 interface AuthContextType {
     user: User | null
@@ -14,14 +13,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({children}: {children: React.ReactNode}) {
     const queryClient = useQueryClient()
+    const [user, setUser] = useState<User | null>(null)
+    const [isLoading, setIsLoading] = useState(false)
 
-    const {data: user, isLoading} = useQuery({
-        queryKey: ['me'],
-        queryFn: () => api.get<User>('/users/me'),
-        retry: false,
-    })
+    // Get user from query cache instead of making a new query
+    // This prevents infinite loops on logout
+    useEffect(() => {
+        const cachedUser = queryClient.getQueryData<User>(['me'])
+        if (cachedUser) {
+            setUser(cachedUser)
+        }
+    }, [queryClient])
 
     const logout = () => {
+        setUser(null)
         queryClient.setQueryData(['me'], null)
         queryClient.clear()
     }

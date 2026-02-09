@@ -21,8 +21,10 @@ async function request<T>(path: string, opts: RequestInit = {}): Promise<T> {
 
     if (!res.ok) {
         if (res.status === 401) {
-            // Session expired, redirect to login
-            window.location.href = '/login'
+            // Session expired, redirect to login only if not already there
+            if (!window.location.pathname.startsWith('/login')) {
+                window.location.href = '/login'
+            }
             throw new ApiError(res.status, {message: 'Session expired. Please log in again.'})
         }
         throw new ApiError(res.status, await res.json().catch(() => ({})))
