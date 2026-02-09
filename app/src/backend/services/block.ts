@@ -56,9 +56,14 @@ export class BlockService {
 
         // Publish event AFTER successful DB operation
         if (this.eventService) {
+            // Distinguish comment events from block events
+            const eventType = block.type === 'comment'
+                ? EventType.COMMENT_CREATED
+                : EventType.BLOCK_CREATED
+
             await this.eventService.publish({
                 id: crypto.randomUUID(),
-                type: EventType.BLOCK_CREATED,
+                type: eventType,
                 scope: EventScope.BOARD,
                 timestamp: Date.now(),
                 actor: { userId },
@@ -102,9 +107,14 @@ export class BlockService {
 
         // Publish event AFTER successful DB operation
         if (this.eventService) {
+            // Distinguish comment events from block events
+            const eventType = after.type === 'comment'
+                ? EventType.COMMENT_UPDATED
+                : EventType.BLOCK_UPDATED
+
             await this.eventService.publish({
                 id: crypto.randomUUID(),
-                type: EventType.BLOCK_UPDATED,
+                type: eventType,
                 scope: EventScope.BOARD,
                 timestamp: Date.now(),
                 actor: { userId },
@@ -144,9 +154,14 @@ export class BlockService {
 
         // Publish event AFTER successful DB operation
         if (this.eventService) {
+            // Distinguish comment events from block events
+            const eventType = before.type === 'comment'
+                ? EventType.COMMENT_DELETED
+                : EventType.BLOCK_DELETED
+
             await this.eventService.publish({
                 id: crypto.randomUUID(),
-                type: EventType.BLOCK_DELETED,
+                type: eventType,
                 scope: EventScope.BOARD,
                 timestamp: Date.now(),
                 actor: { userId },
@@ -266,17 +281,17 @@ export class BlockService {
     ): Promise<Block> {
         const blockRepo = createBlockRepository(this.db)
 
-        // Get current block
-        const block = blockRepo.findById(blockId)
-        if (!block) {
+        // Get current block (before state)
+        const before = blockRepo.findById(blockId)
+        if (!before) {
             throw new NotFoundError("Block not found")
         }
 
         // Check editor access to source board
-        requireBoardEditor(this.db, userId, block.boardId)
+        requireBoardEditor(this.db, userId, before.boardId)
 
         // If moving to a different board, check access to destination board
-        if (newBoardId && newBoardId !== block.boardId) {
+        if (newBoardId && newBoardId !== before.boardId) {
             requireBoardEditor(this.db, userId, newBoardId)
 
             // Verify destination board exists
@@ -287,12 +302,37 @@ export class BlockService {
         }
 
         // Update block
-        return blockRepo.updateWithHistory(blockId, {
+        const after = blockRepo.updateWithHistory(blockId, {
             parentId: newParentId,
-            boardId: newBoardId ?? block.boardId,
+            boardId: newBoardId ?? before.boardId,
             modifiedBy: userId,
             updateAt: Date.now()
         } as Partial<Block>)
+
+        // Publish BLOCK_MOVED event
+        if (this.eventService) {
+            await this.eventService.publish({
+                id: crypto.randomUUID(),
+                type: EventType.BLOCK_MOVED,
+                scope: EventScope.BOARD,
+                timestamp: Date.now(),
+                actor: { userId },
+                meta: {
+                    boardId: newBoardId ?? before.boardId,
+                    blockId,
+                    parentId: newParentId,
+                    oldParentId: before.parentId,
+                    oldBoardId: before.boardId
+                },
+                entity: { type: 'block', id: blockId },
+                changes: {
+                    before: { ...before },
+                    after: { ...after }
+                }
+            })
+        }
+
+        return after
     }
 
     /**

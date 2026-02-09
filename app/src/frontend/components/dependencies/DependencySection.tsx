@@ -63,19 +63,19 @@ export function DependencySection({ cardId, boardId }: DependencySectionProps) {
     )
 
     return (
-        <div className="dependency-section mt-6 space-y-4">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Dependencies</h3>
+        <div className="dependency-section space-y-4">
+            <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-center-fg">Dependencies</h3>
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    className="px-4 py-1.5 text-sm bg-button-bg text-button-fg rounded-[var(--radius-default)] hover:opacity-90 transition-all font-medium shadow-sm"
                 >
                     + Add
                 </button>
             </div>
 
             {!hasAnyDependencies && (
-                <p className="text-gray-500 text-center py-8 text-sm">
+                <p className="text-center-fg/50 text-center py-12 text-sm">
                     No dependencies yet
                 </p>
             )}

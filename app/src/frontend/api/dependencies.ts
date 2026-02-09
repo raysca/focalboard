@@ -21,13 +21,14 @@ export async function createDependency(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
         },
         credentials: 'include',
         body: JSON.stringify(request),
     })
 
     if (!response.ok) {
-        const error = await response.json()
+        const error = await response.json().catch(() => ({ error: 'Failed to create dependency' }))
         throw new Error(error.error || 'Failed to create dependency')
     }
 
@@ -43,6 +44,9 @@ export async function getDependencies(
 ): Promise<CardDependencyWithCards[]> {
     const params = type ? `?type=${type}` : ''
     const response = await fetch(`${API_BASE}/cards/${cardId}/dependencies${params}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
         credentials: 'include',
     })
 
@@ -60,6 +64,9 @@ export async function getDependency(
     dependencyId: string
 ): Promise<CardDependencyWithCards> {
     const response = await fetch(`${API_BASE}/dependencies/${dependencyId}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
         credentials: 'include',
     })
 
@@ -76,11 +83,14 @@ export async function getDependency(
 export async function deleteDependency(depId: string): Promise<void> {
     const response = await fetch(`${API_BASE}/dependencies/${depId}`, {
         method: 'DELETE',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
         credentials: 'include',
     })
 
     if (!response.ok) {
-        const error = await response.json()
+        const error = await response.json().catch(() => ({ error: 'Failed to delete dependency' }))
         throw new Error(error.error || 'Failed to delete dependency')
     }
 }
@@ -97,6 +107,7 @@ export async function validateDependency(
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
             },
             credentials: 'include',
             body: JSON.stringify(request),
@@ -104,7 +115,8 @@ export async function validateDependency(
     )
 
     if (!response.ok) {
-        throw new Error('Validation failed')
+        const error = await response.json().catch(() => ({ error: 'Validation failed' }))
+        throw new Error(error.error || 'Validation failed')
     }
 
     return response.json()
@@ -125,13 +137,15 @@ export async function batchDependencies(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
         },
         credentials: 'include',
         body: JSON.stringify(operations),
     })
 
     if (!response.ok) {
-        throw new Error('Batch operation failed')
+        const error = await response.json().catch(() => ({ error: 'Batch operation failed' }))
+        throw new Error(error.error || 'Batch operation failed')
     }
 
     return response.json()
@@ -148,6 +162,9 @@ export async function getBoardDependencyGraph(
     const response = await fetch(
         `${API_BASE}/boards/${boardId}/dependencies/graph${params}`,
         {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
             credentials: 'include',
         }
     )

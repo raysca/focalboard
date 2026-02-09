@@ -14,13 +14,13 @@
  * - Graceful error handling
  */
 
-import type { ServerWebSocket } from 'bun'
-import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite'
+import type {ServerWebSocket} from 'bun'
+import type {BunSQLiteDatabase} from 'drizzle-orm/bun-sqlite'
 import type * as schema from '../db/schema.ts'
-import { canViewBoard } from './authorization.ts'
-import { ForbiddenError } from '../errors.ts'
-import type { EventService } from './event.service.ts'
-import type { Event, EventScope } from '../types/events.ts'
+import {canViewBoard} from './authorization.ts'
+import {ForbiddenError} from '../errors.ts'
+import type {EventService} from './event.service.ts'
+import type {Event, EventScope} from '../types/events.ts'
 
 type DB = BunSQLiteDatabase<typeof schema>
 
@@ -46,19 +46,19 @@ export interface WebSocketConnection {
  * Client → Server message types
  */
 export type ClientMessage =
-    | { type: 'subscribe'; scope: EventScope; id: string }
-    | { type: 'unsubscribe'; scope: EventScope; id: string }
-    | { type: 'ping' }
+    | {type: 'subscribe'; scope: EventScope; id: string}
+    | {type: 'unsubscribe'; scope: EventScope; id: string}
+    | {type: 'ping'}
 
 /**
  * Server → Client message types
  */
 export type ServerMessage =
-    | { type: 'event'; event: Event }
-    | { type: 'error'; code: string; message: string }
-    | { type: 'pong'; timestamp: number }
-    | { type: 'ack'; success: boolean }
-    | { type: 'connected'; userId: string }
+    | {type: 'event'; event: Event}
+    | {type: 'error'; code: string; message: string}
+    | {type: 'pong'; timestamp: number}
+    | {type: 'ack'; success: boolean}
+    | {type: 'connected'; userId: string}
 
 export class RealtimeService {
     private connections = new Map<string, WebSocketConnection>()
@@ -66,7 +66,7 @@ export class RealtimeService {
     constructor(
         private db: DB,
         private eventService: EventService
-    ) {}
+    ) { }
 
     /**
      * Handle new WebSocket connection
@@ -75,7 +75,7 @@ export class RealtimeService {
      * Registers connection and sends welcome message.
      */
     handleConnection(ws: ServerWebSocket<WebSocketData>): void {
-        const { userId, connectionId } = ws.data
+        const {userId, connectionId} = ws.data
 
         const connection: WebSocketConnection = {
             id: connectionId,
@@ -232,16 +232,21 @@ export class RealtimeService {
      * Uses Bun's native pub/sub with per-user authorization.
      */
     broadcast(event: Event): void {
-        const topic = this.getTopicForEvent(event)
-        const message = JSON.stringify({ type: 'event', event })
+        const message = JSON.stringify({type: 'event', event})
 
-        // Publish from each authorized connection to maintain per-user authorization
+        // Iterate through all connections and send to authorized ones
         for (const conn of this.connections.values()) {
             // Re-validate authorization at broadcast time
             if (!this.isAuthorized(conn.userId, event)) continue
 
-            // Use Bun's native publish - this broadcasts to ALL subscribed connections
-            conn.ws.publish(topic, message)
+            // Directly send to the connection
+            // We use send() instead of publish() because publish() broadcasts to the entire topic.
+            // Since we're iterating through connections to check auth, we already have the specific
+            // connection we want to send to.
+            this.sendMessage(conn.ws, {
+                type: 'event',
+                event
+            })
         }
     }
 

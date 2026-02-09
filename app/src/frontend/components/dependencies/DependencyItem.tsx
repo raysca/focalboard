@@ -11,40 +11,40 @@ export function DependencyItem({ dependency, onRemove }: DependencyItemProps) {
 
     if (!card) {
         return (
-            <div className="text-sm text-gray-400 italic">Card not found</div>
+            <div className="text-sm text-center-fg/40 italic px-3 py-2">Card not found</div>
         )
     }
 
     const statusIcon = card.isCompleted ? '✅' : '⏳'
 
     return (
-        <div className="flex items-center gap-2 p-2 rounded hover:bg-white/70 group transition-colors">
+        <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-[var(--radius-default)] hover:bg-center-bg/50 group transition-colors">
             <a
                 href={`/board/${card.boardId}?card=${card.id}`}
-                className="flex items-center gap-2 flex-1 min-w-0 no-underline text-inherit"
+                className="flex items-center gap-2.5 flex-1 min-w-0 no-underline text-inherit"
                 onClick={(e) => {
                     // Prevent default and handle navigation if needed
                     // This could be replaced with proper routing
                 }}
             >
-                <span className="text-xl flex-shrink-0">{card.icon || '📄'}</span>
+                <span className="text-lg flex-shrink-0">{card.icon || '📄'}</span>
                 <div className="flex-1 min-w-0">
-                    <div className="truncate font-medium text-sm">{card.title}</div>
+                    <div className="truncate font-medium text-sm text-center-fg">{card.title}</div>
                     {card.boardTitle && (
-                        <div className="text-xs text-gray-500 truncate">
+                        <div className="text-xs text-center-fg/50 truncate mt-0.5">
                             {card.boardTitle}
                         </div>
                     )}
                 </div>
-                <span className="text-lg flex-shrink-0">{statusIcon}</span>
+                <span className="text-base flex-shrink-0 opacity-60">{statusIcon}</span>
             </a>
             <button
-                className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-100 transition-opacity flex-shrink-0"
+                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-[var(--radius-default)] hover:bg-error/10 transition-all flex-shrink-0"
                 onClick={onRemove}
                 title="Remove dependency"
             >
                 <svg
-                    className="w-4 h-4 text-red-600"
+                    className="w-4 h-4 text-error"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"

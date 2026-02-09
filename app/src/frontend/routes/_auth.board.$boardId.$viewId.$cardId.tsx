@@ -4,9 +4,11 @@ import {Route as boardRoute} from './_auth.board.$boardId'
 import {X, Trash2} from 'lucide-react'
 import {useBoardQuery} from '../hooks/useBoards'
 import {usePatchBlockMutation, useInsertBlocksMutation, useDeleteBlockMutation, useBoardDataQuery} from '../hooks/useBlocks'
+import {useBoardWebSocket} from '../hooks/useBoardWebSocket'
 import {CardDetailProperties} from '../components/card/CardDetailProperties'
 import {CardDetailContents} from '../components/card/CardDetailContents'
 import {CommentsList} from '../components/card/CommentsList'
+import {DependencySection} from '../components/dependencies/DependencySection'
 import {api} from '../api/client'
 import type {Block, Card} from '../api/types'
 
@@ -19,6 +21,10 @@ export const Route = createRoute({
 function CardDialog() {
     const {boardId, viewId, cardId} = Route.useParams()
     const navigate = useNavigate()
+
+    // Connect to real-time updates for comments
+    const {isConnected} = useBoardWebSocket(boardId)
+
     const {data: board} = useBoardQuery(boardId)
     const {data: blockData} = useBoardDataQuery(boardId)
     const patchBlock = usePatchBlockMutation(boardId)
@@ -220,6 +226,12 @@ function CardDialog() {
                     onUpdateBlock={handleUpdateContentBlock}
                     onDeleteBlock={handleDeleteContentBlock}
                 />
+
+                {/* Divider */}
+                <div className="h-px bg-border-default mx-6" />
+
+                {/* Dependencies */}
+                <DependencySection cardId={cardId} boardId={boardId} />
 
                 {/* Divider */}
                 <div className="h-px bg-border-default mx-6" />

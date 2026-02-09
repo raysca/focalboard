@@ -15,11 +15,11 @@
  * - Server → Client: event, error, pong, ack, connected
  */
 
-import { Hono } from 'hono'
-import { upgradeWebSocket } from 'hono/bun'
-import type { Auth } from '../auth/index.ts'
-import type { RealtimeService, WebSocketData } from '../services/realtime.service.ts'
-import type { ClientMessage } from '../services/realtime.service.ts'
+import {Hono} from 'hono'
+import {upgradeWebSocket} from 'hono/bun'
+import type {Auth} from '../auth/index.ts'
+import type {RealtimeService, WebSocketData} from '../services/realtime.service.ts'
+import type {ClientMessage} from '../services/realtime.service.ts'
 
 const websocketRoutes = new Hono()
 
@@ -35,6 +35,7 @@ websocketRoutes.get(
              * Authenticate and register with RealtimeService
              */
             async onOpen(evt, ws) {
+                console.log('[WebSocket] Incoming connection attempt')
                 try {
                     // Get dependencies from context
                     const auth = c.get('auth') as Auth

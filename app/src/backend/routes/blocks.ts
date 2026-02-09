@@ -6,6 +6,7 @@ import { sessionRequired } from "../middleware/auth.ts";
 import { eq, and } from "drizzle-orm";
 import { BadRequestError, NotFoundError } from "../errors.ts";
 import { recordBlockHistory } from "../services/history.ts";
+import type { BlockService } from "../services/block.ts";
 
 const blockRoutes = new Hono();
 
@@ -31,86 +32,56 @@ blockRoutes.get("/boards/:boardID/blocks", sessionRequired, async (c) => {
 
 // POST /boards/:boardID/blocks
 blockRoutes.post("/boards/:boardID/blocks", sessionRequired, async (c) => {
-  const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+  const blockService = c.get("blockService") as BlockService;
   const boardId = c.req.param("boardID");
   const userId = c.get("userId") as string;
   const body = await c.req.json();
-  const now = Date.now();
 
-  const newBlocks: (typeof blocks.$inferInsert)[] = [];
   const items = Array.isArray(body) ? body : [body];
+  const createdBlocks = [];
 
   for (const item of items) {
-    const id = item.id || crypto.randomUUID();
-    const block = {
-      id,
+    // Use BlockService.create() which publishes BLOCK_CREATED or COMMENT_CREATED events
+    const block = await blockService.create(userId, boardId, {
+      id: item.id || crypto.randomUUID(),
       parentId: item.parentId ?? "",
-      createdBy: item.createdBy ?? userId,
-      modifiedBy: userId,
       schema: item.schema ?? 0,
       type: item.type ?? "",
       title: item.title ?? "",
       fields: item.fields ?? {},
-      boardId,
-      createAt: item.createAt ?? now,
-      updateAt: now,
-      deleteAt: 0,
-    };
-    newBlocks.push(block);
+    });
+    createdBlocks.push(block);
   }
 
-  for (const block of newBlocks) {
-    // Upsert: insert or replace
-    const existing = db
-      .select()
-      .from(blocks)
-      .where(eq(blocks.id, block.id!))
-      .get();
-
-    if (existing) {
-      recordBlockHistory(db, block.id!);
-      db.update(blocks)
-        .set({
-          ...block,
-          createAt: existing.createAt,
-        })
-        .where(eq(blocks.id, block.id!))
-        .run();
-    } else {
-      db.insert(blocks).values(block).run();
-      recordBlockHistory(db, block.id!);
-    }
-  }
-
-  return c.json(newBlocks);
+  return c.json(createdBlocks);
 });
 
 // PATCH /boards/:boardID/blocks
 blockRoutes.patch("/boards/:boardID/blocks", sessionRequired, async (c) => {
-  const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+  const blockService = c.get("blockService") as BlockService;
   const userId = c.get("userId") as string;
   const body = await c.req.json();
-  const now = Date.now();
 
   const items = Array.isArray(body) ? body : [body];
+  const updatedBlocks = [];
 
   for (const item of items) {
     if (!item.id) continue;
-    const updates: Record<string, unknown> = {
-      modifiedBy: userId,
-      updateAt: now,
-    };
+
+    // Build update object with only provided fields
+    const updates: Record<string, unknown> = {};
     if (item.title !== undefined) updates.title = item.title;
     if (item.fields !== undefined) updates.fields = item.fields;
     if (item.parentId !== undefined) updates.parentId = item.parentId;
     if (item.type !== undefined) updates.type = item.type;
     if (item.schema !== undefined) updates.schema = item.schema;
 
-    recordBlockHistory(db, item.id);
-    db.update(blocks).set(updates).where(eq(blocks.id, item.id)).run();
+    // Use BlockService.update() which publishes BLOCK_UPDATED or COMMENT_UPDATED events
+    const updated = await blockService.update(userId, item.id, updates);
+    updatedBlocks.push(updated);
   }
 
-  return c.json({}, 200);
+  return c.json(updatedBlocks);
 });
 
 // DELETE /boards/:boardID/blocks/:blockID
@@ -118,15 +89,12 @@ blockRoutes.delete(
   "/boards/:boardID/blocks/:blockID",
   sessionRequired,
   async (c) => {
-    const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+    const blockService = c.get("blockService") as BlockService;
     const blockId = c.req.param("blockID");
     const userId = c.get("userId") as string;
 
-    recordBlockHistory(db, blockId);
-    db.update(blocks)
-      .set({ deleteAt: Date.now(), modifiedBy: userId })
-      .where(eq(blocks.id, blockId))
-      .run();
+    // Use BlockService.delete() which publishes BLOCK_DELETED or COMMENT_DELETED events
+    await blockService.delete(userId, blockId);
 
     return c.json({}, 200);
   },
@@ -137,27 +105,21 @@ blockRoutes.patch(
   "/boards/:boardID/blocks/:blockID",
   sessionRequired,
   async (c) => {
-    const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+    const blockService = c.get("blockService") as BlockService;
     const blockId = c.req.param("blockID");
     const userId = c.get("userId") as string;
     const body = await c.req.json();
-    const now = Date.now();
 
-    const updates: Record<string, unknown> = {
-      modifiedBy: userId,
-      updateAt: now,
-    };
+    // Build update object with only provided fields
+    const updates: Record<string, unknown> = {};
     if (body.title !== undefined) updates.title = body.title;
     if (body.fields !== undefined) updates.fields = body.fields;
     if (body.parentId !== undefined) updates.parentId = body.parentId;
     if (body.type !== undefined) updates.type = body.type;
     if (body.schema !== undefined) updates.schema = body.schema;
 
-    recordBlockHistory(db, blockId);
-    db.update(blocks).set(updates).where(eq(blocks.id, blockId)).run();
-
-    const updated = db.select().from(blocks).where(eq(blocks.id, blockId)).get();
-    if (!updated) throw new NotFoundError("block not found");
+    // Use BlockService.update() which publishes BLOCK_UPDATED or COMMENT_UPDATED events
+    const updated = await blockService.update(userId, blockId, updates);
 
     return c.json(updated);
   },

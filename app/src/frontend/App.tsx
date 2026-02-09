@@ -5,6 +5,7 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {router} from './router'
 import {AuthProvider, useAuth} from './contexts/AuthContext'
 import {UIProvider} from './contexts/UIContext'
+import {WebSocketProvider} from './contexts/WebSocketContext'
 import {ToastProvider} from './components/ui/Toast'
 import {ErrorBoundary} from './components/ui/ErrorBoundary'
 
@@ -30,7 +31,9 @@ export default function App() {
                 <UIProvider>
                     <ToastProvider>
                         <AuthProvider>
-                            <AppContent />
+                            <WebSocketProvider>
+                                <AppContent />
+                            </WebSocketProvider>
                         </AuthProvider>
                     </ToastProvider>
                 </UIProvider>

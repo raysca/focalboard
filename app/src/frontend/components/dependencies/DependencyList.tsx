@@ -20,20 +20,20 @@ export function DependencyList({
     variant = 'default',
 }: DependencyListProps) {
     const variantClasses = {
-        default: 'border-gray-300 bg-gray-50',
-        warning: 'border-red-300 bg-red-50',
-        info: 'border-blue-300 bg-blue-50',
+        default: 'border-border-default bg-hover',
+        warning: 'border-error/30 bg-error/5',
+        info: 'border-link/30 bg-link/5',
     }
 
     return (
-        <div className={`border rounded-lg p-4 space-y-2 ${variantClasses[variant]}`}>
-            <div className="flex items-center gap-2 mb-3">
-                <h4 className="text-sm font-medium">{title}</h4>
-                <span className="px-2 py-0.5 text-xs bg-white rounded-full border">
+        <div className={`border rounded-[var(--radius-default)] p-4 space-y-3 ${variantClasses[variant]}`}>
+            <div className="flex items-center gap-2.5">
+                <h4 className="text-sm font-semibold text-center-fg">{title}</h4>
+                <span className="px-2.5 py-0.5 text-xs bg-center-bg text-center-fg/70 rounded-full border border-border-default font-medium">
                     {items.length}
                 </span>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
                 {items.map((dep) => (
                     <DependencyItem
                         key={dep.id}

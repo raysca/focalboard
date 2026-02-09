@@ -16,6 +16,7 @@ import {SortableContext, verticalListSortingStrategy, useSortable} from '@dnd-ki
 import {CSS} from '@dnd-kit/utilities'
 import {cn} from '../../lib/cn'
 import {PropertyValue} from './PropertyValue'
+import {DependencyBadge} from '../dependencies/DependencyBadge'
 import {useInsertBlocksMutation, usePatchBlockMutation} from '../../hooks/useBlocks'
 import type {Board, BoardView, Card, Block, IPropertyTemplate, IPropertyOption} from '../../api/types'
 
@@ -50,12 +51,17 @@ function SortableCard({card, visibleProps, onClick}: {card: Card; visibleProps: 
                 isDragging && 'opacity-30'
             )}
         >
-            {card.fields?.icon && (
-                <span className="text-base mr-1">{card.fields.icon}</span>
-            )}
-            <span className="text-sm font-medium">
-                {card.title || 'Untitled'}
-            </span>
+            <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1 flex-1">
+                    {card.fields?.icon && (
+                        <span className="text-base">{card.fields.icon}</span>
+                    )}
+                    <span className="text-sm font-medium">
+                        {card.title || 'Untitled'}
+                    </span>
+                </div>
+                <DependencyBadge cardId={card.id} variant="compact" />
+            </div>
 
             {/* Property badges */}
             {visibleProps.length > 0 && (
@@ -80,12 +86,17 @@ function SortableCard({card, visibleProps, onClick}: {card: Card; visibleProps: 
 function CardOverlay({card, visibleProps}: {card: Card; visibleProps: IPropertyTemplate[]}) {
     return (
         <div className="rounded-[var(--radius-default)] p-3 px-4 text-center-fg shadow-elevation-4 bg-center-bg rotate-2 w-[var(--kanban-column-width)]">
-            {card.fields?.icon && (
-                <span className="text-base mr-1">{card.fields.icon}</span>
-            )}
-            <span className="text-sm font-medium">
-                {card.title || 'Untitled'}
-            </span>
+            <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1 flex-1">
+                    {card.fields?.icon && (
+                        <span className="text-base">{card.fields.icon}</span>
+                    )}
+                    <span className="text-sm font-medium">
+                        {card.title || 'Untitled'}
+                    </span>
+                </div>
+                <DependencyBadge cardId={card.id} variant="compact" />
+            </div>
             {visibleProps.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-2">
                     {visibleProps.map((prop) => {

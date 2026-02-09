@@ -3,6 +3,7 @@ import {createRoute, Outlet, useNavigate} from '@tanstack/react-router'
 import {Route as authRoute} from './_auth'
 import {useBoardQuery, usePatchBoardMutation} from '../hooks/useBoards'
 import {useBoardDataQuery} from '../hooks/useBlocks'
+import {useBoardWebSocket} from '../hooks/useBoardWebSocket'
 import {Editable} from '../components/ui/Editable'
 import {ViewHeader} from '../components/viewHeader/ViewHeader'
 import {KanbanView} from '../components/board/KanbanView'
@@ -11,6 +12,7 @@ import {GalleryView} from '../components/board/GalleryView'
 import {CalendarView} from '../components/board/CalendarView'
 import {SkeletonKanban} from '../components/ui/Skeleton'
 import {ErrorBoundary} from '../components/ui/ErrorBoundary'
+import {ConnectionStatus} from '../components/ConnectionStatus'
 import {applyFilterGroup} from '../lib/cardFilter'
 import type {BoardView, Card} from '../api/types'
 
@@ -23,6 +25,10 @@ export const Route = createRoute({
 function BoardPage() {
     const {boardId} = Route.useParams()
     const navigate = useNavigate()
+
+    // Connect to real-time updates
+    const {isConnected} = useBoardWebSocket(boardId)
+
     const {data: board, isLoading: boardLoading} = useBoardQuery(boardId)
     const {data: blockData, isLoading: blocksLoading} = useBoardDataQuery(boardId)
     const patchBoard = usePatchBoardMutation()
@@ -73,6 +79,9 @@ function BoardPage() {
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Connection status indicator */}
+            <ConnectionStatus isConnected={isConnected} />
+
             {/* Board title */}
             <div className="px-6 pt-5 pb-2">
                 <div className="flex items-center gap-2">

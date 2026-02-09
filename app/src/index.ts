@@ -19,6 +19,13 @@ app.get("*", async (c) => {
 export default {
   fetch: app.fetch,
   port: config.port,
+  // Enable WebSocket support for Bun
+  websocket: {
+    message() {}, // Handled by Hono upgradeWebSocket
+    open() {},    // Handled by Hono upgradeWebSocket
+    close() {},   // Handled by Hono upgradeWebSocket
+    drain() {},   // Handled by Hono upgradeWebSocket
+  },
   development: process.env.NODE_ENV !== "production" && {
     hmr: true,
     console: true,

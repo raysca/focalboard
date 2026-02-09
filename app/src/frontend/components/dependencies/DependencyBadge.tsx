@@ -24,11 +24,11 @@ export function DependencyBadge({ cardId, variant = 'compact' }: DependencyBadge
 
     if (variant === 'compact') {
         return (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
                 {/* Blocked indicator */}
                 {hasBlockers && (
                     <div
-                        className="w-2 h-2 rounded-full bg-red-500"
+                        className="w-2 h-2 rounded-full bg-error shadow-sm"
                         title={`Blocked by ${blockedBy} card${blockedBy > 1 ? 's' : ''}`}
                     />
                 )}
@@ -36,14 +36,14 @@ export function DependencyBadge({ cardId, variant = 'compact' }: DependencyBadge
                 {/* Blocking indicator */}
                 {isBlocking && (
                     <div
-                        className="w-2 h-2 rounded-full bg-yellow-500"
+                        className="w-2 h-2 rounded-full bg-warn shadow-sm"
                         title={`Blocking ${blocking} card${blocking > 1 ? 's' : ''}`}
                     />
                 )}
 
                 {/* Related/other dependencies */}
                 {(related > 0 || duplicates > 0) && !hasBlockers && !isBlocking && (
-                    <div className="w-2 h-2 rounded-full bg-blue-500" title="Has dependencies" />
+                    <div className="w-2 h-2 rounded-full bg-link shadow-sm" title="Has dependencies" />
                 )}
             </div>
         )
@@ -51,30 +51,30 @@ export function DependencyBadge({ cardId, variant = 'compact' }: DependencyBadge
 
     // Full variant - shows detailed badges
     return (
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
             {hasBlockers && (
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-error/10 text-error rounded-[var(--radius-default)] text-xs font-medium border border-error/20">
                     <span>⛔</span>
                     <span>Blocked ({blockedBy})</span>
                 </div>
             )}
 
             {isBlocking && (
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-warn/10 text-warn rounded-[var(--radius-default)] text-xs font-medium border border-warn/20">
                     <span>🚫</span>
                     <span>Blocking ({blocking})</span>
                 </div>
             )}
 
             {related > 0 && (
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-link/10 text-link rounded-[var(--radius-default)] text-xs font-medium border border-link/20">
                     <span>🔗</span>
                     <span>{related}</span>
                 </div>
             )}
 
             {duplicates > 0 && (
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-center-fg/10 text-center-fg rounded-[var(--radius-default)] text-xs font-medium border border-center-fg/20">
                     <span>👥</span>
                     <span>{duplicates}</span>
                 </div>

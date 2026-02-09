@@ -8,6 +8,7 @@ import apiRoutes from "./routes/index.ts";
 import websocketRoutes from "./routes/websocket.ts";
 import { createEventService } from "./services/event.service.ts";
 import { createRealtimeService } from "./services/realtime.service.ts";
+import { createBlockService } from "./services/block.ts";
 
 export interface AppDeps {
   db: BunSQLiteDatabase<typeof schema>;
@@ -17,9 +18,10 @@ export interface AppDeps {
 export function createApp(deps: AppDeps) {
   const app = new Hono();
 
-  // Initialize real-time services
+  // Initialize services
   const eventService = createEventService();
   const realtimeService = createRealtimeService(deps.db, eventService);
+  const blockService = createBlockService(deps.db, eventService);
 
   // Wire EventService to RealtimeService for broadcasting
   eventService.setBroadcastHandler((event) => {
@@ -35,6 +37,7 @@ export function createApp(deps: AppDeps) {
     c.set("auth", deps.auth);
     c.set("eventService", eventService);
     c.set("realtimeService", realtimeService);
+    c.set("blockService", blockService);
     await next();
   });
 
