@@ -13,16 +13,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({children}: {children: React.ReactNode}) {
     const queryClient = useQueryClient()
-    const [user, setUser] = useState<User | null>(null)
+    const [user, setUser] = useState<User | null>(() => {
+        // Initialize from cache
+        return queryClient.getQueryData<User>(['me']) || null
+    })
     const [isLoading, setIsLoading] = useState(false)
 
-    // Get user from query cache instead of making a new query
-    // This prevents infinite loops on logout
+    // Subscribe to query cache changes
     useEffect(() => {
-        const cachedUser = queryClient.getQueryData<User>(['me'])
-        if (cachedUser) {
-            setUser(cachedUser)
-        }
+        const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+            if (event?.query.queryKey[0] === 'me') {
+                const cachedUser = queryClient.getQueryData<User>(['me'])
+                setUser(cachedUser || null)
+            }
+        })
+
+        return () => unsubscribe()
     }, [queryClient])
 
     const logout = () => {
