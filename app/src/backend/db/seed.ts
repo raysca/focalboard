@@ -135,6 +135,16 @@ interface SubscriptionSeed {
     notifiedAt: number
 }
 
+interface ChecklistItemSeed {
+    text: string
+    completed: boolean
+}
+
+interface ChecklistSeed {
+    cardId: string
+    items: ChecklistItemSeed[]
+}
+
 // Helper function to load JSON seed file
 function loadSeedData<T>(filename: string): T[] {
     const seedsPath = join(import.meta.dir, 'seeds', filename)
@@ -395,6 +405,59 @@ for (const cardData of cardsData) {
 }
 console.log(`✅ Cards: ${cardsCreated} created\n`)
 
+// ==================== SEED CHECKLIST ITEMS ====================
+console.log(`☑️  Seeding checklist items...${forceReload ? ' (force reload)' : ''}`)
+const checklistData = loadSeedData<ChecklistSeed>('checklistItems.json')
+let checklistItemsCreated = 0
+
+for (const checklist of checklistData) {
+    // Verify card exists
+    const card = db.select().from(blocks)
+        .where(eq(blocks.id, checklist.cardId))
+        .get()
+
+    if (!card) {
+        console.log(`   ⚠️  Skipping checklist: card not found (${checklist.cardId})`)
+        continue
+    }
+
+    const contentOrder: string[] = []
+
+    for (const item of checklist.items) {
+        const blockId = crypto.randomUUID()
+
+        db.insert(blocks).values({
+            id: blockId,
+            boardId: card.boardId,
+            parentId: checklist.cardId,
+            createdBy: card.createdBy,
+            modifiedBy: card.createdBy,
+            type: 'checkbox',
+            title: item.text,
+            schema: 1,
+            fields: {value: item.completed ? 'true' : 'false'},
+            createAt: now,
+            updateAt: now,
+            deleteAt: 0,
+        }).run()
+
+        contentOrder.push(blockId)
+        checklistItemsCreated++
+    }
+
+    // Update card's contentOrder
+    const existingFields = card.fields as Record<string, unknown> || {}
+    db.update(blocks)
+        .set({
+            fields: {...existingFields, contentOrder},
+            updateAt: now,
+        })
+        .where(eq(blocks.id, checklist.cardId))
+        .run()
+}
+
+console.log(`✅ Checklist items: ${checklistItemsCreated} created\n`)
+
 // ==================== SEED DEPENDENCIES ====================
 console.log(`🔗 Seeding card dependencies...${forceReload ? ' (force reload)' : ''}`)
 const dependenciesData = loadSeedData<DependencySeed>('dependencies.json')
@@ -560,6 +623,7 @@ console.log(`   • Boards: ${boardsCreated} created${boardsSkipped > 0 ? `, ${b
 console.log(`   • Board Members: ${membersCreated} created`)
 console.log(`   • Views: ${viewsCreated} created`)
 console.log(`   • Cards: ${cardsCreated} created`)
+console.log(`   • Checklist items: ${checklistItemsCreated} created`)
 console.log(`   • Dependencies: ${dependenciesCreated / 2} created`)
 console.log(`   • Categories: ${categoriesCreated} created`)
 console.log(`   • Subscriptions: ${subscriptionsCreated} created`)

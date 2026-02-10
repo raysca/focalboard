@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import {Plus, Type, Image, Minus, CheckSquare, Heading1, Heading2, Heading3} from 'lucide-react'
 import {cn} from '../../lib/cn'
 import type {Block} from '../../api/types'
+import {ChecklistProgress} from './ChecklistProgress'
 
 interface CardDetailContentsProps {
     contents: Block[]
@@ -23,6 +24,11 @@ export function CardDetailContents({contents, contentOrder, onAddBlock, onUpdate
     const unorderedContents = contents.filter((b) => !contentOrder.includes(b.id))
     const allContents = [...orderedContents, ...unorderedContents]
 
+    // Calculate checklist progress
+    const checkboxes = allContents.filter(b => b.type === 'checkbox')
+    const completedCheckboxes = checkboxes.filter(b => b.fields?.value === 'true')
+    const hasCheckboxes = checkboxes.length > 0
+
     return (
         <div className="px-6 py-4 min-h-[120px]">
             {allContents.length === 0 && !showMenu && (
@@ -31,6 +37,21 @@ export function CardDetailContents({contents, contentOrder, onAddBlock, onUpdate
                     onClick={() => setShowMenu(true)}
                 >
                     Add content...
+                </div>
+            )}
+
+            {/* Checklist progress indicator */}
+            {hasCheckboxes && (
+                <div className="mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <h4 className="text-xs font-semibold text-center-fg/70 uppercase tracking-wide">
+                            Checklist
+                        </h4>
+                    </div>
+                    <ChecklistProgress
+                        completed={completedCheckboxes.length}
+                        total={checkboxes.length}
+                    />
                 </div>
             )}
 
@@ -147,20 +168,22 @@ function ContentBlockRenderer({block, onUpdate, onDelete, onAddBelow}: ContentBl
 
         case 'checkbox':
             return (
-                <div className="group relative flex items-center gap-2 py-1">
+                <div className="group relative flex items-start gap-2.5 py-1.5">
                     <button
                         onClick={() => {
                             const checked = block.fields?.value === 'true'
                             onUpdate({fields: {...block.fields, value: checked ? 'false' : 'true'}})
                         }}
                         className={cn(
-                            'w-4 h-4 rounded border flex items-center justify-center cursor-pointer transition-colors shrink-0',
+                            'w-[18px] h-[18px] rounded border-2 flex items-center justify-center cursor-pointer transition-all shrink-0 mt-0.5',
                             block.fields?.value === 'true'
-                                ? 'bg-button-bg border-button-bg text-button-fg'
-                                : 'border-center-fg/30'
+                                ? 'bg-button-bg border-button-bg text-button-fg scale-105'
+                                : 'border-center-fg/40 hover:border-center-fg/60'
                         )}
                     >
-                        {block.fields?.value === 'true' && <span className="text-[10px]">✓</span>}
+                        {block.fields?.value === 'true' && (
+                            <span className="text-[11px] font-bold">✓</span>
+                        )}
                     </button>
                     {editing ? (
                         <input
@@ -169,22 +192,31 @@ function ContentBlockRenderer({block, onUpdate, onDelete, onAddBelow}: ContentBl
                             onChange={(e) => setDraft(e.target.value)}
                             onBlur={saveText}
                             onKeyDown={(e) => {
-                                if (e.key === 'Enter') { e.preventDefault(); saveText() }
-                                if (e.key === 'Escape') { setDraft(block.title || ''); setEditing(false) }
+                                if (e.key === 'Enter') {
+                                    e.preventDefault()
+                                    saveText()
+                                    // Create new checkbox below
+                                    onAddBelow('checkbox')
+                                }
+                                if (e.key === 'Escape') {
+                                    setDraft(block.title || '')
+                                    setEditing(false)
+                                }
                             }}
-                            className="flex-1 text-sm bg-transparent border-b border-button-bg/30 outline-none text-center-fg"
+                            className="flex-1 text-sm bg-transparent border-b border-button-bg/30 outline-none text-center-fg pb-0.5"
                             autoFocus
+                            placeholder="Checklist item"
                         />
                     ) : (
                         <span
                             onClick={() => { setDraft(block.title || ''); setEditing(true) }}
                             className={cn(
-                                'flex-1 text-sm cursor-text',
+                                'flex-1 text-sm cursor-text py-0.5',
                                 block.fields?.value === 'true' && 'line-through text-center-fg/40',
-                                !block.title && 'text-center-fg/30'
+                                !block.title && 'text-center-fg/30 italic'
                             )}
                         >
-                            {block.title || 'Checkbox item'}
+                            {block.title || 'Click to add task'}
                         </span>
                     )}
                     <DeleteButton onDelete={onDelete} />

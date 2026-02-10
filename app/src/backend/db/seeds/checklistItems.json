@@ -1,0 +1,51 @@
+[
+  {
+    "cardId": "card-auth-flow",
+    "items": [
+      {"text": "Research OAuth 2.0 specification", "completed": true},
+      {"text": "Set up Better Auth integration", "completed": true},
+      {"text": "Implement Google OAuth provider", "completed": false},
+      {"text": "Implement GitHub OAuth provider", "completed": false},
+      {"text": "Add email/password authentication", "completed": false},
+      {"text": "Write authentication tests", "completed": false}
+    ]
+  },
+  {
+    "cardId": "card-ci-cd",
+    "items": [
+      {"text": "Configure GitHub Actions workflow", "completed": true},
+      {"text": "Set up automated testing", "completed": true},
+      {"text": "Add linting to CI pipeline", "completed": true},
+      {"text": "Configure staging deployment", "completed": false},
+      {"text": "Set up production deployment", "completed": false}
+    ]
+  },
+  {
+    "cardId": "card-landing-page",
+    "items": [
+      {"text": "Design hero section mockup", "completed": true},
+      {"text": "Create gradient animation", "completed": false},
+      {"text": "Write compelling copy", "completed": false},
+      {"text": "Optimize for mobile devices", "completed": false}
+    ]
+  },
+  {
+    "cardId": "card-e2e-tests",
+    "items": [
+      {"text": "Set up Playwright test framework", "completed": false},
+      {"text": "Write authentication flow tests", "completed": false},
+      {"text": "Write board CRUD tests", "completed": false},
+      {"text": "Write card management tests", "completed": false},
+      {"text": "Configure CI test runner", "completed": false}
+    ]
+  },
+  {
+    "cardId": "card-mobile-responsive",
+    "items": [
+      {"text": "Audit mobile viewport rendering", "completed": true},
+      {"text": "Fix kanban board touch scrolling", "completed": false},
+      {"text": "Optimize card detail modal for mobile", "completed": false},
+      {"text": "Test on iOS Safari and Chrome", "completed": false}
+    ]
+  }
+]
