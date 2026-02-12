@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import type * as schemaType from "../db/schema.ts";
-import { blocks } from "../db/schema.ts";
+import { blocks, boards, boardMembers } from "../db/schema.ts";
 import { sessionRequired } from "../middleware/auth.ts";
 import { eq, and } from "drizzle-orm";
-import { NotFoundError, BadRequestError } from "../errors.ts";
+import { NotFoundError, BadRequestError, ForbiddenError } from "../errors.ts";
+import { FileService } from "../services/file.ts";
 
 const cardRoutes = new Hono();
 
@@ -100,5 +101,145 @@ cardRoutes.patch("/cards/:cardID", sessionRequired, async (c) => {
 
   return c.json(updated);
 });
+
+// Helper function to verify board access
+async function verifyBoardAccess(
+  db: BunSQLiteDatabase<typeof schemaType>,
+  cardId: string,
+  userId: string
+) {
+  const card = db
+    .select()
+    .from(blocks)
+    .where(eq(blocks.id, cardId))
+    .get();
+
+  if (!card) {
+    throw new NotFoundError("Card not found");
+  }
+
+  const member = db
+    .select()
+    .from(boardMembers)
+    .where(
+      and(
+        eq(boardMembers.boardId, card.boardId),
+        eq(boardMembers.userId, userId)
+      )
+    )
+    .get();
+
+  if (!member) {
+    throw new ForbiddenError("Access denied");
+  }
+
+  return { card, member };
+}
+
+// POST /cards/:cardID/attachments
+cardRoutes.post("/cards/:cardID/attachments", sessionRequired, async (c) => {
+  const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+  const cardId = c.req.param("cardID");
+  const userId = c.get("userId") as string;
+
+  // Verify access
+  const { card } = await verifyBoardAccess(db, cardId, userId);
+
+  // Get board to extract teamId
+  const board = db
+    .select()
+    .from(boards)
+    .where(eq(boards.id, card.boardId))
+    .get();
+
+  if (!board) {
+    throw new NotFoundError("Board not found");
+  }
+
+  const formData = await c.req.formData();
+  const file = formData.get("file");
+
+  if (!file || !(file instanceof File)) {
+    throw new BadRequestError("file is required");
+  }
+
+  const fileService = new FileService(db);
+  const attachment = await fileService.uploadCardAttachment({
+    file,
+    cardId,
+    userId,
+    teamId: board.teamId,
+    boardId: card.boardId,
+  });
+
+  return c.json(attachment, 201);
+});
+
+// GET /cards/:cardID/attachments
+cardRoutes.get("/cards/:cardID/attachments", sessionRequired, async (c) => {
+  const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+  const cardId = c.req.param("cardID");
+  const userId = c.get("userId") as string;
+
+  // Verify access
+  await verifyBoardAccess(db, cardId, userId);
+
+  const fileService = new FileService(db);
+  const attachments = await fileService.getCardAttachments(cardId);
+
+  return c.json(attachments);
+});
+
+// DELETE /cards/:cardID/attachments/:attachmentID
+cardRoutes.delete(
+  "/cards/:cardID/attachments/:attachmentID",
+  sessionRequired,
+  async (c) => {
+    const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+    const cardId = c.req.param("cardID");
+    const attachmentId = c.req.param("attachmentID");
+    const userId = c.get("userId") as string;
+
+    // Verify access
+    await verifyBoardAccess(db, cardId, userId);
+
+    const fileService = new FileService(db);
+    const result = await fileService.deleteAttachment(attachmentId, cardId);
+
+    return c.json(result);
+  }
+);
+
+// GET /cards/:cardID/attachments/:attachmentID/download
+cardRoutes.get(
+  "/cards/:cardID/attachments/:attachmentID/download",
+  sessionRequired,
+  async (c) => {
+    const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+    const cardId = c.req.param("cardID");
+    const attachmentId = c.req.param("attachmentID");
+    const userId = c.get("userId") as string;
+
+    // Verify access
+    await verifyBoardAccess(db, cardId, userId);
+
+    const fileService = new FileService(db);
+    const { filePath, filename, mimeType } =
+      await fileService.getAttachmentFile(attachmentId);
+
+    const file = Bun.file(filePath);
+
+    if (!(await file.exists())) {
+      throw new NotFoundError("File not found");
+    }
+
+    return new Response(file.stream(), {
+      headers: {
+        "Content-Type": mimeType,
+        "Content-Disposition": `attachment; filename="${filename}"`,
+      },
+    });
+  }
+);
 
 export default cardRoutes;

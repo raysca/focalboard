@@ -373,8 +373,14 @@ export const fileInfo = sqliteTable(
       .notNull()
       .default(false),
     path: text("path").notNull().default(""),
+    blockId: text("block_id").references(() => blocks.id, { onDelete: "cascade" }),
+    uploadedBy: text("uploaded_by").references(() => user.id),
+    uploadedAt: integer("uploaded_at", { mode: "number" }),
   },
-  (table) => [index("idx_file_info_create_at").on(table.createAt)],
+  (table) => [
+    index("idx_file_info_create_at").on(table.createAt),
+    index("idx_file_info_block_id").on(table.blockId),
+  ],
 );
 
 // -- Preferences --

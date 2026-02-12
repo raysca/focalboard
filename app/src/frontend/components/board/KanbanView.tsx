@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from 'react'
 import {useNavigate} from '@tanstack/react-router'
-import {Plus} from 'lucide-react'
+import {Plus, Paperclip} from 'lucide-react'
 import {
     DndContext,
     DragOverlay,
@@ -78,6 +78,14 @@ function SortableCard({card, visibleProps, onClick}: {card: Card; visibleProps: 
                     })}
                 </div>
             )}
+
+            {/* Attachment count */}
+            {card.fields?.attachments && (card.fields.attachments as string[]).length > 0 && (
+                <div className="flex items-center gap-1 text-xs text-center-fg/50 mt-2">
+                    <Paperclip className="w-3 h-3" />
+                    <span>{(card.fields.attachments as string[]).length}</span>
+                </div>
+            )}
         </div>
     )
 }
@@ -109,6 +117,13 @@ function CardOverlay({card, visibleProps}: {card: Card; visibleProps: IPropertyT
                             />
                         )
                     })}
+                </div>
+            )}
+            {/* Attachment count */}
+            {card.fields?.attachments && (card.fields.attachments as string[]).length > 0 && (
+                <div className="flex items-center gap-1 text-xs text-center-fg/50 mt-2">
+                    <Paperclip className="w-3 h-3" />
+                    <span>{(card.fields.attachments as string[]).length}</span>
                 </div>
             )}
         </div>

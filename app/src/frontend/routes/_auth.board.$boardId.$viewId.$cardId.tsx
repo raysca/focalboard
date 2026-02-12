@@ -9,6 +9,7 @@ import {CardDetailProperties} from '../components/card/CardDetailProperties'
 import {CardDetailContents} from '../components/card/CardDetailContents'
 import {CommentsList} from '../components/card/CommentsList'
 import {DependencySection} from '../components/dependencies/DependencySection'
+import {AttachmentList} from '../components/attachments/AttachmentList'
 import {api} from '../api/client'
 import type {Block, Card} from '../api/types'
 
@@ -226,6 +227,12 @@ function CardDialog() {
                     onUpdateBlock={handleUpdateContentBlock}
                     onDeleteBlock={handleDeleteContentBlock}
                 />
+
+                {/* Divider */}
+                <div className="h-px bg-border-default mx-6" />
+
+                {/* Attachments */}
+                <AttachmentList cardId={cardId} />
 
                 {/* Divider */}
                 <div className="h-px bg-border-default mx-6" />

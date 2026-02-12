@@ -15,6 +15,13 @@
       "when": 1739049600000,
       "tag": "0001_add_card_dependencies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1770883735969,
+      "tag": "0002_adorable_ken_ellis",
+      "breakpoints": true
     }
   ]
 }
