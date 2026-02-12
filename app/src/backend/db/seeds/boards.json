@@ -50,6 +50,19 @@
         "name": "Story Points",
         "type": "number",
         "options": []
+      },
+      {
+        "id": "prop-labels",
+        "name": "Labels",
+        "type": "multiSelect",
+        "options": [
+          {"id": "label-bug", "value": "Bug", "color": "red"},
+          {"id": "label-feature", "value": "Feature", "color": "blue"},
+          {"id": "label-enhancement", "value": "Enhancement", "color": "green"},
+          {"id": "label-sprint-1", "value": "Sprint 1", "color": "purple"},
+          {"id": "label-sprint-2", "value": "Sprint 2", "color": "orange"},
+          {"id": "label-high-priority", "value": "High Priority", "color": "pink"}
+        ]
       }
     ]
   },
@@ -93,6 +106,19 @@
         "name": "Assignee",
         "type": "person",
         "options": []
+      },
+      {
+        "id": "prop-labels",
+        "name": "Labels",
+        "type": "multiSelect",
+        "options": [
+          {"id": "label-bug", "value": "Bug", "color": "red"},
+          {"id": "label-feature", "value": "Feature", "color": "blue"},
+          {"id": "label-enhancement", "value": "Enhancement", "color": "green"},
+          {"id": "label-sprint-1", "value": "Sprint 1", "color": "purple"},
+          {"id": "label-sprint-2", "value": "Sprint 2", "color": "orange"},
+          {"id": "label-high-priority", "value": "High Priority", "color": "pink"}
+        ]
       }
     ]
   },
@@ -134,6 +160,19 @@
         "name": "Assignee",
         "type": "person",
         "options": []
+      },
+      {
+        "id": "prop-labels",
+        "name": "Labels",
+        "type": "multiSelect",
+        "options": [
+          {"id": "label-bug", "value": "Bug", "color": "red"},
+          {"id": "label-feature", "value": "Feature", "color": "blue"},
+          {"id": "label-enhancement", "value": "Enhancement", "color": "green"},
+          {"id": "label-sprint-1", "value": "Sprint 1", "color": "purple"},
+          {"id": "label-sprint-2", "value": "Sprint 2", "color": "orange"},
+          {"id": "label-high-priority", "value": "High Priority", "color": "pink"}
+        ]
       }
     ]
   },
@@ -171,6 +210,19 @@
         "name": "Assignee",
         "type": "person",
         "options": []
+      },
+      {
+        "id": "prop-labels",
+        "name": "Labels",
+        "type": "multiSelect",
+        "options": [
+          {"id": "label-bug", "value": "Bug", "color": "red"},
+          {"id": "label-feature", "value": "Feature", "color": "blue"},
+          {"id": "label-enhancement", "value": "Enhancement", "color": "green"},
+          {"id": "label-sprint-1", "value": "Sprint 1", "color": "purple"},
+          {"id": "label-sprint-2", "value": "Sprint 2", "color": "orange"},
+          {"id": "label-high-priority", "value": "High Priority", "color": "pink"}
+        ]
       }
     ]
   }

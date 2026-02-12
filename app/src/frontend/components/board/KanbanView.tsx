@@ -17,6 +17,7 @@ import {CSS} from '@dnd-kit/utilities'
 import {cn} from '../../lib/cn'
 import {PropertyValue} from './PropertyValue'
 import {DependencyBadge} from '../dependencies/DependencyBadge'
+import {QuickLabelEditor} from './QuickLabelEditor'
 import {useInsertBlocksMutation, usePatchBlockMutation} from '../../hooks/useBlocks'
 import type {Board, BoardView, Card, Block, IPropertyTemplate, IPropertyOption} from '../../api/types'
 
@@ -28,11 +29,14 @@ interface KanbanViewProps {
 }
 
 // --- Sortable card wrapper ---
-function SortableCard({card, visibleProps, onClick}: {card: Card; visibleProps: IPropertyTemplate[]; onClick: () => void}) {
+function SortableCard({card, visibleProps, board, onClick}: {card: Card; visibleProps: IPropertyTemplate[]; board: Board; onClick: () => void}) {
+    const patchBlock = usePatchBlockMutation(board.id)
     const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({
         id: card.id,
         data: {type: 'card', card},
     })
+
+    const labelsProperty = board.cardProperties?.find(p => p.name === 'Labels')
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -60,7 +64,30 @@ function SortableCard({card, visibleProps, onClick}: {card: Card; visibleProps: 
                         {card.title || 'Untitled'}
                     </span>
                 </div>
-                <DependencyBadge cardId={card.id} variant="compact" />
+                <div className="flex items-center gap-1">
+                    {labelsProperty && (
+                        <QuickLabelEditor
+                            labelsProperty={labelsProperty}
+                            currentLabels={(card.fields?.properties?.[labelsProperty.id] as string[]) || []}
+                            onLabelsChange={(newLabels) => {
+                                patchBlock.mutate({
+                                    blockId: card.id,
+                                    patch: {
+                                        fields: {
+                                            ...card.fields,
+                                            properties: {
+                                                ...(card.fields?.properties || {}),
+                                                [labelsProperty.id]: newLabels
+                                            }
+                                        }
+                                    }
+                                })
+                            }}
+                            compact
+                        />
+                    )}
+                    <DependencyBadge cardId={card.id} variant="compact" />
+                </div>
             </div>
 
             {/* Property badges */}
@@ -178,6 +205,7 @@ export function KanbanView({board, cards, activeView, contents}: KanbanViewProps
 
         const collapsedIds = new Set(activeView?.fields?.collapsedOptionIds || [])
         const hiddenIds = new Set(activeView?.fields?.hiddenOptionIds || [])
+        const isMultiSelectGrouping = effectiveGroupBy.type === 'multiSelect'
 
         const optionGroups = effectiveGroupBy.options
             .filter((opt: IPropertyOption) => !hiddenIds.has(opt.id))
@@ -188,20 +216,32 @@ export function KanbanView({board, cards, activeView, contents}: KanbanViewProps
                 collapsed: collapsedIds.has(opt.id),
                 cards: cards.filter((card) => {
                     const propValue = card.fields?.properties?.[effectiveGroupBy.id]
-                    return propValue === opt.id
+                    if (isMultiSelectGrouping) {
+                        // For multiSelect: check if array includes this option
+                        return Array.isArray(propValue) && propValue.includes(opt.id)
+                    } else {
+                        // For select: check exact match
+                        return propValue === opt.id
+                    }
                 }),
             }))
 
         // Add "No Value" group for cards without the property
         const ungrouped = cards.filter((card) => {
             const propValue = card.fields?.properties?.[effectiveGroupBy.id]
-            return !propValue || !effectiveGroupBy.options?.some((o: IPropertyOption) => o.id === propValue)
+            if (isMultiSelectGrouping) {
+                // For multiSelect: cards with empty array or no value
+                return !propValue || !Array.isArray(propValue) || propValue.length === 0
+            } else {
+                // For select: cards without value
+                return !propValue || !effectiveGroupBy.options?.some((o: IPropertyOption) => o.id === propValue)
+            }
         })
 
         if (ungrouped.length > 0) {
             optionGroups.push({
                 id: '__no_value',
-                name: 'No Status',
+                name: isMultiSelectGrouping ? 'No Labels' : 'No Status',
                 color: 'default',
                 collapsed: false,
                 cards: ungrouped,
@@ -258,6 +298,8 @@ export function KanbanView({board, cards, activeView, contents}: KanbanViewProps
         const card = cards.find((c) => c.id === cardId)
         if (!card) return
 
+        const isMultiSelectGrouping = effectiveGroupBy.type === 'multiSelect'
+
         // Determine target group
         let targetGroupId: string | null = null
 
@@ -267,19 +309,46 @@ export function KanbanView({board, cards, activeView, contents}: KanbanViewProps
             // Find which group the target card belongs to
             const overCard = over.data.current.card as Card
             const overPropValue = overCard.fields?.properties?.[effectiveGroupBy.id]
+            if (isMultiSelectGrouping) {
+                // For multiSelect, we can't determine a single target group from the card
+                // Skip drag-to-card for multiSelect grouping
+                return
+            }
             targetGroupId = overPropValue || null
         }
 
         if (targetGroupId === null) return
 
-        // Check if the card is already in the target group
-        const currentPropValue = card.fields?.properties?.[effectiveGroupBy.id]
-        if (currentPropValue === targetGroupId) return
-
         // Update the card's groupBy property
-        const updatedProperties = {
-            ...(card.fields?.properties || {}),
-            [effectiveGroupBy.id]: targetGroupId === '__no_value' ? '' : targetGroupId,
+        const currentPropValue = card.fields?.properties?.[effectiveGroupBy.id]
+        let updatedProperties: Record<string, any>
+
+        if (isMultiSelectGrouping) {
+            // For multiSelect: add label if not already present
+            const currentLabels = Array.isArray(currentPropValue) ? currentPropValue : []
+            if (targetGroupId === '__no_value') {
+                // Clear all labels
+                updatedProperties = {
+                    ...(card.fields?.properties || {}),
+                    [effectiveGroupBy.id]: [],
+                }
+            } else if (!currentLabels.includes(targetGroupId)) {
+                // Add the new label
+                updatedProperties = {
+                    ...(card.fields?.properties || {}),
+                    [effectiveGroupBy.id]: [...currentLabels, targetGroupId],
+                }
+            } else {
+                // Already has this label, no update needed
+                return
+            }
+        } else {
+            // For select: replace value (existing behavior)
+            if (currentPropValue === targetGroupId) return
+            updatedProperties = {
+                ...(card.fields?.properties || {}),
+                [effectiveGroupBy.id]: targetGroupId === '__no_value' ? '' : targetGroupId,
+            }
         }
 
         patchBlock.mutate({

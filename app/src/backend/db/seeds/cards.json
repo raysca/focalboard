@@ -8,7 +8,8 @@
       "prop-status": "status-in-progress",
       "prop-priority": "priority-critical",
       "prop-assignee": "user-bob-backend",
-      "prop-estimate": 8
+      "prop-estimate": 8,
+      "prop-labels": ["label-feature", "label-sprint-1", "label-high-priority"]
     },
     "content": "Implement OAuth 2.0 with support for Google, GitHub, and email/password providers using Better Auth library."
   },
@@ -21,7 +22,8 @@
       "prop-status": "status-done",
       "prop-priority": "priority-critical",
       "prop-assignee": "user-bob-backend",
-      "prop-estimate": 13
+      "prop-estimate": 13,
+      "prop-labels": ["label-feature", "label-sprint-1"]
     },
     "content": "Create Drizzle ORM schema for users, boards, cards, and relationships. Include migration scripts."
   },
@@ -73,7 +75,8 @@
       "prop-status": "status-todo",
       "prop-priority": "priority-critical",
       "prop-assignee": "user-bob-backend",
-      "prop-estimate": 13
+      "prop-estimate": 13,
+      "prop-labels": ["label-feature", "label-sprint-2", "label-high-priority"]
     },
     "content": "Implement subscription billing with Stripe. Support multiple tiers and payment methods."
   },
@@ -86,7 +89,8 @@
       "prop-status": "status-done",
       "prop-priority": "priority-high",
       "prop-assignee": "user-dave-devops",
-      "prop-estimate": 3
+      "prop-estimate": 3,
+      "prop-labels": ["label-bug", "label-sprint-1"]
     },
     "content": "Set up Sentry for both frontend and backend error monitoring with source maps."
   },
@@ -99,7 +103,8 @@
       "prop-status": "status-in-progress",
       "prop-priority": "priority-high",
       "prop-assignee": "user-bob-backend",
-      "prop-estimate": 21
+      "prop-estimate": 21,
+      "prop-labels": ["label-feature", "label-sprint-2", "label-high-priority"]
     },
     "content": "Implement WebSocket server for real-time board updates. Handle reconnection and conflict resolution."
   },
@@ -125,7 +130,8 @@
       "prop-status": "status-review",
       "prop-priority": "priority-high",
       "prop-assignee": "user-carol-frontend",
-      "prop-estimate": 8
+      "prop-estimate": 8,
+      "prop-labels": ["label-enhancement", "label-sprint-1"]
     },
     "content": "Ensure all views work seamlessly on mobile devices. Test on iOS and Android."
   },
