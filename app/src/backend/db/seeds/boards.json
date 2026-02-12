@@ -10,6 +10,7 @@
     "icon": "🚀",
     "showDescription": true,
     "isTemplate": false,
+    "defaultViewId": "view-product-board",
     "cardProperties": [
       {
         "id": "prop-status",

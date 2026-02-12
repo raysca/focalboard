@@ -1,0 +1,1 @@
+ALTER TABLE `boards` ADD `default_view_id` text;

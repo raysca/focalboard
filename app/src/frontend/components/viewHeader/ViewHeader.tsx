@@ -1,11 +1,12 @@
 import React, {useState, useCallback} from 'react'
-import {Plus, LayoutGrid, Table, Image, Calendar, Share2, Users, Filter} from 'lucide-react'
+import {Plus, LayoutGrid, Table, Image, Calendar, Share2, Users, Filter, Save, User, Lock, Star} from 'lucide-react'
 import {cn} from '../../lib/cn'
-import {useInsertBlocksMutation, usePatchBlockMutation} from '../../hooks/useBlocks'
+import {useInsertBlocksMutation, usePatchBlockMutation, useFilteredViews} from '../../hooks/useBlocks'
 import {ShareBoardDialog} from '../board/ShareBoardDialog'
 import {MembersDialog} from '../board/MembersDialog'
 import {FilterComponent} from './FilterComponent'
-import type {Board, BoardView, Card, FilterGroup} from '../../api/types'
+import {SaveViewDialog} from './SaveViewDialog'
+import type {Board, BoardView, Card, FilterGroup, ViewVisibility} from '../../api/types'
 
 interface ViewHeaderProps {
     board: Board
@@ -13,6 +14,7 @@ interface ViewHeaderProps {
     activeView?: BoardView
     onViewChange: (viewId: string) => void
     cards: Card[]
+    currentUserId?: string
 }
 
 const viewTypeIcons: Record<string, React.ElementType> = {
@@ -29,12 +31,16 @@ const viewTypeLabels: Record<string, string> = {
     calendar: 'Calendar',
 }
 
-export function ViewHeader({board, views, activeView, onViewChange, cards}: ViewHeaderProps) {
+export function ViewHeader({board, views, activeView, onViewChange, cards, currentUserId}: ViewHeaderProps) {
     const insertBlocks = useInsertBlocksMutation(board.id)
     const patchBlock = usePatchBlockMutation(board.id)
     const [showShareDialog, setShowShareDialog] = useState(false)
     const [showMembersDialog, setShowMembersDialog] = useState(false)
     const [showFilter, setShowFilter] = useState(false)
+    const [showSaveViewDialog, setShowSaveViewDialog] = useState(false)
+
+    // Filter views by visibility
+    const filteredViews = useFilteredViews(views, currentUserId)
 
     const filterGroup: FilterGroup = activeView?.fields?.filter || {operation: 'and', filters: []}
     const activeFilterCount = filterGroup.filters?.length || 0
@@ -76,15 +82,36 @@ export function ViewHeader({board, views, activeView, onViewChange, cards}: View
         insertBlocks.mutate([newCard])
     }
 
+    const handleSaveView = (viewName: string, visibility: ViewVisibility) => {
+        if (!activeView) return
+
+        const newView: any = {
+            boardId: board.id,
+            parentId: board.id,
+            type: 'view',
+            title: viewName,
+            fields: {
+                ...activeView.fields,
+                visibility,
+                isReadOnly: visibility === 'template',
+            },
+            schema: 1,
+        }
+
+        insertBlocks.mutate([newView])
+    }
+
     return (
         <>
             <div className="flex items-center gap-1 px-6 pb-2 border-b border-border-default">
                 {/* View tabs */}
                 <div className="flex items-center gap-0.5 mr-4">
-                    {views.map((view) => {
+                    {filteredViews.map((view) => {
                         const viewType = view.fields?.viewType || 'board'
+                        const visibility = view.fields?.visibility || 'team'
                         const Icon = viewTypeIcons[viewType] || LayoutGrid
                         const isActive = view.id === activeView?.id
+                        const isDefault = board.defaultViewId === view.id
 
                         return (
                             <button
@@ -99,6 +126,15 @@ export function ViewHeader({board, views, activeView, onViewChange, cards}: View
                             >
                                 <Icon size={14} />
                                 <span>{view.title || viewTypeLabels[viewType]}</span>
+                                {visibility === 'personal' && (
+                                    <User size={10} className="opacity-50" title="Personal view" />
+                                )}
+                                {visibility === 'template' && (
+                                    <Lock size={10} className="opacity-50" title="Template view" />
+                                )}
+                                {isDefault && (
+                                    <Star size={10} className="text-yellow-500" title="Default view" />
+                                )}
                             </button>
                         )
                     })}
@@ -130,6 +166,15 @@ export function ViewHeader({board, views, activeView, onViewChange, cards}: View
                         onChange={handleFilterChange}
                     />
                 </div>
+
+                {/* Save View button */}
+                <button
+                    onClick={() => setShowSaveViewDialog(true)}
+                    className="flex items-center gap-1.5 h-8 px-2.5 rounded text-sm text-center-fg/50 hover:text-center-fg hover:bg-hover transition-colors cursor-pointer"
+                    title="Save current view"
+                >
+                    <Save size={14} />
+                </button>
 
                 {/* Spacer */}
                 <div className="flex-1" />
@@ -174,6 +219,15 @@ export function ViewHeader({board, views, activeView, onViewChange, cards}: View
                 onClose={() => setShowMembersDialog(false)}
                 boardId={board.id}
             />
+            {activeView && (
+                <SaveViewDialog
+                    open={showSaveViewDialog}
+                    onClose={() => setShowSaveViewDialog(false)}
+                    board={board}
+                    currentView={activeView}
+                    onSave={handleSaveView}
+                />
+            )}
         </>
     )
 }

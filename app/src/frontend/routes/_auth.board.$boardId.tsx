@@ -4,6 +4,7 @@ import {Route as authRoute} from './_auth'
 import {useBoardQuery, usePatchBoardMutation} from '../hooks/useBoards'
 import {useBoardDataQuery} from '../hooks/useBlocks'
 import {useBoardWebSocket} from '../hooks/useBoardWebSocket'
+import {useAuth} from '../contexts/AuthContext'
 import {Editable} from '../components/ui/Editable'
 import {ViewHeader} from '../components/viewHeader/ViewHeader'
 import {KanbanView} from '../components/board/KanbanView'
@@ -25,6 +26,7 @@ export const Route = createRoute({
 function BoardPage() {
     const {boardId} = Route.useParams()
     const navigate = useNavigate()
+    const {user} = useAuth()
 
     // Connect to real-time updates
     const {isConnected} = useBoardWebSocket(boardId)
@@ -112,6 +114,7 @@ function BoardPage() {
                 activeView={activeView}
                 onViewChange={(viewId) => setActiveViewId(viewId)}
                 cards={cards}
+                currentUserId={user?.id}
             />
 
             {/* View content */}

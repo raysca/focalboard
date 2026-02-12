@@ -62,6 +62,40 @@ boardRoutes.patch("/boards/:boardID", sessionRequired, validateRequest(updateBoa
   return c.json(board);
 });
 
+// PATCH /boards/:boardID/default-view
+boardRoutes.patch("/boards/:boardID/default-view", sessionRequired, async (c) => {
+  const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+  const boardId = c.req.param("boardID");
+  const userId = c.get("userId") as string;
+  const body = await c.req.json();
+  const { defaultViewId } = body;
+
+  // Validate view exists and is team/template (not personal)
+  if (defaultViewId) {
+    const view = db
+      .select()
+      .from(blocks)
+      .where(and(eq(blocks.id, defaultViewId), eq(blocks.type, 'view')))
+      .get();
+
+    if (!view) {
+      return c.json({ error: 'Invalid view ID' }, 400);
+    }
+
+    const viewFields = view.fields as any;
+    const visibility = viewFields?.visibility || 'team';
+
+    if (visibility === 'personal') {
+      return c.json({ error: 'Cannot set personal view as board default' }, 400);
+    }
+  }
+
+  const boardService = createBoardService(db, c.get("eventService"));
+  const board = await boardService.update(userId, boardId, { defaultViewId });
+
+  return c.json(board);
+});
+
 // DELETE /boards/:boardID
 boardRoutes.delete("/boards/:boardID", sessionRequired, async (c) => {
   const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;

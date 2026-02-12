@@ -14,6 +14,7 @@ const blockRoutes = new Hono();
 blockRoutes.get("/boards/:boardID/blocks", sessionRequired, async (c) => {
   const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
   const boardId = c.req.param("boardID");
+  const userId = c.get("userId") as string;
   const parentId = c.req.query("parent_id");
   const type = c.req.query("type");
 
@@ -27,7 +28,23 @@ blockRoutes.get("/boards/:boardID/blocks", sessionRequired, async (c) => {
     .where(and(...conditions))
     .all();
 
-  return c.json(result);
+  // Filter views by visibility
+  const filteredResult = result.filter(block => {
+    if (block.type !== 'view') return true;
+
+    const viewFields = block.fields as any;
+    const visibility = viewFields?.visibility || 'team';
+
+    // Personal views: only show to creator
+    if (visibility === 'personal' && block.createdBy !== userId) {
+      return false;
+    }
+
+    // Team and Template views: show to all board members
+    return true;
+  });
+
+  return c.json(filteredResult);
 });
 
 // POST /boards/:boardID/blocks

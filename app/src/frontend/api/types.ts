@@ -26,6 +26,7 @@ export interface Board {
     templateVersion: number
     properties: Record<string, any>
     cardProperties: IPropertyTemplate[]
+    defaultViewId?: string
     createAt: number
     updateAt: number
     deleteAt: number
@@ -87,6 +88,8 @@ export interface BoardView extends Block {
     fields: ViewFields
 }
 
+export type ViewVisibility = 'personal' | 'team' | 'template'
+
 export interface ViewFields {
     viewType: ViewType
     sortOptions?: SortOption[]
@@ -102,6 +105,8 @@ export interface ViewFields {
     defaultTemplateId?: string
     groupById?: string
     dateDisplayPropertyId?: string
+    visibility?: ViewVisibility
+    isReadOnly?: boolean
 }
 
 export type ViewType = 'board' | 'table' | 'gallery' | 'calendar'

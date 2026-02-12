@@ -9,7 +9,8 @@
     "fields": {
       "viewType": "board",
       "groupById": "prop-status",
-      "visiblePropertyIds": ["prop-priority", "prop-assignee", "prop-estimate"],
+      "visibility": "team",
+      "visiblePropertyIds": ["prop-priority", "prop-assignee", "prop-estimate", "prop-labels"],
       "sortOptions": [],
       "filter": {"operation": "and", "filters": []},
       "cardOrder": [],
@@ -27,7 +28,8 @@
     "type": "view",
     "fields": {
       "viewType": "table",
-      "visiblePropertyIds": ["prop-status", "prop-priority", "prop-assignee", "prop-due-date", "prop-estimate"],
+      "visibility": "team",
+      "visiblePropertyIds": ["prop-status", "prop-priority", "prop-assignee", "prop-due-date", "prop-estimate", "prop-labels"],
       "sortOptions": [{"propertyId": "prop-priority", "reversed": false}],
       "filter": {"operation": "and", "filters": []},
       "cardOrder": [],
@@ -157,6 +159,7 @@
     "type": "view",
     "fields": {
       "viewType": "table",
+      "visibility": "team",
       "visiblePropertyIds": ["prop-sprint-status", "prop-sprint-points", "prop-sprint-assignee"],
       "sortOptions": [{"propertyId": "prop-sprint-points", "reversed": true}],
       "filter": {"operation": "and", "filters": []},
@@ -166,6 +169,47 @@
         "prop-sprint-points": 80,
         "prop-sprint-assignee": 150
       }
+    }
+  },
+  {
+    "id": "view-my-tasks",
+    "boardId": "board-product-launch",
+    "parentId": "board-product-launch",
+    "createdBy": "user-alice-dev",
+    "title": "My Tasks",
+    "type": "view",
+    "fields": {
+      "viewType": "table",
+      "visibility": "personal",
+      "filter": {
+        "operation": "and",
+        "filters": [
+          {"propertyId": "prop-assignee", "condition": "is", "values": ["user-alice-dev"]}
+        ]
+      },
+      "sortOptions": [{"propertyId": "prop-priority", "reversed": false}],
+      "visiblePropertyIds": ["prop-status", "prop-priority", "prop-due-date", "prop-labels"]
+    }
+  },
+  {
+    "id": "view-sprint-template",
+    "boardId": "board-product-launch",
+    "parentId": "board-product-launch",
+    "createdBy": "user-alice-dev",
+    "title": "Sprint 1 Template",
+    "type": "view",
+    "fields": {
+      "viewType": "board",
+      "visibility": "template",
+      "isReadOnly": true,
+      "groupById": "prop-labels",
+      "filter": {
+        "operation": "and",
+        "filters": [
+          {"propertyId": "prop-labels", "condition": "includes", "values": ["label-sprint-1"]}
+        ]
+      },
+      "visiblePropertyIds": ["prop-priority", "prop-assignee", "prop-estimate"]
     }
   }
 ]

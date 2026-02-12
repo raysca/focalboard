@@ -171,6 +171,7 @@ export const boards = sqliteTable(
       .notNull()
       .$type<Array<Record<string, unknown>>>()
       .default([]),
+    defaultViewId: text("default_view_id"),
     createAt: integer("create_at", { mode: "number" }).notNull().default(0),
     updateAt: integer("update_at", { mode: "number" }).notNull().default(0),
     deleteAt: integer("delete_at", { mode: "number" }).notNull().default(0),

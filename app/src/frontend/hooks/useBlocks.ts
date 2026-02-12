@@ -1,3 +1,4 @@
+import {useMemo} from 'react'
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 import {blocksApi} from '../api/blocks'
 import type {Block, BoardView, Card} from '../api/types'
@@ -53,4 +54,22 @@ export function useDeleteBlockMutation(boardId: string) {
             queryClient.invalidateQueries({queryKey: ['blocks', boardId]})
         },
     })
+}
+
+export function useFilteredViews(views: BoardView[], currentUserId?: string) {
+    return useMemo(() => {
+        if (!currentUserId) return views
+
+        return views.filter(view => {
+            const visibility = view.fields?.visibility || 'team'
+
+            // Personal views: only show to creator
+            if (visibility === 'personal') {
+                return view.createdBy === currentUserId
+            }
+
+            // Team and Template views: visible to all
+            return true
+        })
+    }, [views, currentUserId])
 }
