@@ -32,12 +32,17 @@ const viewTypeLabels: Record<string, string> = {
 }
 
 export function ViewHeader({board, views, activeView, onViewChange, cards, currentUserId}: ViewHeaderProps) {
-    const insertBlocks = useInsertBlocksMutation(board.id)
-    const patchBlock = usePatchBlockMutation(board.id)
+    const insertBlocks = useInsertBlocksMutation(board?.id || '')
+    const patchBlock = usePatchBlockMutation(board?.id || '')
     const [showShareDialog, setShowShareDialog] = useState(false)
     const [showMembersDialog, setShowMembersDialog] = useState(false)
     const [showFilter, setShowFilter] = useState(false)
     const [showSaveViewDialog, setShowSaveViewDialog] = useState(false)
+
+    // Early return if board data is not loaded yet
+    if (!board) {
+        return null
+    }
 
     // Filter views by visibility
     const filteredViews = useFilteredViews(views, currentUserId)
@@ -170,10 +175,10 @@ export function ViewHeader({board, views, activeView, onViewChange, cards, curre
                 {/* Save View button */}
                 <button
                     onClick={() => setShowSaveViewDialog(true)}
-                    className="flex items-center gap-1.5 h-8 px-2.5 rounded text-sm text-center-fg/50 hover:text-center-fg hover:bg-hover transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 h-8 px-2.5 rounded text-sm text-center-fg/70 hover:text-center-fg hover:bg-hover transition-colors cursor-pointer"
                     title="Save current view"
                 >
-                    <Save size={14} />
+                    <Save size={16} />
                 </button>
 
                 {/* Spacer */}

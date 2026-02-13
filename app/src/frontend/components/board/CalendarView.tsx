@@ -16,6 +16,15 @@ export function CalendarView({board, cards, activeView}: CalendarViewProps) {
     const navigate = useNavigate()
     const [currentDate, setCurrentDate] = useState(new Date())
 
+    // Early return if board data is not loaded yet
+    if (!board || !board.cardProperties) {
+        return (
+            <div className="flex-1 flex items-center justify-center p-8 text-center-fg/40 text-sm">
+                Loading board...
+            </div>
+        )
+    }
+
     const dateDisplayPropId = activeView?.fields?.dateDisplayPropertyId
     const dateProp = board.cardProperties?.find((p) => p.id === dateDisplayPropId)
 

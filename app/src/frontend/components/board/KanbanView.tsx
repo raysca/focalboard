@@ -30,7 +30,7 @@ interface KanbanViewProps {
 
 // --- Sortable card wrapper ---
 function SortableCard({card, visibleProps, board, onClick}: {card: Card; visibleProps: IPropertyTemplate[]; board: Board; onClick: () => void}) {
-    const patchBlock = usePatchBlockMutation(board.id)
+    const patchBlock = usePatchBlockMutation(board?.id || '')
     const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({
         id: card.id,
         data: {type: 'card', card},
@@ -174,8 +174,8 @@ function DroppableColumn({groupId, children}: {groupId: string; children: React.
 
 export function KanbanView({board, cards, activeView, contents}: KanbanViewProps) {
     const navigate = useNavigate()
-    const insertBlocks = useInsertBlocksMutation(board.id)
-    const patchBlock = usePatchBlockMutation(board.id)
+    const insertBlocks = useInsertBlocksMutation(board?.id || '')
+    const patchBlock = usePatchBlockMutation(board?.id || '')
     const [activeCard, setActiveCard] = useState<Card | null>(null)
 
     const sensors = useSensors(
@@ -184,12 +184,21 @@ export function KanbanView({board, cards, activeView, contents}: KanbanViewProps
         })
     )
 
+    // Early return if board data is not loaded yet
+    if (!board || !board.cardProperties) {
+        return (
+            <div className="flex-1 flex items-center justify-center p-8 text-center-fg/40 text-sm">
+                Loading board...
+            </div>
+        )
+    }
+
     // Determine groupBy property
     const groupByPropId = activeView?.fields?.groupById
     const groupByProp = board.cardProperties?.find((p) => p.id === groupByPropId)
 
     // Default to first select property if none specified
-    const effectiveGroupBy = groupByProp || board.cardProperties?.find((p) => p.type === 'select')
+    const effectiveGroupBy = groupByProp || board.cardProperties?.find((p) => p.type === 'select') || undefined
 
     // Visible properties for cards
     const visiblePropIds = activeView?.fields?.visiblePropertyIds || []
@@ -391,6 +400,7 @@ export function KanbanView({board, cards, activeView, contents}: KanbanViewProps
                                         key={card.id}
                                         card={card}
                                         visibleProps={visibleProps}
+                                        board={board}
                                         onClick={() => handleCardClick(card)}
                                     />
                                 ))}

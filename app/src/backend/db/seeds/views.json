@@ -51,6 +51,7 @@
     "type": "view",
     "fields": {
       "viewType": "calendar",
+      "visibility": "team",
       "dateDisplayPropertyId": "prop-due-date",
       "visiblePropertyIds": ["prop-assignee", "prop-priority"],
       "sortOptions": [],
@@ -67,6 +68,7 @@
     "type": "view",
     "fields": {
       "viewType": "board",
+      "visibility": "team",
       "groupById": "prop-api-status",
       "visiblePropertyIds": ["prop-api-method", "prop-api-assignee"],
       "sortOptions": [],
@@ -86,6 +88,7 @@
     "type": "view",
     "fields": {
       "viewType": "table",
+      "visibility": "team",
       "visiblePropertyIds": ["prop-api-status", "prop-api-method", "prop-api-assignee"],
       "sortOptions": [{"propertyId": "prop-api-method", "reversed": false}],
       "filter": {"operation": "and", "filters": []},
@@ -106,6 +109,7 @@
     "type": "view",
     "fields": {
       "viewType": "board",
+      "visibility": "team",
       "groupById": "prop-ui-status",
       "visiblePropertyIds": ["prop-ui-component-type", "prop-ui-assignee"],
       "sortOptions": [],
@@ -125,6 +129,7 @@
     "type": "view",
     "fields": {
       "viewType": "gallery",
+      "visibility": "team",
       "visiblePropertyIds": ["prop-ui-component-type"],
       "sortOptions": [{"propertyId": "prop-ui-component-type", "reversed": false}],
       "filter": {"operation": "and", "filters": []},
@@ -140,6 +145,7 @@
     "type": "view",
     "fields": {
       "viewType": "board",
+      "visibility": "team",
       "groupById": "prop-sprint-status",
       "visiblePropertyIds": ["prop-sprint-points", "prop-sprint-assignee"],
       "sortOptions": [],

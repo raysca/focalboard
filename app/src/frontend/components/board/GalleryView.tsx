@@ -12,6 +12,15 @@ interface GalleryViewProps {
 export function GalleryView({board, cards, activeView}: GalleryViewProps) {
     const navigate = useNavigate()
 
+    // Early return if board data is not loaded yet
+    if (!board || !board.cardProperties) {
+        return (
+            <div className="flex-1 flex items-center justify-center p-8 text-center-fg/40 text-sm">
+                Loading board...
+            </div>
+        )
+    }
+
     const visiblePropIds = activeView?.fields?.visiblePropertyIds || []
     const visibleProps = board.cardProperties?.filter((p) => visiblePropIds.includes(p.id)) || []
 

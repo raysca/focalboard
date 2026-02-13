@@ -12,6 +12,15 @@ interface TableViewProps {
 export function TableView({board, cards, activeView}: TableViewProps) {
     const navigate = useNavigate()
 
+    // Early return if board data is not loaded yet
+    if (!board || !board.cardProperties) {
+        return (
+            <div className="flex-1 flex items-center justify-center p-8 text-center-fg/40 text-sm">
+                Loading board...
+            </div>
+        )
+    }
+
     // Determine visible columns
     const visiblePropIds = activeView?.fields?.visiblePropertyIds || board.cardProperties?.map((p) => p.id) || []
     const columns = board.cardProperties?.filter((p) => visiblePropIds.includes(p.id)) || []
