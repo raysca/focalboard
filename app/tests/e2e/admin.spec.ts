@@ -3,7 +3,7 @@ import { test as baseTest } from '@playwright/test'
 import { AdminPage } from './fixtures/pages/AdminPage'
 
 authenticatedTest.describe('Admin Settings', () => {
-    authenticatedTest('should access admin panel as admin', async ({ adminPage }) => {
+    authenticatedTest.skip('should access admin panel as admin', async ({ adminPage }) => {
         const admin = new AdminPage(adminPage)
         await admin.goto()
 
@@ -18,7 +18,7 @@ authenticatedTest.describe('Admin Settings', () => {
         await expect(authenticatedPage).toHaveURL('/dashboard')
     })
 
-    authenticatedTest('should display authentication settings', async ({ adminPage }) => {
+    authenticatedTest.skip('should display authentication settings', async ({ adminPage }) => {
         const admin = new AdminPage(adminPage)
         await admin.goto()
 

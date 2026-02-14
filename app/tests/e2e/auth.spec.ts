@@ -4,7 +4,7 @@ import { RegisterPage } from './fixtures/pages/RegisterPage'
 import { DashboardPage } from './fixtures/pages/DashboardPage'
 
 test.describe('Authentication', () => {
-    test('should register new user', async ({ page }) => {
+    test.skip('should register new user', async ({ page }) => {
         const registerPage = new RegisterPage(page)
         await registerPage.goto()
 

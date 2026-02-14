@@ -10,8 +10,8 @@ export class DashboardPage extends BasePage {
         // Click "Create New Board" button or "Create Board" button
         await this.page.getByRole('button', { name: /create.*board/i }).first().click()
 
-        // Fill in the board title
-        await this.page.getByPlaceholder(/board name|roadmap/i).fill(title)
+        // Fill in the board title - actual placeholder is "e.g., Q1 Roadmap"
+        await this.page.getByPlaceholder('e.g., Q1 Roadmap').fill(title)
 
         // Click the Create Board submit button
         await this.page.getByRole('button', { name: /^create board$/i }).click()
@@ -21,8 +21,9 @@ export class DashboardPage extends BasePage {
     }
 
     async getBoardByTitle(title: string): Promise<Locator> {
-        // Find board by its title text
-        return this.page.getByRole('link').filter({ hasText: title })
+        // Find board cards in the main content area only (not sidebar)
+        // Use data-testid to specifically target board items in dashboard grid
+        return this.page.locator('[data-testid="board-item"]').filter({ hasText: title })
     }
 
     async openUserMenu() {
