@@ -22,4 +22,7 @@ export const boardsApi = {
 
     undeleteBoard: (boardId: string) =>
         api.post<Board>(`/boards/${boardId}/undelete`, {}),
+
+    toggleFavorite: (boardId: string) =>
+        api.post<{isFavorite: boolean}>(`/boards/${boardId}/toggle-favorite`, {}),
 }

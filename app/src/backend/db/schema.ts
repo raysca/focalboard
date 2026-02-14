@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import {sqliteTable, text, integer, index} from "drizzle-orm/sqlite-core";
 
 // -- Better Auth tables --
 // These must be defined in Drizzle schema so the Drizzle adapter can find them.
@@ -8,25 +8,25 @@ export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: integer("email_verified", { mode: "boolean" })
+  emailVerified: integer("email_verified", {mode: "boolean"})
     .notNull()
     .default(false),
   image: text("image"),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", {mode: "timestamp"}).notNull(),
+  updatedAt: integer("updated_at", {mode: "timestamp"}).notNull(),
 });
 
 export const session = sqliteTable("session", {
   id: text("id").primaryKey(),
-  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  expiresAt: integer("expires_at", {mode: "timestamp"}).notNull(),
   token: text("token").notNull().unique(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: text("user_id")
     .notNull()
     .references(() => user.id),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", {mode: "timestamp"}).notNull(),
+  updatedAt: integer("updated_at", {mode: "timestamp"}).notNull(),
 });
 
 export const account = sqliteTable("account", {
@@ -47,17 +47,17 @@ export const account = sqliteTable("account", {
   }),
   scope: text("scope"),
   password: text("password"),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", {mode: "timestamp"}).notNull(),
+  updatedAt: integer("updated_at", {mode: "timestamp"}).notNull(),
 });
 
 export const verification = sqliteTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
-  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }),
-  updatedAt: integer("updated_at", { mode: "timestamp" }),
+  expiresAt: integer("expires_at", {mode: "timestamp"}).notNull(),
+  createdAt: integer("created_at", {mode: "timestamp"}),
+  updatedAt: integer("updated_at", {mode: "timestamp"}),
 });
 
 // -- Focalboard extension: user_profiles --
@@ -70,16 +70,16 @@ export const userProfiles = sqliteTable(
     nickname: text("nickname").notNull().default(""),
     firstName: text("first_name").notNull().default(""),
     lastName: text("last_name").notNull().default(""),
-    isBot: integer("is_bot", { mode: "boolean" }).notNull().default(false),
-    isGuest: integer("is_guest", { mode: "boolean" }).notNull().default(false),
+    isBot: integer("is_bot", {mode: "boolean"}).notNull().default(false),
+    isGuest: integer("is_guest", {mode: "boolean"}).notNull().default(false),
     roles: text("roles").notNull().default(""),
-    props: text("props", { mode: "json" })
+    props: text("props", {mode: "json"})
       .notNull()
       .$type<Record<string, unknown>>()
       .default({}),
-    createAt: integer("create_at", { mode: "number" }).notNull().default(0),
-    updateAt: integer("update_at", { mode: "number" }).notNull().default(0),
-    deleteAt: integer("delete_at", { mode: "number" }).notNull().default(0),
+    createAt: integer("create_at", {mode: "number"}).notNull().default(0),
+    updateAt: integer("update_at", {mode: "number"}).notNull().default(0),
+    deleteAt: integer("delete_at", {mode: "number"}).notNull().default(0),
   },
   (table) => [index("idx_user_profiles_username").on(table.username)],
 );
@@ -92,17 +92,17 @@ export const blocks = sqliteTable(
     parentId: text("parent_id").notNull().default(""),
     createdBy: text("created_by").notNull().default(""),
     modifiedBy: text("modified_by").notNull().default(""),
-    schema: integer("schema", { mode: "number" }).notNull().default(0),
+    schema: integer("schema", {mode: "number"}).notNull().default(0),
     type: text("type").notNull().default(""),
     title: text("title").notNull().default(""),
-    fields: text("fields", { mode: "json" })
+    fields: text("fields", {mode: "json"})
       .notNull()
       .$type<Record<string, unknown>>()
       .default({}),
     boardId: text("board_id").notNull().default(""),
-    createAt: integer("create_at", { mode: "number" }).notNull().default(0),
-    updateAt: integer("update_at", { mode: "number" }).notNull().default(0),
-    deleteAt: integer("delete_at", { mode: "number" }).notNull().default(0),
+    createAt: integer("create_at", {mode: "number"}).notNull().default(0),
+    updateAt: integer("update_at", {mode: "number"}).notNull().default(0),
+    deleteAt: integer("delete_at", {mode: "number"}).notNull().default(0),
   },
   (table) => [
     index("idx_blocks_board_id").on(table.boardId),
@@ -120,18 +120,18 @@ export const blocksHistory = sqliteTable(
     parentId: text("parent_id").notNull().default(""),
     createdBy: text("created_by").notNull().default(""),
     modifiedBy: text("modified_by").notNull().default(""),
-    schema: integer("schema", { mode: "number" }).notNull().default(0),
+    schema: integer("schema", {mode: "number"}).notNull().default(0),
     type: text("type").notNull().default(""),
     title: text("title").notNull().default(""),
-    fields: text("fields", { mode: "json" })
+    fields: text("fields", {mode: "json"})
       .notNull()
       .$type<Record<string, unknown>>()
       .default({}),
     boardId: text("board_id").notNull().default(""),
-    createAt: integer("create_at", { mode: "number" }).notNull().default(0),
-    updateAt: integer("update_at", { mode: "number" }).notNull().default(0),
-    deleteAt: integer("delete_at", { mode: "number" }).notNull().default(0),
-    insertAt: integer("insert_at", { mode: "number" }).notNull().default(0),
+    createAt: integer("create_at", {mode: "number"}).notNull().default(0),
+    updateAt: integer("update_at", {mode: "number"}).notNull().default(0),
+    deleteAt: integer("delete_at", {mode: "number"}).notNull().default(0),
+    insertAt: integer("insert_at", {mode: "number"}).notNull().default(0),
   },
   (table) => [
     index("idx_blocks_history_id").on(table.id),
@@ -154,27 +154,27 @@ export const boards = sqliteTable(
     title: text("title").notNull().default(""),
     description: text("description").notNull().default(""),
     icon: text("icon").notNull().default(""),
-    showDescription: integer("show_description", { mode: "boolean" })
+    showDescription: integer("show_description", {mode: "boolean"})
       .notNull()
       .default(false),
-    isTemplate: integer("is_template", { mode: "boolean" })
+    isTemplate: integer("is_template", {mode: "boolean"})
       .notNull()
       .default(false),
-    templateVersion: integer("template_version", { mode: "number" })
+    templateVersion: integer("template_version", {mode: "number"})
       .notNull()
       .default(0),
-    properties: text("properties", { mode: "json" })
+    properties: text("properties", {mode: "json"})
       .notNull()
       .$type<Record<string, unknown>>()
       .default({}),
-    cardProperties: text("card_properties", { mode: "json" })
+    cardProperties: text("card_properties", {mode: "json"})
       .notNull()
       .$type<Array<Record<string, unknown>>>()
       .default([]),
     defaultViewId: text("default_view_id"),
-    createAt: integer("create_at", { mode: "number" }).notNull().default(0),
-    updateAt: integer("update_at", { mode: "number" }).notNull().default(0),
-    deleteAt: integer("delete_at", { mode: "number" }).notNull().default(0),
+    createAt: integer("create_at", {mode: "number"}).notNull().default(0),
+    updateAt: integer("update_at", {mode: "number"}).notNull().default(0),
+    deleteAt: integer("delete_at", {mode: "number"}).notNull().default(0),
   },
   (table) => [
     index("idx_boards_team_id").on(table.teamId),
@@ -197,27 +197,27 @@ export const boardsHistory = sqliteTable(
     title: text("title").notNull().default(""),
     description: text("description").notNull().default(""),
     icon: text("icon").notNull().default(""),
-    showDescription: integer("show_description", { mode: "boolean" })
+    showDescription: integer("show_description", {mode: "boolean"})
       .notNull()
       .default(false),
-    isTemplate: integer("is_template", { mode: "boolean" })
+    isTemplate: integer("is_template", {mode: "boolean"})
       .notNull()
       .default(false),
-    templateVersion: integer("template_version", { mode: "number" })
+    templateVersion: integer("template_version", {mode: "number"})
       .notNull()
       .default(0),
-    properties: text("properties", { mode: "json" })
+    properties: text("properties", {mode: "json"})
       .notNull()
       .$type<Record<string, unknown>>()
       .default({}),
-    cardProperties: text("card_properties", { mode: "json" })
+    cardProperties: text("card_properties", {mode: "json"})
       .notNull()
       .$type<Array<Record<string, unknown>>>()
       .default([]),
-    createAt: integer("create_at", { mode: "number" }).notNull().default(0),
-    updateAt: integer("update_at", { mode: "number" }).notNull().default(0),
-    deleteAt: integer("delete_at", { mode: "number" }).notNull().default(0),
-    insertAt: integer("insert_at", { mode: "number" }).notNull().default(0),
+    createAt: integer("create_at", {mode: "number"}).notNull().default(0),
+    updateAt: integer("update_at", {mode: "number"}).notNull().default(0),
+    deleteAt: integer("delete_at", {mode: "number"}).notNull().default(0),
+    insertAt: integer("insert_at", {mode: "number"}).notNull().default(0),
   },
   (table) => [
     index("idx_boards_history_id").on(table.id),
@@ -234,16 +234,19 @@ export const boardMembers = sqliteTable(
     userId: text("user_id").notNull(),
     roles: text("roles").notNull().default(""),
     minimumRole: text("minimum_role").notNull().default(""),
-    schemeAdmin: integer("scheme_admin", { mode: "boolean" })
+    schemeAdmin: integer("scheme_admin", {mode: "boolean"})
       .notNull()
       .default(false),
-    schemeEditor: integer("scheme_editor", { mode: "boolean" })
+    schemeEditor: integer("scheme_editor", {mode: "boolean"})
       .notNull()
       .default(false),
-    schemeCommenter: integer("scheme_commenter", { mode: "boolean" })
+    schemeCommenter: integer("scheme_commenter", {mode: "boolean"})
       .notNull()
       .default(false),
-    schemeViewer: integer("scheme_viewer", { mode: "boolean" })
+    schemeViewer: integer("scheme_viewer", {mode: "boolean"})
+      .notNull()
+      .default(false),
+    isFavorite: integer("is_favorite", {mode: "boolean"})
       .notNull()
       .default(false),
   },
@@ -260,7 +263,7 @@ export const boardMembersHistory = sqliteTable(
     boardId: text("board_id").notNull(),
     userId: text("user_id").notNull(),
     action: text("action").notNull().default(""),
-    insertAt: integer("insert_at", { mode: "number" }).notNull().default(0),
+    insertAt: integer("insert_at", {mode: "number"}).notNull().default(0),
   },
   (table) => [
     index("idx_board_members_history_board_id").on(table.boardId),
@@ -277,13 +280,13 @@ export const categories = sqliteTable(
     name: text("name").notNull().default(""),
     userId: text("user_id").notNull().default(""),
     teamId: text("team_id").notNull().default(""),
-    createAt: integer("create_at", { mode: "number" }).notNull().default(0),
-    updateAt: integer("update_at", { mode: "number" }).notNull().default(0),
-    deleteAt: integer("delete_at", { mode: "number" }).notNull().default(0),
-    collapsed: integer("collapsed", { mode: "boolean" })
+    createAt: integer("create_at", {mode: "number"}).notNull().default(0),
+    updateAt: integer("update_at", {mode: "number"}).notNull().default(0),
+    deleteAt: integer("delete_at", {mode: "number"}).notNull().default(0),
+    collapsed: integer("collapsed", {mode: "boolean"})
       .notNull()
       .default(false),
-    sortOrder: integer("sort_order", { mode: "number" }).notNull().default(0),
+    sortOrder: integer("sort_order", {mode: "number"}).notNull().default(0),
     sorting: text("sorting").notNull().default(""),
     type: text("type").notNull().default(""),
   },
@@ -302,11 +305,11 @@ export const categoryBoards = sqliteTable(
     userId: text("user_id").notNull().default(""),
     categoryId: text("category_id").notNull().default(""),
     boardId: text("board_id").notNull().default(""),
-    hidden: integer("hidden", { mode: "boolean" }).notNull().default(false),
-    createAt: integer("create_at", { mode: "number" }).notNull().default(0),
-    updateAt: integer("update_at", { mode: "number" }).notNull().default(0),
-    deleteAt: integer("delete_at", { mode: "number" }).notNull().default(0),
-    sortOrder: integer("sort_order", { mode: "number" }).notNull().default(0),
+    hidden: integer("hidden", {mode: "boolean"}).notNull().default(false),
+    createAt: integer("create_at", {mode: "number"}).notNull().default(0),
+    updateAt: integer("update_at", {mode: "number"}).notNull().default(0),
+    deleteAt: integer("delete_at", {mode: "number"}).notNull().default(0),
+    sortOrder: integer("sort_order", {mode: "number"}).notNull().default(0),
   },
   (table) => [
     index("idx_category_boards_category_id").on(table.categoryId),
@@ -323,11 +326,11 @@ export const subscriptions = sqliteTable(
     blockId: text("block_id").notNull(),
     subscriberType: text("subscriber_type").notNull(),
     subscriberId: text("subscriber_id").notNull(),
-    notifiedAt: integer("notified_at", { mode: "number" })
+    notifiedAt: integer("notified_at", {mode: "number"})
       .notNull()
       .default(0),
-    createAt: integer("create_at", { mode: "number" }).notNull().default(0),
-    deleteAt: integer("delete_at", { mode: "number" }).notNull().default(0),
+    createAt: integer("create_at", {mode: "number"}).notNull().default(0),
+    deleteAt: integer("delete_at", {mode: "number"}).notNull().default(0),
   },
   (table) => [
     index("idx_subscriptions_subscriber_id").on(table.subscriberId),
@@ -342,8 +345,8 @@ export const notificationHints = sqliteTable(
     blockType: text("block_type").notNull(),
     blockId: text("block_id").notNull(),
     modifiedById: text("modified_by_id").notNull().default(""),
-    createAt: integer("create_at", { mode: "number" }).notNull().default(0),
-    notifyAt: integer("notify_at", { mode: "number" }).notNull().default(0),
+    createAt: integer("create_at", {mode: "number"}).notNull().default(0),
+    notifyAt: integer("notify_at", {mode: "number"}).notNull().default(0),
   },
   (table) => [
     index("idx_notification_hints_block_id").on(table.blockId),
@@ -354,10 +357,10 @@ export const notificationHints = sqliteTable(
 // -- Sharing --
 export const sharing = sqliteTable("sharing", {
   id: text("id").primaryKey(),
-  enabled: integer("enabled", { mode: "boolean" }).notNull().default(false),
+  enabled: integer("enabled", {mode: "boolean"}).notNull().default(false),
   token: text("token").notNull().default(""),
   modifiedBy: text("modified_by").notNull().default(""),
-  updateAt: integer("update_at", { mode: "number" }).notNull().default(0),
+  updateAt: integer("update_at", {mode: "number"}).notNull().default(0),
 });
 
 // -- File Info --
@@ -365,18 +368,18 @@ export const fileInfo = sqliteTable(
   "file_info",
   {
     id: text("id").primaryKey(),
-    createAt: integer("create_at", { mode: "number" }).notNull().default(0),
-    deleteAt: integer("delete_at", { mode: "number" }).notNull().default(0),
+    createAt: integer("create_at", {mode: "number"}).notNull().default(0),
+    deleteAt: integer("delete_at", {mode: "number"}).notNull().default(0),
     name: text("name").notNull().default(""),
     extension: text("extension").notNull().default(""),
-    size: integer("size", { mode: "number" }).notNull().default(0),
-    archived: integer("archived", { mode: "boolean" })
+    size: integer("size", {mode: "number"}).notNull().default(0),
+    archived: integer("archived", {mode: "boolean"})
       .notNull()
       .default(false),
     path: text("path").notNull().default(""),
-    blockId: text("block_id").references(() => blocks.id, { onDelete: "cascade" }),
+    blockId: text("block_id").references(() => blocks.id, {onDelete: "cascade"}),
     uploadedBy: text("uploaded_by").references(() => user.id),
-    uploadedAt: integer("uploaded_at", { mode: "number" }),
+    uploadedAt: integer("uploaded_at", {mode: "number"}),
   },
   (table) => [
     index("idx_file_info_create_at").on(table.createAt),
@@ -404,12 +407,12 @@ export const teams = sqliteTable("teams", {
   id: text("id").primaryKey(),
   title: text("title").notNull().default(""),
   signupToken: text("signup_token").notNull().default(""),
-  settings: text("settings", { mode: "json" })
+  settings: text("settings", {mode: "json"})
     .notNull()
     .$type<Record<string, unknown>>()
     .default({}),
   modifiedBy: text("modified_by").notNull().default(""),
-  updateAt: integer("update_at", { mode: "number" }).notNull().default(0),
+  updateAt: integer("update_at", {mode: "number"}).notNull().default(0),
 });
 
 // -- System Settings --
@@ -427,11 +430,11 @@ export const cardDependencies = sqliteTable(
     targetCardId: text("target_card_id").notNull(),
     dependencyType: text("dependency_type").notNull(), // 'blocks' | 'blocked_by' | 'related' | 'duplicate' | 'parent' | 'child'
     createdBy: text("created_by").notNull(),
-    createdAt: integer("created_at", { mode: "number" }).notNull(),
-    updatedAt: integer("updated_at", { mode: "number" }).notNull(),
-    deletedAt: integer("deleted_at", { mode: "number" }).notNull().default(0),
+    createdAt: integer("created_at", {mode: "number"}).notNull(),
+    updatedAt: integer("updated_at", {mode: "number"}).notNull(),
+    deletedAt: integer("deleted_at", {mode: "number"}).notNull().default(0),
     boardId: text("board_id").notNull(),
-    metadata: text("metadata", { mode: "json" })
+    metadata: text("metadata", {mode: "json"})
       .$type<Record<string, unknown>>()
       .default({}),
   },

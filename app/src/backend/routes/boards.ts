@@ -1,14 +1,14 @@
-import { Hono } from "hono";
-import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import {Hono} from "hono";
+import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite";
 import type * as schemaType from "../db/schema.ts";
-import { blocks } from "../db/schema.ts";
-import { sessionRequired, attachSession } from "../middleware/auth.ts";
-import { eq, and } from "drizzle-orm";
-import { NotFoundError } from "../errors.ts";
-import { createBoardService } from "../services/board.ts";
-import { createBlockRepository } from "../repositories/block.repository.ts";
-import { validateRequest } from "../validation/middleware.ts";
-import { createBoardSchema, updateBoardSchema } from "../validation/schemas.ts";
+import {blocks} from "../db/schema.ts";
+import {sessionRequired, attachSession} from "../middleware/auth.ts";
+import {eq, and} from "drizzle-orm";
+import {NotFoundError} from "../errors.ts";
+import {createBoardService} from "../services/board.ts";
+import {createBlockRepository} from "../repositories/block.repository.ts";
+import {validateRequest} from "../validation/middleware.ts";
+import {createBoardSchema, updateBoardSchema} from "../validation/schemas.ts";
 
 const boardRoutes = new Hono();
 
@@ -68,7 +68,7 @@ boardRoutes.patch("/boards/:boardID/default-view", sessionRequired, async (c) =>
   const boardId = c.req.param("boardID");
   const userId = c.get("userId") as string;
   const body = await c.req.json();
-  const { defaultViewId } = body;
+  const {defaultViewId} = body;
 
   // Validate view exists and is team/template (not personal)
   if (defaultViewId) {
@@ -79,19 +79,19 @@ boardRoutes.patch("/boards/:boardID/default-view", sessionRequired, async (c) =>
       .get();
 
     if (!view) {
-      return c.json({ error: 'Invalid view ID' }, 400);
+      return c.json({error: 'Invalid view ID'}, 400);
     }
 
     const viewFields = view.fields as any;
     const visibility = viewFields?.visibility || 'team';
 
     if (visibility === 'personal') {
-      return c.json({ error: 'Cannot set personal view as board default' }, 400);
+      return c.json({error: 'Cannot set personal view as board default'}, 400);
     }
   }
 
   const boardService = createBoardService(db, c.get("eventService"));
-  const board = await boardService.update(userId, boardId, { defaultViewId });
+  const board = await boardService.update(userId, boardId, {defaultViewId});
 
   return c.json(board);
 });
@@ -130,6 +130,18 @@ boardRoutes.post("/boards/:boardID/undelete", sessionRequired, async (c) => {
   const board = await boardService.undelete(userId, boardId);
 
   return c.json(board);
+});
+
+// POST /boards/:boardID/toggle-favorite
+boardRoutes.post("/boards/:boardID/toggle-favorite", sessionRequired, async (c) => {
+  const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+  const boardId = c.req.param("boardID");
+  const userId = c.get("userId") as string;
+
+  const boardService = createBoardService(db, c.get("eventService"));
+  const isFavorite = await boardService.toggleFavorite(userId, boardId);
+
+  return c.json({isFavorite});
 });
 
 // GET /boards/:boardID/metadata

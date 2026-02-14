@@ -2,6 +2,7 @@ import React, {useState, useCallback} from 'react'
 import {Plus, LayoutGrid, Table, Image, Calendar, Share2, Users, Filter, Save, User, Lock, Star} from 'lucide-react'
 import {cn} from '../../lib/cn'
 import {useInsertBlocksMutation, usePatchBlockMutation, useFilteredViews} from '../../hooks/useBlocks'
+import {useToggleFavoriteMutation} from '../../hooks/useBoards'
 import {ShareBoardDialog} from '../board/ShareBoardDialog'
 import {MembersDialog} from '../board/MembersDialog'
 import {FilterComponent} from './FilterComponent'
@@ -38,6 +39,11 @@ export function ViewHeader({board, views, activeView, onViewChange, cards, curre
     const [showMembersDialog, setShowMembersDialog] = useState(false)
     const [showFilter, setShowFilter] = useState(false)
     const [showSaveViewDialog, setShowSaveViewDialog] = useState(false)
+    const toggleFavorite = useToggleFavoriteMutation()
+
+    // Debug logging
+    console.log('[ViewHeader] board:', board)
+    console.log('[ViewHeader] board.isFavorite:', board?.isFavorite)
 
     // Early return if board data is not loaded yet
     if (!board) {
@@ -144,6 +150,24 @@ export function ViewHeader({board, views, activeView, onViewChange, cards, curre
                         )
                     })}
                 </div>
+
+                {/* Favorite button */}
+                <button
+                    onClick={() => {
+                        console.log('[ViewHeader] Toggling favorite for board:', board.id)
+                        toggleFavorite.mutate({boardId: board.id})
+                    }}
+                    className={cn(
+                        'flex items-center justify-center h-8 w-8 rounded transition-colors cursor-pointer mr-2',
+                        board.isFavorite
+                            ? 'text-yellow-400 hover:bg-yellow-400/10'
+                            : 'text-center-fg/30 hover:text-center-fg/60 hover:bg-hover'
+                    )}
+                    title={board.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    data-testid="favorite-button"
+                >
+                    <Star size={16} fill={board.isFavorite ? "currentColor" : "none"} />
+                </button>
 
                 {/* Filter button */}
                 <div className="relative">

@@ -1,14 +1,14 @@
-import { eq, and } from "drizzle-orm"
-import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite"
+import {eq, and} from "drizzle-orm"
+import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite"
 import * as schema from "../db/schema.ts"
-import { boardMembers, boardMembersHistory } from "../db/schema.ts"
-import type { Transaction } from "../services/transaction.ts"
-import type { BoardMember } from "../types/index.ts"
+import {boardMembers, boardMembersHistory} from "../db/schema.ts"
+import type {Transaction} from "../services/transaction.ts"
+import type {BoardMember} from "../types/index.ts"
 
 type DB = BunSQLiteDatabase<typeof schema>
 
 export class MembershipRepository {
-    constructor(protected db: DB | Transaction) {}
+    constructor(protected db: DB | Transaction) { }
 
     /**
      * Find member by board and user ID
@@ -66,6 +66,7 @@ export class MembershipRepository {
         schemeEditor?: boolean
         schemeCommenter?: boolean
         schemeViewer?: boolean
+        isFavorite?: boolean
     }): BoardMember {
         const memberData = {
             boardId: data.boardId,
@@ -75,7 +76,8 @@ export class MembershipRepository {
             schemeAdmin: data.schemeAdmin ?? false,
             schemeEditor: data.schemeEditor ?? true,
             schemeCommenter: data.schemeCommenter ?? true,
-            schemeViewer: data.schemeViewer ?? true
+            schemeViewer: data.schemeViewer ?? true,
+            isFavorite: data.isFavorite ?? false
         }
 
         this.db.insert(boardMembers).values(memberData).run()
@@ -97,6 +99,7 @@ export class MembershipRepository {
             schemeEditor?: boolean
             schemeCommenter?: boolean
             schemeViewer?: boolean
+            isFavorite?: boolean
         }
     ): BoardMember {
         // Record history before update

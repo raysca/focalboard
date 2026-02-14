@@ -13,6 +13,7 @@ export interface User {
 
 export interface Board {
     id: string
+    isFavorite?: boolean
     teamId: string
     channelId?: string
     createdBy: string
@@ -154,6 +155,7 @@ export interface BoardMember {
     schemeEditor: boolean
     schemeCommenter: boolean
     schemeViewer: boolean
+    isFavorite?: boolean
 }
 
 export interface Sharing {

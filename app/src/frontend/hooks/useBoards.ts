@@ -49,3 +49,17 @@ export function useDeleteBoardMutation(teamId: string) {
         },
     })
 }
+
+export function useToggleFavoriteMutation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: async ({boardId}: {boardId: string}) => {
+            return boardsApi.toggleFavorite(boardId)
+        },
+        onSuccess: (_, {boardId}) => {
+            queryClient.invalidateQueries({queryKey: ['boards']})
+            queryClient.invalidateQueries({queryKey: ['board', boardId]})
+        },
+    })
+}

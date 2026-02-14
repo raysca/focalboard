@@ -1,9 +1,9 @@
-import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite"
+import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite"
 import * as schema from "../db/schema.ts"
-import { createBoardRepository } from "../repositories/board.repository.ts"
-import { createMembershipRepository } from "../repositories/membership.repository.ts"
-import { createBlockRepository } from "../repositories/block.repository.ts"
-import { withTransaction, type DB } from "./transaction.ts"
+import {createBoardRepository} from "../repositories/board.repository.ts"
+import {createMembershipRepository} from "../repositories/membership.repository.ts"
+import {createBlockRepository} from "../repositories/block.repository.ts"
+import {withTransaction, type DB} from "./transaction.ts"
 import {
     requireBoardAccess,
     requireBoardAdmin,
@@ -11,17 +11,17 @@ import {
     requireBoardExists,
     canViewBoard
 } from "./authorization.ts"
-import type { Board } from "../types/index.ts"
-import type { CreateBoardInput, UpdateBoardInput } from "../validation/schemas.ts"
-import { ForbiddenError, NotFoundError } from "../errors.ts"
-import type { EventService } from "./event.service.ts"
-import { EventType, EventScope } from "../types/events.ts"
+import type {Board} from "../types/index.ts"
+import type {CreateBoardInput, UpdateBoardInput} from "../validation/schemas.ts"
+import {ForbiddenError, NotFoundError} from "../errors.ts"
+import type {EventService} from "./event.service.ts"
+import {EventType, EventScope} from "../types/events.ts"
 
 export class BoardService {
     constructor(
         private db: DB,
         private eventService?: EventService
-    ) {}
+    ) { }
 
     /**
      * Create a new board and auto-add creator as admin member
@@ -80,12 +80,12 @@ export class BoardService {
                 type: EventType.BOARD_CREATED,
                 scope: EventScope.TEAM,
                 timestamp: Date.now(),
-                actor: { userId },
-                meta: { teamId: board.teamId, boardId: board.id },
-                entity: { type: 'board', id: board.id },
+                actor: {userId},
+                meta: {teamId: board.teamId, boardId: board.id},
+                entity: {type: 'board', id: board.id},
                 changes: {
                     before: null,
-                    after: { ...board }
+                    after: {...board}
                 }
             })
         }
@@ -174,6 +174,7 @@ export class BoardService {
         shareToken?: string
     ): Board | undefined {
         const boardRepo = createBoardRepository(this.db)
+        const memberRepo = createMembershipRepository(this.db)
 
         // Check if board exists
         const board = boardRepo.findById(boardId)
@@ -186,7 +187,18 @@ export class BoardService {
             throw new ForbiddenError("Access denied to board")
         }
 
-        return board
+        let isFavorite = false
+        if (userId) {
+            const member = memberRepo.findMember(boardId, userId)
+            if (member) {
+                isFavorite = member.isFavorite ?? false
+            }
+        }
+
+        return {
+            ...board,
+            isFavorite
+        }
     }
 
     /**
@@ -207,17 +219,52 @@ export class BoardService {
     /**
      * List boards by team that user has access to
      */
+    /**
+     * List boards by team that user has access to, including favorite status
+     */
     listByTeam(userId: string, teamId: string): Board[] {
         const boardRepo = createBoardRepository(this.db)
         const memberRepo = createMembershipRepository(this.db)
 
         // Get boards user is a member of
-        const boardIds = memberRepo.findBoardIdsByUser(userId)
-        if (boardIds.length === 0) {
+        const members = memberRepo.findByUser(userId)
+        if (members.length === 0) {
             return []
         }
 
-        return boardRepo.findByTeamAndUser(teamId, boardIds)
+        const boardIds = members.map(m => m.boardId)
+        const boards = boardRepo.findByTeamAndUser(teamId, boardIds)
+
+        // Attach isFavorite status
+        const result = boards.map(board => {
+            const member = members.find(m => m.boardId === board.id)
+            return {
+                ...board,
+                isFavorite: member?.isFavorite ?? false
+            }
+        })
+
+        console.log(`[BoardService.listByTeam] User ${userId}, Team ${teamId}: Found ${result.length} boards. Favorites: ${result.filter(b => b.isFavorite).map(b => b.id).join(', ')}`)
+        return result
+    }
+
+    /**
+     * Toggle favorite status for a board
+     */
+    async toggleFavorite(userId: string, boardId: string): Promise<boolean> {
+        return withTransaction(this.db, async (tx) => {
+            const memberRepo = createMembershipRepository(tx)
+
+            const member = memberRepo.findMember(boardId, userId)
+            if (!member) {
+                throw new NotFoundError("Board member not found")
+            }
+
+            const newStatus = !member.isFavorite
+            memberRepo.updateMember(boardId, userId, {isFavorite: newStatus})
+
+            return newStatus
+        })
     }
 
     /**
@@ -252,12 +299,12 @@ export class BoardService {
                 type: EventType.BOARD_UPDATED,
                 scope: EventScope.BOARD,
                 timestamp: Date.now(),
-                actor: { userId },
-                meta: { teamId: before.teamId, boardId },
-                entity: { type: 'board', id: boardId },
+                actor: {userId},
+                meta: {teamId: before.teamId, boardId},
+                entity: {type: 'board', id: boardId},
                 changes: {
-                    before: { ...before },
-                    after: { ...after }
+                    before: {...before},
+                    after: {...after}
                 }
             })
         }
@@ -289,11 +336,11 @@ export class BoardService {
                 type: EventType.BOARD_DELETED,
                 scope: EventScope.BOARD,
                 timestamp: Date.now(),
-                actor: { userId },
-                meta: { teamId: before.teamId, boardId },
-                entity: { type: 'board', id: boardId },
+                actor: {userId},
+                meta: {teamId: before.teamId, boardId},
+                entity: {type: 'board', id: boardId},
                 changes: {
-                    before: { ...before },
+                    before: {...before},
                     after: null
                 }
             })

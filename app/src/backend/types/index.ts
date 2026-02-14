@@ -1,9 +1,9 @@
-import type { InferSelectModel } from "drizzle-orm";
+import type {InferSelectModel} from "drizzle-orm";
 import type * as schema from "../db/schema.ts";
 
 export type Block = InferSelectModel<typeof schema.blocks>;
-export type Board = InferSelectModel<typeof schema.boards>;
-export type BoardMember = InferSelectModel<typeof schema.boardMembers>;
+export type Board = InferSelectModel<typeof schema.boards> & {isFavorite?: boolean};
+export type BoardMember = InferSelectModel<typeof schema.boardMembers> & {isFavorite?: boolean};
 export type Category = InferSelectModel<typeof schema.categories>;
 export type CategoryBoard = InferSelectModel<typeof schema.categoryBoards>;
 export type Subscription = InferSelectModel<typeof schema.subscriptions>;

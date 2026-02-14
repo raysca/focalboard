@@ -21,7 +21,7 @@ function defaultCardProperties() {
             {
                 id: statusId,
                 name: 'Status',
-                type: 'select',
+                type: 'select' as const,
                 options: [
                     {id: crypto.randomUUID(), value: 'To Do', color: 'default'},
                     {id: crypto.randomUUID(), value: 'In Progress', color: 'yellow'},
@@ -31,7 +31,7 @@ function defaultCardProperties() {
             {
                 id: priorityId,
                 name: 'Priority',
-                type: 'select',
+                type: 'select' as const,
                 options: [
                     {id: crypto.randomUUID(), value: 'High', color: 'red'},
                     {id: crypto.randomUUID(), value: 'Medium', color: 'orange'},
@@ -61,6 +61,8 @@ export function Sidebar({activeBoardId}: SidebarProps) {
             b.title.toLowerCase().includes(searchTerm.toLowerCase())
         )
         : nonTemplateBoards
+
+    const favoriteBoards = filteredBoards.filter((b: Board) => b.isFavorite)
 
     // Build categorized and uncategorized boards
     const categorizedBoardIds = new Set(categories.flatMap((c: Category) => c.boardIds || []))
@@ -162,6 +164,25 @@ export function Sidebar({activeBoardId}: SidebarProps) {
 
             {/* Board list */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden pb-4">
+                {/* Favorites */}
+                {favoriteBoards.length > 0 && (
+                    <SidebarCategory
+                        category={{
+                            id: 'favorites',
+                            name: 'Favorites',
+                            userId: '',
+                            teamId: DEFAULT_TEAM_ID,
+                            boardIds: favoriteBoards.map(b => b.id),
+                            createAt: 0,
+                            updateAt: 0,
+                            deleteAt: 0,
+                            collapsed: false,
+                        }}
+                        boards={favoriteBoards}
+                        activeBoardId={activeBoardId}
+                    />
+                )}
+
                 {/* Categories */}
                 {categories.map((category: Category) => {
                     const categoryBoards = filteredBoards.filter((b: Board) =>
@@ -180,7 +201,17 @@ export function Sidebar({activeBoardId}: SidebarProps) {
                 {/* Uncategorized boards */}
                 {uncategorizedBoards.length > 0 && (
                     <SidebarCategory
-                        category={{id: '__uncategorized', name: 'Boards', boardIds: [], collapsed: false} as Category}
+                        category={{
+                            id: '__uncategorized',
+                            name: 'Boards',
+                            userId: '',
+                            teamId: DEFAULT_TEAM_ID,
+                            boardIds: [],
+                            createAt: 0,
+                            updateAt: 0,
+                            deleteAt: 0,
+                            collapsed: false
+                        }}
                         boards={uncategorizedBoards}
                         activeBoardId={activeBoardId}
                     />
