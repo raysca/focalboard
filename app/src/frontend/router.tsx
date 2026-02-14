@@ -14,10 +14,10 @@ const routeTree = rootRoute.addChildren([
     indexRoute,
     loginRoute,
     registerRoute,
-    changePasswordRoute,
     authRoute.addChildren([
         dashboardRoute,
         settingsRoute,
+        changePasswordRoute,
         boardRoute.addChildren([
             cardRoute,
         ]),

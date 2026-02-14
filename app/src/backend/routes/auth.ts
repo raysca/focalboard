@@ -276,6 +276,10 @@ authRoutes.post(
       throw new BadRequestError("oldPassword and newPassword are required");
     }
 
+    if (newPassword.length < 8) {
+      throw new BadRequestError("new password must be at least 8 characters");
+    }
+
     try {
       await auth.api.changePassword({
         body: {currentPassword: oldPassword, newPassword},

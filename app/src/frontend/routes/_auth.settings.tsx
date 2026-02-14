@@ -6,7 +6,15 @@ import {Input} from '../components/ui/Input'
 import {useAuth} from '../contexts/AuthContext'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {auth} from '../api/auth'
-import type {User} from '../api/types'
+import {ApiError} from '../api/client'
+
+interface ProfileFormData {
+    username: string
+    email: string
+    nickname: string
+    firstname: string
+    lastname: string
+}
 
 export const Route = createRoute({
     getParentRoute: () => authRoute,
@@ -17,7 +25,13 @@ export const Route = createRoute({
 function SettingsPage() {
     const {user} = useAuth()
     const queryClient = useQueryClient()
-    const [formData, setFormData] = useState<Partial<User>>({})
+    const [formData, setFormData] = useState<ProfileFormData>({
+        username: '',
+        email: '',
+        nickname: '',
+        firstname: '',
+        lastname: '',
+    })
     const [successMessage, setSuccessMessage] = useState('')
 
     useEffect(() => {
@@ -27,21 +41,25 @@ function SettingsPage() {
                 firstname: user.firstname || '',
                 lastname: user.lastname || '',
                 email: user.email || '',
-                username: user.username || ''
+                username: user.username || '',
             })
         }
     }, [user])
 
     const updateMutation = useMutation({
-        mutationFn: (data: Partial<User>) => {
-            if (!user?.id) throw new Error("Not logged in")
-            return auth.updateMe(user.id, data)
+        mutationFn: () => {
+            if (!user?.id) throw new Error('Not logged in')
+            return auth.updateMe(user.id, {
+                nickname: formData.nickname,
+                firstName: formData.firstname,
+                lastName: formData.lastname,
+            })
         },
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['me']})
             setSuccessMessage('Profile updated successfully.')
             setTimeout(() => setSuccessMessage(''), 3000)
-        }
+        },
     })
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,27 +67,17 @@ function SettingsPage() {
         setFormData(prev => ({...prev, [name]: value}))
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (!user) return
-
-        // Filter out read-only fields if needed, but for now sending all editable ones
-        const {nickname, firstname, lastname} = formData
-
-        // We might not want to send email/username if they are not editable or handled differently
-        // But the plan said "Username (readonly?), Email...".
-        // Let's verify what the backend accepts.
-        // For now, I'll send nickname, firstname, lastname.
-
-        updateMutation.mutate({
-            nickname,
-            firstname,
-            lastname
-        })
+        updateMutation.mutate()
     }
 
-    // Check if context has setUser or refetch
-    // I will read AuthContext separately.
+    const errorMessage = updateMutation.isError
+        ? (updateMutation.error instanceof ApiError
+            ? `Failed to update profile: ${updateMutation.error.data?.error || updateMutation.error.message}`
+            : 'Failed to update profile.')
+        : ''
 
     return (
         <div className="flex-1 flex flex-col h-full bg-center-bg overflow-y-auto">
@@ -92,7 +100,7 @@ function SettingsPage() {
                                     Username
                                 </label>
                                 <Input
-                                    value={formData.username || ''}
+                                    value={formData.username}
                                     disabled
                                     className="bg-center-bg/50"
                                 />
@@ -102,7 +110,7 @@ function SettingsPage() {
                                     Email
                                 </label>
                                 <Input
-                                    value={formData.email || ''}
+                                    value={formData.email}
                                     disabled
                                     className="bg-center-bg/50"
                                 />
@@ -115,7 +123,7 @@ function SettingsPage() {
                             </label>
                             <Input
                                 name="nickname"
-                                value={formData.nickname || ''}
+                                value={formData.nickname}
                                 onChange={handleChange}
                                 placeholder="Display name"
                             />
@@ -128,7 +136,7 @@ function SettingsPage() {
                                 </label>
                                 <Input
                                     name="firstname"
-                                    value={formData.firstname || ''}
+                                    value={formData.firstname}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -138,7 +146,7 @@ function SettingsPage() {
                                 </label>
                                 <Input
                                     name="lastname"
-                                    value={formData.lastname || ''}
+                                    value={formData.lastname}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -160,9 +168,9 @@ function SettingsPage() {
                                 {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
                             </Button>
                         </div>
-                        {updateMutation.isError && (
+                        {errorMessage && (
                             <div className="text-red-500 text-sm mt-2">
-                                Failed to update profile.
+                                {errorMessage}
                             </div>
                         )}
                     </form>

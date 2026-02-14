@@ -10,6 +10,7 @@ import {
 import { sessionRequired } from "../middleware/auth.ts";
 import { eq, inArray } from "drizzle-orm";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../errors.ts";
+import { updateUserProfileSchema } from "../validation/schemas.ts";
 
 const userRoutes = new Hono();
 
@@ -166,6 +167,64 @@ userRoutes.get("/users/:userID", sessionRequired, async (c) => {
       profile,
     ),
   );
+});
+
+// PATCH /users/:userID - update user profile
+userRoutes.patch("/users/:userID", sessionRequired, async (c) => {
+  const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+  const userId = c.get("userId") as string;
+  const paramUserId = c.req.param("userID");
+
+  if (userId !== paramUserId) {
+    throw new ForbiddenError("cannot update another user's profile");
+  }
+
+  const body = await c.req.json();
+  const parsed = updateUserProfileSchema.safeParse(body);
+  if (!parsed.success) {
+    throw new BadRequestError(parsed.error.issues[0]?.message ?? "invalid input");
+  }
+
+  const { nickname, firstName, lastName } = parsed.data;
+  const now = Date.now();
+
+  const existing = db
+    .select()
+    .from(userProfiles)
+    .where(eq(userProfiles.userId, userId))
+    .get();
+
+  if (existing) {
+    db.update(userProfiles)
+      .set({
+        ...(nickname !== undefined && { nickname }),
+        ...(firstName !== undefined && { firstName }),
+        ...(lastName !== undefined && { lastName }),
+        updateAt: now,
+      })
+      .where(eq(userProfiles.userId, userId))
+      .run();
+  } else {
+    db.insert(userProfiles)
+      .values({
+        userId,
+        nickname: nickname ?? "",
+        firstName: firstName ?? "",
+        lastName: lastName ?? "",
+        createAt: now,
+        updateAt: now,
+      })
+      .run();
+  }
+
+  const authUser = c.get("user");
+  const updatedProfile = db
+    .select()
+    .from(userProfiles)
+    .where(eq(userProfiles.userId, userId))
+    .get();
+
+  return c.json(buildUserResponse(authUser, updatedProfile));
 });
 
 // POST /users - get users by list of IDs

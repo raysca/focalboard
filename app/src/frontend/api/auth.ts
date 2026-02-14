@@ -15,6 +15,6 @@ export const auth = {
     changePassword: (userId: string, data: {oldPassword?: string; newPassword?: string}) =>
         api.post(`/users/${userId}/changepassword`, data),
 
-    updateMe: (userId: string, data: Partial<User>) =>
+    updateMe: (userId: string, data: {nickname?: string; firstName?: string; lastName?: string}) =>
         api.patch<User>(`/users/${userId}`, data),
 }

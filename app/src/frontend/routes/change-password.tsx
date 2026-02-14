@@ -1,15 +1,14 @@
 import React, {useState} from 'react'
 import {createRoute, Link} from '@tanstack/react-router'
-import {Route as rootRoute} from './__root'
+import {Route as authRoute} from './_auth'
 import {Button} from '../components/ui/Button'
 import {Input} from '../components/ui/Input'
-import {api} from '../api/client'
 import {useMutation} from '@tanstack/react-query'
 import {auth} from '../api/auth'
 import {useAuth} from '../contexts/AuthContext'
 
 export const Route = createRoute({
-    getParentRoute: () => rootRoute,
+    getParentRoute: () => authRoute,
     path: '/change-password',
     component: ChangePasswordComponent,
 })
