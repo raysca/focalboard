@@ -1,6 +1,10 @@
 import type { Context, Next } from "hono";
+import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import type * as schemaType from "../db/schema.ts";
 import type { Auth } from "../auth/index.ts";
-import { UnauthorizedError } from "../errors.ts";
+import { UnauthorizedError, ForbiddenError } from "../errors.ts";
+import { userProfiles } from "../db/schema.ts";
+import { eq } from "drizzle-orm";
 
 type SessionResult = {
   session: {
@@ -50,5 +54,26 @@ export async function attachSession(c: Context, next: Next) {
     c.set("session", result.session);
     c.set("user", result.user);
   }
+  await next();
+}
+
+/**
+ * Requires admin role. Returns 403 if user is not an admin.
+ * Must be used after sessionRequired middleware.
+ */
+export async function adminRequired(c: Context, next: Next) {
+  const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
+  const userId = c.get("userId") as string;
+
+  const profile = db
+    .select()
+    .from(userProfiles)
+    .where(eq(userProfiles.userId, userId))
+    .get();
+
+  if (!profile?.roles?.includes("admin")) {
+    throw new ForbiddenError("admin access required");
+  }
+
   await next();
 }

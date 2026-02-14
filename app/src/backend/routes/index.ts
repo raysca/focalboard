@@ -20,6 +20,8 @@ import statisticsRoutes from "./statistics.ts";
 import complianceRoutes from "./compliance.ts";
 import archiveRoutes from "./archives.ts";
 import dependencyRoutes from "./dependencies.ts";
+import adminSettingsRoutes from "./admin-settings.ts";
+import adminUsersRoutes from "./admin-users.ts";
 
 const api = new Hono();
 
@@ -61,5 +63,7 @@ api.route("/", onboardingRoutes);
 api.route("/", statisticsRoutes);
 api.route("/", complianceRoutes);
 api.route("/", archiveRoutes);
+api.route("/", adminSettingsRoutes);
+api.route("/", adminUsersRoutes);
 
 export default api;

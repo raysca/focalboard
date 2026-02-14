@@ -13,7 +13,11 @@ app.get("*", async (c) => {
   if (await file.exists()) {
     return new Response(file);
   }
-  return new Response(Bun.file("./dist/index.html"));
+  // Only serve index.html for non-API routes
+  if (!c.req.path.startsWith("/api/")) {
+    return new Response(Bun.file("./dist/index.html"));
+  }
+  return c.notFound();
 });
 
 export default {

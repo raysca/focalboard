@@ -31,6 +31,8 @@ import {
     fileInfo,
     preferences,
     systemSettings,
+    adminSettings,
+    adminSettingsHistory,
 } from './schema.ts'
 import {eq, sql} from 'drizzle-orm'
 import {readFileSync} from 'node:fs'
@@ -185,6 +187,8 @@ if (forceReload) {
         {name: 'file_info', table: fileInfo},
         {name: 'preferences', table: preferences},
         {name: 'system_settings', table: systemSettings},
+        {name: 'admin_settings_history', table: adminSettingsHistory},
+        {name: 'admin_settings', table: adminSettings},
     ]
 
     for (const {name, table} of tablesToClear) {
@@ -611,6 +615,244 @@ for (const subData of subscriptionsData) {
 }
 console.log(`✅ Subscriptions: ${subscriptionsCreated} created\n`)
 
+// ==================== SEED ADMIN SETTINGS ====================
+console.log(`⚙️  Seeding admin settings...${forceReload ? ' (force reload)' : ''}`)
+let settingsCreated = 0
+
+// Define default admin settings
+const defaultSettings = [
+    // Authentication settings
+    {
+        id: 'auth.signup_enabled',
+        category: 'auth',
+        key: 'signup_enabled',
+        value: true,
+        valueType: 'boolean',
+        defaultValue: true,
+        description: 'Allow new user registrations',
+        isPublic: true,
+        constraints: {},
+    },
+    {
+        id: 'auth.signup_requires_token',
+        category: 'auth',
+        key: 'signup_requires_token',
+        value: false,
+        valueType: 'boolean',
+        defaultValue: false,
+        description: 'Require invite token for registration',
+        isPublic: true,
+        constraints: {},
+    },
+    {
+        id: 'auth.email_verification_required',
+        category: 'auth',
+        key: 'email_verification_required',
+        value: false,
+        valueType: 'boolean',
+        defaultValue: false,
+        description: 'Require email verification for new users',
+        isPublic: true,
+        constraints: {},
+    },
+    {
+        id: 'auth.session_timeout',
+        category: 'auth',
+        key: 'session_timeout',
+        value: 2592000,
+        valueType: 'number',
+        defaultValue: 2592000,
+        description: 'Session timeout in seconds (default: 30 days)',
+        isPublic: false,
+        constraints: {min: 3600, max: 31536000}, // 1 hour to 1 year
+    },
+    {
+        id: 'auth.github_oauth_enabled',
+        category: 'auth',
+        key: 'github_oauth_enabled',
+        value: true,
+        valueType: 'boolean',
+        defaultValue: true,
+        description: 'Enable GitHub OAuth login',
+        isPublic: true,
+        constraints: {},
+    },
+    {
+        id: 'auth.google_oauth_enabled',
+        category: 'auth',
+        key: 'google_oauth_enabled',
+        value: true,
+        valueType: 'boolean',
+        defaultValue: true,
+        description: 'Enable Google OAuth login',
+        isPublic: true,
+        constraints: {},
+    },
+
+    // Permissions settings
+    {
+        id: 'permissions.default_board_visibility',
+        category: 'permissions',
+        key: 'default_board_visibility',
+        value: 'personal',
+        valueType: 'string',
+        defaultValue: 'personal',
+        description: 'Default visibility for new boards',
+        isPublic: false,
+        constraints: {enum: ['personal', 'team', 'template']},
+    },
+    {
+        id: 'permissions.guest_access_enabled',
+        category: 'permissions',
+        key: 'guest_access_enabled',
+        value: false,
+        valueType: 'boolean',
+        defaultValue: false,
+        description: 'Allow guest users to access boards',
+        isPublic: false,
+        constraints: {},
+    },
+    {
+        id: 'permissions.who_can_create_boards',
+        category: 'permissions',
+        key: 'who_can_create_boards',
+        value: 'all',
+        valueType: 'string',
+        defaultValue: 'all',
+        description: 'Who can create new boards',
+        isPublic: false,
+        constraints: {enum: ['all', 'admin', 'none']},
+    },
+    {
+        id: 'permissions.who_can_comment',
+        category: 'permissions',
+        key: 'who_can_comment',
+        value: 'members',
+        valueType: 'string',
+        defaultValue: 'members',
+        description: 'Who can comment on cards',
+        isPublic: false,
+        constraints: {enum: ['all', 'members', 'admin']},
+    },
+    {
+        id: 'permissions.file_uploads_enabled',
+        category: 'permissions',
+        key: 'file_uploads_enabled',
+        value: true,
+        valueType: 'boolean',
+        defaultValue: true,
+        description: 'Enable file uploads',
+        isPublic: false,
+        constraints: {},
+    },
+
+    // Files settings
+    {
+        id: 'files.max_file_size',
+        category: 'files',
+        key: 'max_file_size',
+        value: 10485760,
+        valueType: 'number',
+        defaultValue: 10485760,
+        description: 'Maximum file size in bytes (default: 10MB)',
+        isPublic: false,
+        constraints: {min: 1048576, max: 104857600}, // 1MB to 100MB
+    },
+    {
+        id: 'files.allowed_file_types',
+        category: 'files',
+        key: 'allowed_file_types',
+        value: ['image/*', 'application/pdf', 'text/*'],
+        valueType: 'json',
+        defaultValue: ['image/*', 'application/pdf', 'text/*'],
+        description: 'Allowed MIME types for file uploads',
+        isPublic: false,
+        constraints: {},
+    },
+    {
+        id: 'files.storage_driver',
+        category: 'files',
+        key: 'storage_driver',
+        value: 'local',
+        valueType: 'string',
+        defaultValue: 'local',
+        description: 'File storage driver',
+        isPublic: false,
+        constraints: {enum: ['local', 's3']},
+    },
+
+    // System settings
+    {
+        id: 'system.app_name',
+        category: 'system',
+        key: 'app_name',
+        value: 'Focalboard',
+        valueType: 'string',
+        defaultValue: 'Focalboard',
+        description: 'Application name shown in UI',
+        isPublic: true,
+        constraints: {minLength: 1, maxLength: 50},
+    },
+    {
+        id: 'system.maintenance_mode',
+        category: 'system',
+        key: 'maintenance_mode',
+        value: false,
+        valueType: 'boolean',
+        defaultValue: false,
+        description: 'Enable maintenance mode (disables non-admin access)',
+        isPublic: true,
+        constraints: {},
+    },
+    {
+        id: 'system.telemetry_enabled',
+        category: 'system',
+        key: 'telemetry_enabled',
+        value: false,
+        valueType: 'boolean',
+        defaultValue: false,
+        description: 'Enable anonymous usage telemetry',
+        isPublic: false,
+        constraints: {},
+    },
+    {
+        id: 'system.audit_log_retention_days',
+        category: 'system',
+        key: 'audit_log_retention_days',
+        value: 90,
+        valueType: 'number',
+        defaultValue: 90,
+        description: 'Days to retain audit logs',
+        isPublic: false,
+        constraints: {min: 1, max: 3650}, // 1 day to 10 years
+    },
+]
+
+for (const setting of defaultSettings) {
+    const existing = forceReload
+        ? null
+        : db.select().from(adminSettings).where(eq(adminSettings.id, setting.id)).get()
+
+    if (!existing) {
+        db.insert(adminSettings).values({
+            id: setting.id,
+            category: setting.category,
+            key: setting.key,
+            value: JSON.stringify(setting.value),
+            valueType: setting.valueType,
+            defaultValue: JSON.stringify(setting.defaultValue),
+            description: setting.description,
+            isPublic: setting.isPublic,
+            constraints: JSON.stringify(setting.constraints),
+            modifiedBy: null,
+            createAt: now,
+            updateAt: now,
+        }).run()
+        settingsCreated++
+    }
+}
+console.log(`✅ Admin settings: ${settingsCreated} created\n`)
+
 // ==================== SUMMARY ====================
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 console.log(`🎉 SEED COMPLETE!${forceReload ? ' (FORCE RELOAD)' : ''}`)
@@ -627,6 +869,7 @@ console.log(`   • Checklist items: ${checklistItemsCreated} created`)
 console.log(`   • Dependencies: ${dependenciesCreated / 2} created`)
 console.log(`   • Categories: ${categoriesCreated} created`)
 console.log(`   • Subscriptions: ${subscriptionsCreated} created`)
+console.log(`   • Admin settings: ${settingsCreated} created`)
 console.log('')
 console.log('🚀 Next steps:')
 console.log('   1. Run: bun dev')

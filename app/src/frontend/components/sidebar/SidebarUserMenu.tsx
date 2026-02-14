@@ -1,9 +1,10 @@
 import React, {useState} from 'react'
-import {LogOut, Settings, Sun, Moon, Monitor, Palette} from 'lucide-react'
+import {LogOut, Settings, Sun, Moon, Monitor, Palette, Shield} from 'lucide-react'
 import {Link} from '@tanstack/react-router'
 import {useAuth} from '../../contexts/AuthContext'
 import {useUI} from '../../contexts/UIContext'
 import {useLogoutMutation} from '../../hooks/useAuth'
+import {useIsAdmin} from '../../hooks/useIsAdmin'
 import {cn} from '../../lib/cn'
 
 export function SidebarUserMenu() {
@@ -11,6 +12,7 @@ export function SidebarUserMenu() {
     const {theme, setTheme} = useUI()
     const logoutMutation = useLogoutMutation()
     const [showMenu, setShowMenu] = useState(false)
+    const isAdmin = useIsAdmin()
 
     const fullName = [user?.firstname, user?.lastname].filter(Boolean).join(' ')
     const displayName = user?.nickname || fullName || user?.username || user?.email || 'User'
@@ -62,6 +64,18 @@ export function SidebarUserMenu() {
                         </div>
 
                         <div className="h-px bg-border-default mx-2 my-1" />
+
+                        {/* Admin Settings (only for admins) */}
+                        {isAdmin && (
+                            <Link
+                                to="/admin/settings"
+                                className="flex items-center w-full h-8 px-3 text-sm text-center-fg/80 hover:bg-hover transition-colors cursor-pointer"
+                                onClick={() => setShowMenu(false)}
+                            >
+                                <Shield size={14} className="mr-2" />
+                                Admin Settings
+                            </Link>
+                        )}
 
                         {/* Settings */}
                         <Link

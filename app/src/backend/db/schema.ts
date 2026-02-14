@@ -451,3 +451,49 @@ export const cardDependencies = sqliteTable(
     ),
   ]
 );
+
+// -- Admin Settings --
+export const adminSettings = sqliteTable(
+  "admin_settings",
+  {
+    id: text("id").primaryKey(), // e.g., "auth.signup_enabled"
+    category: text("category").notNull(), // "auth", "permissions", "files", etc.
+    key: text("key").notNull(), // "signup_enabled"
+    value: text("value", {mode: "json"}).notNull().$type<unknown>(),
+    valueType: text("value_type").notNull(), // "string"|"number"|"boolean"|"json"
+    defaultValue: text("default_value", {mode: "json"}).notNull().$type<unknown>(),
+    description: text("description").notNull().default(""),
+    isPublic: integer("is_public", {mode: "boolean"}).notNull().default(false),
+    constraints: text("constraints", {mode: "json"})
+      .$type<Record<string, unknown>>()
+      .default({}),
+    modifiedBy: text("modified_by").references(() => user.id),
+    createAt: integer("create_at", {mode: "number"}).notNull(),
+    updateAt: integer("update_at", {mode: "number"}).notNull(),
+  },
+  (table) => [
+    index("idx_admin_settings_category").on(table.category),
+    index("idx_admin_settings_is_public").on(table.isPublic),
+  ]
+);
+
+// -- Admin Settings History --
+export const adminSettingsHistory = sqliteTable(
+  "admin_settings_history",
+  {
+    id: text("id").notNull(), // Reference to setting ID
+    category: text("category").notNull(),
+    key: text("key").notNull(),
+    oldValue: text("old_value", {mode: "json"}).$type<unknown>(),
+    newValue: text("new_value", {mode: "json"}).notNull().$type<unknown>(),
+    changedBy: text("changed_by")
+      .notNull()
+      .references(() => user.id),
+    changedAt: integer("changed_at", {mode: "number"}).notNull(),
+    reason: text("reason").default(""),
+  },
+  (table) => [
+    index("idx_admin_settings_history_id").on(table.id),
+    index("idx_admin_settings_history_changed_at").on(table.changedAt),
+  ]
+);

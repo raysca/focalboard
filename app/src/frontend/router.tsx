@@ -9,6 +9,7 @@ import {Route as dashboardRoute} from './routes/_auth.dashboard'
 import {Route as boardRoute} from './routes/_auth.board.$boardId'
 import {Route as cardRoute} from './routes/_auth.board.$boardId.$viewId.$cardId'
 import {Route as settingsRoute} from './routes/_auth.settings'
+import {Route as adminSettingsRoute} from './routes/_auth.admin.settings'
 
 const routeTree = rootRoute.addChildren([
     indexRoute,
@@ -17,6 +18,7 @@ const routeTree = rootRoute.addChildren([
     authRoute.addChildren([
         dashboardRoute,
         settingsRoute,
+        adminSettingsRoute,
         changePasswordRoute,
         boardRoute.addChildren([
             cardRoute,

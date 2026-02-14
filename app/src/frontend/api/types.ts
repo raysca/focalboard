@@ -5,6 +5,7 @@ export interface User {
     nickname: string
     firstname: string
     lastname: string
+    roles: string
     props: Record<string, any>
     createAt: number
     updateAt: number

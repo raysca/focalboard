@@ -159,6 +159,26 @@ export const deleteBatchBoardsAndBlocksSchema = z.object({
     blockIDs: z.array(z.string().uuid()).optional().default([])
 })
 
+// ===== Admin Settings Schemas =====
+
+export const updateSettingSchema = z.object({
+    value: z.unknown(),
+    reason: z.string().optional()
+})
+
+export const bulkUpdateSettingsSchema = z.array(
+    z.object({
+        id: z.string().min(1, "Setting ID is required"),
+        value: z.unknown()
+    })
+)
+
+export const updateUserRoleSchema = z.object({
+    role: z.enum(["admin", "user"], {
+        errorMap: () => ({ message: "Role must be 'admin' or 'user'" })
+    })
+})
+
 // Export types for TypeScript inference
 export type CreateBoardInput = z.infer<typeof createBoardSchema>
 export type UpdateBoardInput = z.infer<typeof updateBoardSchema>
@@ -178,3 +198,6 @@ export type SearchBoardsInput = z.infer<typeof searchBoardsSchema>
 export type BatchBoardsAndBlocksInput = z.infer<typeof batchBoardsAndBlocksSchema>
 export type UpdateBatchBoardsAndBlocksInput = z.infer<typeof updateBatchBoardsAndBlocksSchema>
 export type DeleteBatchBoardsAndBlocksInput = z.infer<typeof deleteBatchBoardsAndBlocksSchema>
+export type UpdateSettingInput = z.infer<typeof updateSettingSchema>
+export type BulkUpdateSettingsInput = z.infer<typeof bulkUpdateSettingsSchema>
+export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>

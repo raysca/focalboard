@@ -9,7 +9,7 @@
     "nickname": "Alice",
     "firstName": "Alice",
     "lastName": "Chen",
-    "roles": "system_admin",
+    "roles": "admin",
     "isBot": false,
     "isGuest": false
   },
@@ -23,7 +23,7 @@
     "nickname": "Bob",
     "firstName": "Bob",
     "lastName": "Smith",
-    "roles": "system_user",
+    "roles": "",
     "isBot": false,
     "isGuest": false
   },
@@ -37,7 +37,7 @@
     "nickname": "Carol",
     "firstName": "Carol",
     "lastName": "Johnson",
-    "roles": "system_user",
+    "roles": "",
     "isBot": false,
     "isGuest": false
   },
@@ -51,7 +51,7 @@
     "nickname": "Dave",
     "firstName": "Dave",
     "lastName": "Martinez",
-    "roles": "system_user",
+    "roles": "",
     "isBot": false,
     "isGuest": false
   },
@@ -65,7 +65,7 @@
     "nickname": "Eve",
     "firstName": "Eve",
     "lastName": "Williams",
-    "roles": "system_user",
+    "roles": "",
     "isBot": false,
     "isGuest": false
   },
@@ -79,7 +79,7 @@
     "nickname": "Frank",
     "firstName": "Frank",
     "lastName": "Brown",
-    "roles": "system_user",
+    "roles": "",
     "isBot": false,
     "isGuest": false
   }

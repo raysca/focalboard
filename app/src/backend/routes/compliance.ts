@@ -7,30 +7,12 @@ import {
   blocksHistory,
   userProfiles,
 } from "../db/schema.ts";
-import { sessionRequired } from "../middleware/auth.ts";
+import { sessionRequired, adminRequired } from "../middleware/auth.ts";
 import { eq } from "drizzle-orm";
-import { BadRequestError, ForbiddenError } from "../errors.ts";
+import { BadRequestError } from "../errors.ts";
 import type { Auth } from "../auth/index.ts";
 
 const complianceRoutes = new Hono();
-
-// Admin check middleware
-async function adminRequired(c: any, next: any) {
-  const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
-  const userId = c.get("userId") as string;
-
-  const profile = db
-    .select()
-    .from(userProfiles)
-    .where(eq(userProfiles.userId, userId))
-    .get();
-
-  if (!profile?.roles?.includes("admin")) {
-    throw new ForbiddenError("admin access required");
-  }
-
-  await next();
-}
 
 // GET /admin/boards
 complianceRoutes.get(

@@ -11,6 +11,7 @@ import {
   ForbiddenError,
 } from "../errors.ts";
 import {config} from "../config.ts";
+import {AdminSettingsService} from "../services/admin-settings.service.ts";
 
 const authRoutes = new Hono();
 
@@ -99,7 +100,18 @@ authRoutes.post("/register", async (c) => {
     throw new BadRequestError("email and password are required");
   }
 
-  if (config.signupToken && token !== config.signupToken) {
+  // Check if signup is enabled via admin settings
+  const settingsService = new AdminSettingsService(db);
+  const signupEnabled = settingsService.getSetting<boolean>("auth.signup_enabled");
+
+  if (signupEnabled === false) {
+    throw new ForbiddenError("User registration is disabled");
+  }
+
+  // Check if signup requires token
+  const signupRequiresToken = settingsService.getSetting<boolean>("auth.signup_requires_token");
+
+  if ((signupRequiresToken || config.signupToken) && token !== config.signupToken) {
     throw new UnauthorizedError("invalid signup token");
   }
 
