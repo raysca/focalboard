@@ -36,6 +36,60 @@ test("hello world", () => {
 });
 ```
 
+## E2E Testing
+
+Playwright is used for browser-based end-to-end testing. Tests validate real user workflows across Chrome, Firefox, and Safari.
+
+### Running E2E Tests
+
+**IMPORTANT: Seed the database before running tests:**
+
+```sh
+cd app
+bun src/backend/db/seed.ts --force  # Seed with test data
+bun test:e2e                        # Run all E2E tests
+```
+
+**Available Scripts:**
+
+```sh
+bun test:e2e          # Run all tests (headless)
+bun test:e2e:ui       # Open Playwright UI mode for debugging
+bun test:e2e:debug    # Run with debugger
+bun test:e2e:headed   # Run with visible browser
+```
+
+### Test Structure
+
+Tests are located in `tests/e2e/` with Page Object Models for maintainability:
+
+```
+tests/e2e/
+├── auth.spec.ts              # Authentication tests
+├── boards.spec.ts            # Board CRUD operations
+├── cards.spec.ts             # Card management
+├── admin.spec.ts             # Admin settings
+└── fixtures/
+    ├── auth.fixture.ts       # Authenticated contexts
+    └── pages/                # Page Object Models
+        ├── LoginPage.ts
+        ├── DashboardPage.ts
+        ├── BoardPage.ts
+        └── AdminPage.ts
+```
+
+### Test Credentials
+
+From seed data (`src/backend/db/seeds/users.json`):
+- **Admin:** `alice@focalboard.dev` / `demo1234`
+- **Regular User:** `bob@focalboard.dev` / `demo1234`
+
+### Accessible Selectors
+
+Tests use accessible selectors (getByRole, getByPlaceholder, getByText) instead of data-testid attributes for more robust, user-centric testing.
+
+See `E2E_TESTS_FINAL_STATUS.md` for current test status and implementation details.
+
 ## Frontend
 
 Use HTML imports with `Bun.serve()`. Don't use `vite`. HTML imports fully support React, CSS, Tailwind.
