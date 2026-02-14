@@ -30,6 +30,7 @@ export function SidebarUserMenu() {
             <button
                 onClick={() => setShowMenu(!showMenu)}
                 className="flex items-center w-full h-12 px-4 text-sidebar-text-primary hover:bg-white/10 transition-colors cursor-pointer"
+                data-testid="user-menu"
             >
                 <div className="w-7 h-7 rounded-full bg-button-bg flex items-center justify-center text-xs font-bold text-white mr-2 shrink-0">
                     {initials}
@@ -93,6 +94,7 @@ export function SidebarUserMenu() {
                         <button
                             onClick={() => logoutMutation.mutate()}
                             className="flex items-center w-full h-8 px-3 text-sm text-center-fg/80 hover:bg-hover transition-colors cursor-pointer"
+                            data-testid="logout-button"
                         >
                             <LogOut size={14} className="mr-2" />
                             Log out

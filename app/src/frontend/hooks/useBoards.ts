@@ -1,6 +1,6 @@
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 import {boardsApi} from '../api/boards'
-import type {Board} from '../api/types'
+import type {Board, CreateBoardRequest} from '../api/types'
 
 export function useBoardsQuery(teamId: string) {
     return useQuery({
@@ -21,7 +21,7 @@ export function useBoardQuery(boardId: string) {
 export function useCreateBoardMutation(teamId: string) {
     const queryClient = useQueryClient()
     return useMutation({
-        mutationFn: (board: Partial<Board>) => boardsApi.createBoard({...board, teamId}),
+        mutationFn: (board: CreateBoardRequest) => boardsApi.createBoard({...board, teamId}),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['boards', teamId]})
         },

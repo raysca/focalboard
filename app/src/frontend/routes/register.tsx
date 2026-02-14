@@ -36,6 +36,7 @@ function RegisterComponent() {
                         disabled={registerMutation.isPending}
                         autoFocus
                         className="h-[44px] border-[#ccc]"
+                        data-testid="email-input"
                     />
                     <Input
                         placeholder="Username"
@@ -43,6 +44,7 @@ function RegisterComponent() {
                         onChange={(e) => setUsername(e.target.value)}
                         disabled={registerMutation.isPending}
                         className="h-[44px] border-[#ccc]"
+                        data-testid="username-input"
                     />
                     <Input
                         type="password"
@@ -51,6 +53,7 @@ function RegisterComponent() {
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={registerMutation.isPending}
                         className="h-[44px] border-[#ccc]"
+                        data-testid="password-input"
                     />
 
                     {registerMutation.isError && (
@@ -64,6 +67,7 @@ function RegisterComponent() {
                         filled
                         className="mt-[10px] mb-[20px] w-full min-h-[38px] text-[14px]"
                         disabled={registerMutation.isPending}
+                        data-testid="register-submit"
                     >
                         {registerMutation.isPending ? 'Signing up...' : 'Sign up'}
                     </Button>

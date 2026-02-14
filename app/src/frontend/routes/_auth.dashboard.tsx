@@ -94,6 +94,7 @@ function DashboardComponent() {
                                 to="/board/$boardId"
                                 params={{boardId: board.id}}
                                 className="group block p-5 rounded-[var(--radius-default)] bg-white border border-black/5 hover:border-black/10 shadow-sm hover:shadow-md transition-all duration-200"
+                                data-testid="board-item"
                             >
                                 <div className="flex items-start justify-between mb-3">
                                     <span className="text-2xl">{board.icon || '📋'}</span>
@@ -111,6 +112,7 @@ function DashboardComponent() {
                         <button
                             onClick={() => setShowCreateDialog(true)}
                             className="flex flex-col items-center justify-center p-5 rounded-[var(--radius-default)] border border-dashed border-black/20 hover:border-blue-500/50 hover:bg-blue-50/50 transition-all duration-200 group h-full min-h-[140px]"
+                            data-testid="create-board-button"
                         >
                             <div className="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center mb-3 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
                                 <Plus size={20} />
@@ -126,6 +128,7 @@ function DashboardComponent() {
                         <button
                             onClick={() => setShowCreateDialog(true)}
                             className="px-4 py-2 bg-button-bg text-button-fg rounded-[var(--radius-default)] hover:opacity-90 transition-opacity font-medium"
+                            data-testid="create-board-button"
                         >
                             Create Board
                         </button>

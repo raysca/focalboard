@@ -1,5 +1,5 @@
 import {api} from './client'
-import type {Board} from './types'
+import type {Board, CreateBoardRequest} from './types'
 
 export const boardsApi = {
     getBoards: (teamId: string) =>
@@ -8,7 +8,7 @@ export const boardsApi = {
     getBoard: (boardId: string) =>
         api.get<Board>(`/boards/${boardId}`),
 
-    createBoard: (board: Partial<Board>) =>
+    createBoard: (board: CreateBoardRequest) =>
         api.post<Board>('/boards', board),
 
     patchBoard: (boardId: string, patch: Partial<Board>) =>

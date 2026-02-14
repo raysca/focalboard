@@ -73,12 +73,13 @@ export function AuthSettings() {
                         onClick={handleSave}
                         disabled={bulkUpdate.isPending}
                         className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                        data-testid="save-settings-button"
                     >
                         {bulkUpdate.isPending ? 'Saving...' : 'Save Changes'}
                     </button>
 
                     {successMessage && (
-                        <span className="text-sm text-green-600">{successMessage}</span>
+                        <span className="text-sm text-green-600" data-testid="success-message">{successMessage}</span>
                     )}
                 </div>
             </div>

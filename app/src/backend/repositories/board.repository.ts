@@ -1,10 +1,10 @@
-import { eq, and, inArray, type SQL } from "drizzle-orm"
-import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite"
+import {eq, and, inArray, type SQL} from "drizzle-orm"
+import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite"
 import * as schema from "../db/schema.ts"
-import { boards, boardsHistory } from "../db/schema.ts"
-import { Repository } from "./base.ts"
-import type { Transaction } from "../services/transaction.ts"
-import type { Board } from "../types/index.ts"
+import {boards, boardsHistory} from "../db/schema.ts"
+import {Repository} from "./base.ts"
+import type {Transaction} from "../services/transaction.ts"
+import type {Board} from "../types/index.ts"
 
 type DB = BunSQLiteDatabase<typeof schema>
 
@@ -23,6 +23,20 @@ export class BoardRepository extends Repository<typeof boards, Board> {
                 eq(boards.deleteAt, 0)
             )
         )
+    }
+
+    /**
+     * Find board by team ID and title
+     */
+    findByTeamAndTitle(teamId: string, title: string): Board | undefined {
+        const results = this.findAll(
+            and(
+                eq(boards.teamId, teamId),
+                eq(boards.title, title),
+                eq(boards.deleteAt, 0)
+            )
+        )
+        return results[0]
     }
 
     /**

@@ -54,6 +54,7 @@ function SortableCard({card, visibleProps, board, onClick}: {card: Card; visible
                 'rounded-[var(--radius-default)] p-3 px-4 cursor-grab text-center-fg shadow-card hover:bg-hover transition-colors bg-center-bg',
                 isDragging && 'opacity-30'
             )}
+            data-testid="card"
         >
             <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1 flex-1">
@@ -411,6 +412,7 @@ export function KanbanView({board, cards, activeView, contents}: KanbanViewProps
                         <button
                             onClick={() => handleNewCard(group.id)}
                             className="flex items-center gap-1 mt-2 px-2 py-1.5 rounded text-center-fg/40 hover:text-center-fg/70 hover:bg-hover text-xs transition-colors cursor-pointer"
+                            data-testid="add-card-button"
                         >
                             <Plus size={14} />
                             <span>New</span>

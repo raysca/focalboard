@@ -35,6 +35,7 @@ function LoginComponent() {
                         disabled={loginMutation.isPending}
                         autoFocus
                         className="h-[44px] border-[#ccc]"
+                        data-testid="username-input"
                     />
                     <Input
                         type="password"
@@ -43,6 +44,7 @@ function LoginComponent() {
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={loginMutation.isPending}
                         className="h-[44px] border-[#ccc]"
+                        data-testid="password-input"
                     />
 
                     {loginMutation.isError && (
@@ -56,6 +58,7 @@ function LoginComponent() {
                         filled
                         className="mt-[10px] mb-[20px] w-full min-h-[38px] text-[14px]"
                         disabled={loginMutation.isPending}
+                        data-testid="login-submit"
                     >
                         {loginMutation.isPending ? 'Logging in...' : 'Log in'}
                     </Button>

@@ -35,6 +35,12 @@ export class BoardService {
             const now = Date.now()
             const id = crypto.randomUUID()
 
+            // Check for duplicate board name in team
+            const existingBoard = boardRepo.findByTeamAndTitle(data.teamId, data.title)
+            if (existingBoard) {
+                throw new ForbiddenError("A board with this name already exists in the team")
+            }
+
             // Create board
             const board = boardRepo.create({
                 id,
@@ -69,6 +75,23 @@ export class BoardService {
                 schemeCommenter: true,
                 schemeViewer: true
             })
+
+            // Add initial members if provided
+            if (data.initialMembers && data.initialMembers.length > 0) {
+                // Filter out creator if somehow included to avoid duplicate key error
+                const uniqueMembers = new Set(data.initialMembers.filter(mid => mid !== userId))
+
+                for (const memberId of uniqueMembers) {
+                    memberRepo.addMember({
+                        boardId: id,
+                        userId: memberId,
+                        schemeAdmin: false,
+                        schemeEditor: true,
+                        schemeCommenter: true,
+                        schemeViewer: true
+                    })
+                }
+            }
 
             return board
         })

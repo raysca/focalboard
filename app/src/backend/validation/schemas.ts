@@ -1,4 +1,4 @@
-import { z } from "zod"
+import {z} from "zod"
 
 // ===== Board Schemas =====
 
@@ -14,7 +14,8 @@ export const createBoardSchema = z.object({
     isTemplate: z.boolean().optional().default(false),
     templateVersion: z.number().int().optional().default(0),
     properties: z.record(z.unknown()).optional().default({}),
-    cardProperties: z.array(z.unknown()).optional().default([])
+    cardProperties: z.array(z.unknown()).optional().default([]),
+    initialMembers: z.array(z.string().uuid()).optional().default([])
 })
 
 export const updateBoardSchema = z.object({
@@ -175,7 +176,7 @@ export const bulkUpdateSettingsSchema = z.array(
 
 export const updateUserRoleSchema = z.object({
     role: z.enum(["admin", "user"], {
-        errorMap: () => ({ message: "Role must be 'admin' or 'user'" })
+        errorMap: () => ({message: "Role must be 'admin' or 'user'"})
     })
 })
 

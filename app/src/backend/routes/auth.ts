@@ -2,7 +2,7 @@ import {Hono} from "hono";
 import type {Auth} from "../auth/index.ts";
 import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite";
 import type * as schemaType from "../db/schema.ts";
-import {userProfiles, teams, boards, boardMembers, blocks} from "../db/schema.ts";
+import {userProfiles, teams, boards, boardMembers, blocks, user} from "../db/schema.ts";
 import {sessionRequired} from "../middleware/auth.ts";
 import {eq} from "drizzle-orm";
 import {

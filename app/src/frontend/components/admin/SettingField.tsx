@@ -21,6 +21,7 @@ export function SettingField({ setting, value, onChange, disabled }: SettingFiel
                             onChange={(e) => onChange(e.target.checked)}
                             disabled={disabled}
                             className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            data-testid={`setting-${setting.id}`}
                         />
                         <label htmlFor={setting.id} className="text-sm text-gray-700">
                             {setting.description}

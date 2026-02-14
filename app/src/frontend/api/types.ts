@@ -19,7 +19,7 @@ export interface Board {
     channelId?: string
     createdBy: string
     modifiedBy: string
-    type: 'public' | 'private'
+    type: 'O' | 'P'
     title: string
     description: string
     icon?: string
@@ -32,6 +32,10 @@ export interface Board {
     createAt: number
     updateAt: number
     deleteAt: number
+}
+
+export interface CreateBoardRequest extends Partial<Board> {
+    initialMembers?: string[]
 }
 
 export interface IPropertyTemplate {
