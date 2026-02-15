@@ -39,8 +39,14 @@ import {readFileSync} from 'node:fs'
 import {join} from 'node:path'
 import {hashPassword, verifyPassword} from 'better-auth/crypto'
 
-// Check for --force flag
-const forceReload = process.argv.includes('--force')
+// Export the seed function for programmatic use
+export async function seedDatabase(force = false) {
+    const forceReload = force
+    return _seedDatabase(forceReload)
+}
+
+// Internal seed implementation
+async function _seedDatabase(forceReload: boolean) {
 
 // Type definitions for seed data
 interface UserSeed {
@@ -853,6 +859,34 @@ for (const setting of defaultSettings) {
 }
 console.log(`✅ Admin settings: ${settingsCreated} created\n`)
 
+// ==================== SEED USER PREFERENCES ====================
+console.log('📝 Seeding user preferences...')
+let preferencesCreated = 0
+for (const userSeed of usersData) {
+    const existing = forceReload
+        ? null
+        : db
+              .select()
+              .from(preferences)
+              .where(eq(preferences.userId, userSeed.id))
+              .where(eq(preferences.category, 'onboarding'))
+              .where(eq(preferences.name, 'welcomePageViewed'))
+              .get()
+
+    if (!existing) {
+        db.insert(preferences)
+            .values({
+                userId: userSeed.id,
+                category: 'onboarding',
+                name: 'welcomePageViewed',
+                value: '1', // Mark as viewed so users skip welcome page
+            })
+            .run()
+        preferencesCreated++
+    }
+}
+console.log(`✅ Preferences: ${preferencesCreated} created\n`)
+
 // ==================== SUMMARY ====================
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 console.log(`🎉 SEED COMPLETE!${forceReload ? ' (FORCE RELOAD)' : ''}`)
@@ -870,6 +904,7 @@ console.log(`   • Dependencies: ${dependenciesCreated / 2} created`)
 console.log(`   • Categories: ${categoriesCreated} created`)
 console.log(`   • Subscriptions: ${subscriptionsCreated} created`)
 console.log(`   • Admin settings: ${settingsCreated} created`)
+console.log(`   • Preferences: ${preferencesCreated} created`)
 console.log('')
 console.log('🚀 Next steps:')
 console.log('   1. Run: bun dev')
@@ -913,4 +948,11 @@ if (!forceReload) {
     console.log('💡 Tip: Use --force flag to clear all data and reseed from scratch')
     console.log('   Example: bun src/backend/db/seed.ts --force')
     console.log('')
+}
+}
+
+// Run seed when executed directly
+if (import.meta.main) {
+    const forceReload = process.argv.includes('--force')
+    await seedDatabase(forceReload)
 }

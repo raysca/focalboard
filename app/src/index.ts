@@ -2,6 +2,20 @@ import {createApp} from "./backend/index.ts";
 import {db} from "./backend/db/index.ts";
 import {createAuth} from "./backend/auth/index.ts";
 import {config} from "./backend/config.ts";
+import {runMigrations} from "./backend/db/migrate.ts";
+
+// Run migrations on startup in test mode (in-memory DB needs setup each time)
+if (process.env.NODE_ENV === 'test') {
+    console.log('[Test Mode] Running migrations...')
+    await runMigrations()
+    console.log('[Test Mode] Migrations complete')
+
+    // Import and run seed dynamically to avoid circular dependencies
+    const {seedDatabase} = await import('./backend/db/seed.ts')
+    console.log('[Test Mode] Seeding database...')
+    await seedDatabase(true) // force = true
+    console.log('[Test Mode] Database ready')
+}
 
 const auth = createAuth(db);
 const app = createApp({db, auth});

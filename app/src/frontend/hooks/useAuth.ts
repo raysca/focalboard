@@ -1,16 +1,27 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {auth} from '../api/auth'
 import {useNavigate} from '@tanstack/react-router'
+import {preferencesApi} from '../api/preferences'
 
 export function useLoginMutation() {
     const queryClient = useQueryClient()
 
     return useMutation({
         mutationFn: auth.login,
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             queryClient.setQueryData(['me'], data.user)
-            // Use hard redirect to ensure navigation works
-            window.location.href = '/dashboard'
+
+            // Check if user has viewed welcome page
+            try {
+                const preferences = await preferencesApi.getPreferences()
+                const welcomeViewed = preferences?.onboarding?.welcomePageViewed === '1'
+
+                // Redirect to welcome if not viewed, otherwise to dashboard
+                window.location.href = welcomeViewed ? '/dashboard' : '/welcome'
+            } catch {
+                // If preferences fail to load, default to welcome page for new users
+                window.location.href = '/welcome'
+            }
         },
     })
 }
