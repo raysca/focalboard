@@ -16,7 +16,7 @@ await execAsync('bun src/backend/db/seed.ts --force', {
     cwd: process.cwd(),
     env: {
         ...process.env,
-        DB_CONFIG: 'focalboard-test.db?_busy_timeout=5000',
+        NODE_ENV: 'test',
     },
 })
 
