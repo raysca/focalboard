@@ -40,20 +40,42 @@ test("hello world", () => {
 
 Playwright is used for browser-based end-to-end testing. Tests validate real user workflows across Chrome, Firefox, and Safari.
 
+**Database Configuration:**
+- Tests automatically use in-memory SQLite (`:memory:`) when `NODE_ENV=test`
+- Migrations and seeding run automatically before tests start
+- No test database files are created or need cleanup
+- Each test run gets a fresh, isolated database
+
 ### Running E2E Tests
 
-**IMPORTANT: Seed the database before running tests:**
+Tests are fully automated - just run them:
 
 ```sh
 cd app
-bun src/backend/db/seed.ts --force  # Seed with test data
-bun test:e2e                        # Run all E2E tests
+bun test:e2e          # Run all tests (headless, in-memory)
 ```
+
+The test setup automatically:
+1. Detects `NODE_ENV=test` from playwright.config.ts
+2. Creates an in-memory database
+3. Runs migrations
+4. Seeds test data
+5. Executes tests
+
+**Debugging with File-Based Database:**
+
+If you need to inspect the test database after tests run:
+
+```sh
+NODE_ENV=development bun test:e2e  # Uses file-based database
+```
+
+This creates `focalboard-test.db` that you can inspect with tools like DB Browser for SQLite.
 
 **Available Scripts:**
 
 ```sh
-bun test:e2e          # Run all tests (headless)
+bun test:e2e          # Run all tests (headless, in-memory)
 bun test:e2e:ui       # Open Playwright UI mode for debugging
 bun test:e2e:debug    # Run with debugger
 bun test:e2e:headed   # Run with visible browser
