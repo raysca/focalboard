@@ -30,8 +30,11 @@ export default defineConfig({
     ],
 
     webServer: {
-        command: 'bun dev',
+        command: 'NODE_ENV=test bun dev',
         url: 'http://localhost:8088',
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: false,
+        env: {
+            NODE_ENV: 'test',
+        },
     },
 })
