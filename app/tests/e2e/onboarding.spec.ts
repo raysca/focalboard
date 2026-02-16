@@ -52,8 +52,8 @@ test.describe('Onboarding Tour', () => {
         // Should navigate to a board
         await expect(page).toHaveURL(/\/board\//)
 
-        // Should see the onboarding board
-        await expect(page.getByText('Welcome to Focalboard!')).toBeVisible()
+        // Should see the onboarding board title in main content area
+        await expect(page.getByRole('main').getByText('Welcome to Focalboard!')).toBeVisible()
 
         // Should see tour popover (if implemented correctly)
         // Note: This might need adjustment based on actual implementation
