@@ -1,5 +1,6 @@
 import React from 'react'
 import type {IPropertyTemplate} from '../../api/types'
+import {useTourContext} from '../../contexts/TourContext'
 import {SelectPropertyEditor} from './properties/SelectPropertyEditor'
 import {MultiSelectPropertyEditor} from './properties/MultiSelectPropertyEditor'
 import {TextPropertyEditor} from './properties/TextPropertyEditor'
@@ -14,10 +15,20 @@ interface CardDetailPropertiesProps {
 }
 
 export function CardDetailProperties({properties, cardProperties, onPropertyChange}: CardDetailPropertiesProps) {
+    const {isOnboardingBoard, isTourActive, advanceTour} = useTourContext()
+
+    const handlePropertyChange = (propertyId: string, value: any) => {
+        onPropertyChange(propertyId, value)
+        // Advance tour after property edit (tour step 2)
+        if (isTourActive) {
+            advanceTour()
+        }
+    }
+
     if (!cardProperties || cardProperties.length === 0) return null
 
     return (
-        <div className="px-6 py-4">
+        <div className="px-6 py-4" data-tour-target={isOnboardingBoard ? 'card-properties' : undefined}>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-center-fg/50 mb-3">
                 Properties
             </h3>
@@ -31,7 +42,7 @@ export function CardDetailProperties({properties, cardProperties, onPropertyChan
                                 {prop.name}
                             </span>
                             <div className="flex-1 min-w-0">
-                                {renderPropertyEditor(prop, value, (val) => onPropertyChange(prop.id, val))}
+                                {renderPropertyEditor(prop, value, (val) => handlePropertyChange(prop.id, val))}
                             </div>
                         </div>
                     )

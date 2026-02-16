@@ -1,6 +1,7 @@
 import React, {useState, useMemo} from 'react'
 import {Send} from 'lucide-react'
 import {useUsersByIdsQuery, getUserDisplay} from '../../hooks/useUsers'
+import {useTourContext} from '../../contexts/TourContext'
 import type {Block} from '../../api/types'
 
 interface CommentsListProps {
@@ -9,6 +10,7 @@ interface CommentsListProps {
 }
 
 export function CommentsList({comments, onAddComment}: CommentsListProps) {
+    const {isOnboardingBoard, isTourActive, advanceTour} = useTourContext()
     const [draft, setDraft] = useState('')
 
     // Collect unique user IDs from all comments and resolve them
@@ -37,12 +39,16 @@ export function CommentsList({comments, onAddComment}: CommentsListProps) {
         if (!draft.trim()) return
         onAddComment(draft.trim())
         setDraft('')
+        // Advance tour after adding comment (tour step 3)
+        if (isTourActive) {
+            advanceTour()
+        }
     }
 
     const sortedComments = [...comments].sort((a, b) => (b.createAt || 0) - (a.createAt || 0))
 
     return (
-        <div className="px-6 py-4">
+        <div className="px-6 py-4" data-tour-target={isOnboardingBoard ? 'card-comments' : undefined}>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-center-fg/50 mb-3">
                 Comments
             </h3>

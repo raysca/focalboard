@@ -5,6 +5,7 @@ import {X, Trash2} from 'lucide-react'
 import {useBoardQuery} from '../hooks/useBoards'
 import {usePatchBlockMutation, useInsertBlocksMutation, useDeleteBlockMutation, useBoardDataQuery} from '../hooks/useBlocks'
 import {useBoardWebSocket} from '../hooks/useBoardWebSocket'
+import {useTourContext} from '../contexts/TourContext'
 import {CardDetailProperties} from '../components/card/CardDetailProperties'
 import {CardDetailContents} from '../components/card/CardDetailContents'
 import {CommentsList} from '../components/card/CommentsList'
@@ -22,6 +23,7 @@ export const Route = createRoute({
 function CardDialog() {
     const {boardId, viewId, cardId} = Route.useParams()
     const navigate = useNavigate()
+    const {isTourActive, advanceTour} = useTourContext()
 
     // Connect to real-time updates for comments
     const {isConnected} = useBoardWebSocket(boardId)
@@ -45,6 +47,13 @@ function CardDialog() {
             .catch(() => setCard(null))
             .finally(() => setLoading(false))
     }, [cardId])
+
+    // Advance tour when card dialog opens (tour step 1: open first card)
+    useEffect(() => {
+        if (isTourActive && card) {
+            advanceTour()
+        }
+    }, [isTourActive, card, advanceTour])
 
     // Get content blocks and comments for this card
     const {contentBlocks, comments} = useMemo(() => {

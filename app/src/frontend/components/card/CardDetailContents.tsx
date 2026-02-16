@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import {Plus, Type, Image, Minus, CheckSquare, Heading1, Heading2, Heading3} from 'lucide-react'
 import {cn} from '../../lib/cn'
+import {useTourContext} from '../../contexts/TourContext'
 import type {Block} from '../../api/types'
 import {ChecklistProgress} from './ChecklistProgress'
 
@@ -13,7 +14,16 @@ interface CardDetailContentsProps {
 }
 
 export function CardDetailContents({contents, contentOrder, onAddBlock, onUpdateBlock, onDeleteBlock}: CardDetailContentsProps) {
+    const {isOnboardingBoard, isTourActive, advanceTour} = useTourContext()
     const [showMenu, setShowMenu] = useState(false)
+
+    const handleUpdateBlock = (blockId: string, patch: Partial<Block>) => {
+        onUpdateBlock(blockId, patch)
+        // Advance tour after editing description/content (tour step 4)
+        if (isTourActive) {
+            advanceTour()
+        }
+    }
 
     // Sort contents by contentOrder
     const orderedContents = contentOrder
@@ -30,7 +40,7 @@ export function CardDetailContents({contents, contentOrder, onAddBlock, onUpdate
     const hasCheckboxes = checkboxes.length > 0
 
     return (
-        <div className="px-6 py-4 min-h-[120px]">
+        <div className="px-6 py-4 min-h-[120px]" data-tour-target={isOnboardingBoard ? 'card-description' : undefined}>
             {allContents.length === 0 && !showMenu && (
                 <div
                     className="text-sm text-center-fg/30 cursor-pointer hover:text-center-fg/50 transition-colors"
@@ -60,7 +70,7 @@ export function CardDetailContents({contents, contentOrder, onAddBlock, onUpdate
                 <ContentBlockRenderer
                     key={block.id}
                     block={block}
-                    onUpdate={(patch) => onUpdateBlock(block.id, patch)}
+                    onUpdate={(patch) => handleUpdateBlock(block.id, patch)}
                     onDelete={() => onDeleteBlock(block.id)}
                     onAddBelow={(type) => onAddBlock(type, block.id)}
                 />

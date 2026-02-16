@@ -7,4 +7,7 @@ export const teamsApi = {
 
     getTeam: (teamId: string) =>
         api.get<Team>(`/teams/${teamId}`),
+
+    onboard: (teamId: string) =>
+        api.post<{teamID: string; boardID: string}>(`/teams/${teamId}/onboard`, {}),
 }

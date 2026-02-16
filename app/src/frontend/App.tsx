@@ -6,8 +6,10 @@ import {router} from './router'
 import {AuthProvider, useAuth} from './contexts/AuthContext'
 import {UIProvider} from './contexts/UIContext'
 import {WebSocketProvider} from './contexts/WebSocketContext'
+import {TourProvider} from './contexts/TourContext'
 import {ToastProvider} from './components/ui/Toast'
 import {ErrorBoundary} from './components/ui/ErrorBoundary'
+import {TourStepManager} from './components/onboarding/TourStepManager'
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -21,7 +23,12 @@ const queryClient = new QueryClient({
 
 function AppContent() {
     const auth = useAuth()
-    return <RouterProvider router={router} context={{auth}} />
+    return (
+        <>
+            <RouterProvider router={router} context={{auth}} />
+            <TourStepManager />
+        </>
+    )
 }
 
 export default function App() {
@@ -31,9 +38,11 @@ export default function App() {
                 <UIProvider>
                     <ToastProvider>
                         <AuthProvider>
-                            <WebSocketProvider>
-                                <AppContent />
-                            </WebSocketProvider>
+                            <TourProvider>
+                                <WebSocketProvider>
+                                    <AppContent />
+                                </WebSocketProvider>
+                            </TourProvider>
                         </AuthProvider>
                     </ToastProvider>
                 </UIProvider>

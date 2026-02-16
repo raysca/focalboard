@@ -3,6 +3,7 @@ import {Route as rootRoute} from './routes/__root'
 import {Route as indexRoute} from './routes/index'
 import {Route as loginRoute} from './routes/login'
 import {Route as registerRoute} from './routes/register'
+import {Route as welcomeRoute} from './routes/welcome'
 import {Route as changePasswordRoute} from './routes/change-password'
 import {Route as authRoute} from './routes/_auth'
 import {Route as dashboardRoute} from './routes/_auth.dashboard'
@@ -15,6 +16,7 @@ const routeTree = rootRoute.addChildren([
     indexRoute,
     loginRoute,
     registerRoute,
+    welcomeRoute,
     authRoute.addChildren([
         dashboardRoute,
         settingsRoute,

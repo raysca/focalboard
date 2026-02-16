@@ -1,6 +1,7 @@
 import React, {useMemo, useState} from 'react'
 import {useNavigate} from '@tanstack/react-router'
 import {Plus, Paperclip} from 'lucide-react'
+import {useTourContext} from '../../contexts/TourContext'
 import {
     DndContext,
     DragOverlay,
@@ -29,8 +30,9 @@ interface KanbanViewProps {
 }
 
 // --- Sortable card wrapper ---
-function SortableCard({card, visibleProps, board, onClick}: {card: Card; visibleProps: IPropertyTemplate[]; board: Board; onClick: () => void}) {
+function SortableCard({card, visibleProps, board, onClick, isFirstCard}: {card: Card; visibleProps: IPropertyTemplate[]; board: Board; onClick: () => void; isFirstCard?: boolean}) {
     const patchBlock = usePatchBlockMutation(board?.id || '')
+    const {isOnboardingBoard} = useTourContext()
     const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({
         id: card.id,
         data: {type: 'card', card},
@@ -55,6 +57,7 @@ function SortableCard({card, visibleProps, board, onClick}: {card: Card; visible
                 isDragging && 'opacity-30'
             )}
             data-testid="card"
+            data-tour-target={isFirstCard && isOnboardingBoard ? 'onboarding-card-0' : undefined}
         >
             <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1 flex-1">
@@ -396,15 +399,20 @@ export function KanbanView({board, cards, activeView, contents}: KanbanViewProps
                             strategy={verticalListSortingStrategy}
                         >
                             <DroppableColumn groupId={group.id}>
-                                {group.cards.map((card) => (
-                                    <SortableCard
-                                        key={card.id}
-                                        card={card}
-                                        visibleProps={visibleProps}
-                                        board={board}
-                                        onClick={() => handleCardClick(card)}
-                                    />
-                                ))}
+                                {group.cards.map((card, cardIndex) => {
+                                    // Calculate global card index across all groups
+                                    const globalIndex = groups.slice(0, groups.indexOf(group)).reduce((sum, g) => sum + g.cards.length, 0) + cardIndex
+                                    return (
+                                        <SortableCard
+                                            key={card.id}
+                                            card={card}
+                                            visibleProps={visibleProps}
+                                            board={board}
+                                            onClick={() => handleCardClick(card)}
+                                            isFirstCard={globalIndex === 0}
+                                        />
+                                    )
+                                })}
                             </DroppableColumn>
                         </SortableContext>
 

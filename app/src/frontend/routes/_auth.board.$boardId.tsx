@@ -1,10 +1,11 @@
-import React, {useMemo, useState} from 'react'
+import React, {useMemo, useState, useEffect} from 'react'
 import {createRoute, Outlet, useNavigate} from '@tanstack/react-router'
 import {Route as authRoute} from './_auth'
 import {useBoardQuery, usePatchBoardMutation} from '../hooks/useBoards'
 import {useBoardDataQuery} from '../hooks/useBlocks'
 import {useBoardWebSocket} from '../hooks/useBoardWebSocket'
 import {useAuth} from '../contexts/AuthContext'
+import {useTourContext} from '../contexts/TourContext'
 import {Editable} from '../components/ui/Editable'
 import {ViewHeader} from '../components/viewHeader/ViewHeader'
 import {KanbanView} from '../components/board/KanbanView'
@@ -27,6 +28,7 @@ function BoardPage() {
     const {boardId} = Route.useParams()
     const navigate = useNavigate()
     const {user} = useAuth()
+    const {setOnboardingBoard} = useTourContext()
 
     // Connect to real-time updates
     const {isConnected} = useBoardWebSocket(boardId)
@@ -34,6 +36,15 @@ function BoardPage() {
     const {data: board, isLoading: boardLoading} = useBoardQuery(boardId)
     const {data: blockData, isLoading: blocksLoading} = useBoardDataQuery(boardId)
     const patchBoard = usePatchBoardMutation()
+
+    // Set onboarding board flag for tour activation
+    useEffect(() => {
+        if (board) {
+            const isOnboarding = board.title === 'Welcome to Focalboard!'
+            setOnboardingBoard(isOnboarding)
+        }
+        return () => setOnboardingBoard(false)
+    }, [board, setOnboardingBoard])
 
     const views = blockData?.views || []
     const cards = blockData?.cards || []

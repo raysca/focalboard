@@ -1,16 +1,31 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {auth} from '../api/auth'
 import {useNavigate} from '@tanstack/react-router'
+import {preferencesApi} from '../api/preferences'
 
 export function useLoginMutation() {
     const queryClient = useQueryClient()
 
     return useMutation({
         mutationFn: auth.login,
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             queryClient.setQueryData(['me'], data.user)
-            // Use hard redirect to ensure navigation works
-            window.location.href = '/dashboard'
+
+            // Check if user needs onboarding
+            try {
+                const preferences = await preferencesApi.getPreferences()
+                const tourStep = preferences?.onboarding?.tourStep
+
+                // Redirect to welcome if tour not started or just started
+                if (!tourStep || tourStep === '0') {
+                    window.location.href = '/welcome'
+                } else {
+                    window.location.href = '/dashboard'
+                }
+            } catch {
+                // If preferences fetch fails, default to dashboard
+                window.location.href = '/dashboard'
+            }
         },
     })
 }
@@ -20,10 +35,24 @@ export function useRegisterMutation() {
 
     return useMutation({
         mutationFn: auth.register,
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             queryClient.setQueryData(['me'], data.user)
-            // Use hard redirect to ensure navigation works
-            window.location.href = '/dashboard'
+
+            // Check if user needs onboarding
+            try {
+                const preferences = await preferencesApi.getPreferences()
+                const tourStep = preferences?.onboarding?.tourStep
+
+                // Redirect to welcome if tour not started or just started
+                if (!tourStep || tourStep === '0') {
+                    window.location.href = '/welcome'
+                } else {
+                    window.location.href = '/dashboard'
+                }
+            } catch {
+                // If preferences fetch fails, default to welcome for new users
+                window.location.href = '/welcome'
+            }
         },
     })
 }

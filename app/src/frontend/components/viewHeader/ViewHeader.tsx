@@ -1,6 +1,7 @@
 import React, {useState, useCallback} from 'react'
 import {Plus, LayoutGrid, Table, Image, Calendar, Share2, Users, Filter, Save, User, Lock, Star} from 'lucide-react'
 import {cn} from '../../lib/cn'
+import {useTourContext} from '../../contexts/TourContext'
 import {useInsertBlocksMutation, usePatchBlockMutation, useFilteredViews} from '../../hooks/useBlocks'
 import {useToggleFavoriteMutation} from '../../hooks/useBoards'
 import {ShareBoardDialog} from '../board/ShareBoardDialog'
@@ -33,6 +34,7 @@ const viewTypeLabels: Record<string, string> = {
 }
 
 export function ViewHeader({board, views, activeView, onViewChange, cards, currentUserId}: ViewHeaderProps) {
+    const {isOnboardingBoard} = useTourContext()
     const insertBlocks = useInsertBlocksMutation(board?.id || '')
     const patchBlock = usePatchBlockMutation(board?.id || '')
     const [showShareDialog, setShowShareDialog] = useState(false)
@@ -201,6 +203,7 @@ export function ViewHeader({board, views, activeView, onViewChange, cards, curre
                     onClick={() => setShowSaveViewDialog(true)}
                     className="flex items-center gap-1.5 h-8 px-2.5 rounded text-sm text-center-fg/70 hover:text-center-fg hover:bg-hover transition-colors cursor-pointer"
                     title="Save current view"
+                    data-tour-target={isOnboardingBoard ? 'add-view-button' : undefined}
                 >
                     <Save size={16} />
                 </button>
@@ -213,6 +216,7 @@ export function ViewHeader({board, views, activeView, onViewChange, cards, curre
                     onClick={() => setShowShareDialog(true)}
                     className="flex items-center gap-1.5 h-8 px-2 rounded text-center-fg/50 hover:text-center-fg hover:bg-hover text-sm transition-colors cursor-pointer"
                     title="Share"
+                    data-tour-target={isOnboardingBoard ? 'share-button' : undefined}
                 >
                     <Share2 size={14} />
                 </button>

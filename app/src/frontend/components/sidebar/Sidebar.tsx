@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import {Link, useNavigate} from '@tanstack/react-router'
 import {Plus, Search, ChevronLeft, ChevronRight, Home} from 'lucide-react'
 import {cn} from '../../lib/cn'
+import {useTourContext} from '../../contexts/TourContext'
 import {DEFAULT_TEAM_ID} from '../../lib/constants'
 import {useBoardsQuery, useCreateBoardMutation} from '../../hooks/useBoards'
 import {useInsertBlocksMutation} from '../../hooks/useBlocks'
@@ -47,6 +48,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({activeBoardId}: SidebarProps) {
+    const {isOnboardingBoard} = useTourContext()
     const {sidebarCollapsed, toggleSidebar} = useUI()
     const {data: boards = []} = useBoardsQuery(DEFAULT_TEAM_ID)
     const {data: categories = []} = useCategoriesQuery(DEFAULT_TEAM_ID)
@@ -136,7 +138,7 @@ export function Sidebar({activeBoardId}: SidebarProps) {
             </div>
 
             {/* Search */}
-            <div className="px-3 mb-2">
+            <div className="px-3 mb-2" data-tour-target={isOnboardingBoard ? 'sidebar-search' : undefined}>
                 <div className="flex items-center h-8 px-2 rounded bg-white/10 text-sidebar-text-secondary">
                     <Search size={14} className="shrink-0 mr-2" />
                     <input
@@ -163,7 +165,7 @@ export function Sidebar({activeBoardId}: SidebarProps) {
             </Link>
 
             {/* Board list */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden pb-4">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden pb-4" data-tour-target={isOnboardingBoard ? 'sidebar-boards' : undefined}>
                 {/* Favorites */}
                 {favoriteBoards.length > 0 && (
                     <SidebarCategory
@@ -184,6 +186,7 @@ export function Sidebar({activeBoardId}: SidebarProps) {
                 )}
 
                 {/* Categories */}
+                <div data-tour-target={isOnboardingBoard ? 'sidebar-categories' : undefined}>
                 {categories.map((category: Category) => {
                     const categoryBoards = filteredBoards.filter((b: Board) =>
                         (category.boardIds || []).includes(b.id)
@@ -197,6 +200,7 @@ export function Sidebar({activeBoardId}: SidebarProps) {
                         />
                     )
                 })}
+                </div>
 
                 {/* Uncategorized boards */}
                 {uncategorizedBoards.length > 0 && (
