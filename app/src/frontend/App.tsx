@@ -6,6 +6,7 @@ import {router} from './router'
 import {AuthProvider, useAuth} from './contexts/AuthContext'
 import {UIProvider} from './contexts/UIContext'
 import {WebSocketProvider} from './contexts/WebSocketContext'
+import {TourProvider} from './contexts/TourContext'
 import {ToastProvider} from './components/ui/Toast'
 import {ErrorBoundary} from './components/ui/ErrorBoundary'
 
@@ -31,9 +32,11 @@ export default function App() {
                 <UIProvider>
                     <ToastProvider>
                         <AuthProvider>
-                            <WebSocketProvider>
-                                <AppContent />
-                            </WebSocketProvider>
+                            <TourProvider>
+                                <WebSocketProvider>
+                                    <AppContent />
+                                </WebSocketProvider>
+                            </TourProvider>
                         </AuthProvider>
                     </ToastProvider>
                 </UIProvider>

@@ -1,10 +1,11 @@
-import React, {useMemo, useState} from 'react'
+import React, {useMemo, useState, useEffect} from 'react'
 import {createRoute, Outlet, useNavigate} from '@tanstack/react-router'
 import {Route as authRoute} from './_auth'
 import {useBoardQuery, usePatchBoardMutation} from '../hooks/useBoards'
 import {useBoardDataQuery} from '../hooks/useBlocks'
 import {useBoardWebSocket} from '../hooks/useBoardWebSocket'
 import {useAuth} from '../contexts/AuthContext'
+import {useTourContext} from '../contexts/TourContext'
 import {Editable} from '../components/ui/Editable'
 import {ViewHeader} from '../components/viewHeader/ViewHeader'
 import {KanbanView} from '../components/board/KanbanView'
@@ -27,6 +28,7 @@ function BoardPage() {
     const {boardId} = Route.useParams()
     const navigate = useNavigate()
     const {user} = useAuth()
+    const {setOnboardingBoard} = useTourContext()
 
     // Connect to real-time updates
     const {isConnected} = useBoardWebSocket(boardId)
@@ -38,6 +40,20 @@ function BoardPage() {
     const views = blockData?.views || []
     const cards = blockData?.cards || []
     const contents = blockData?.contents || []
+
+    // Detect onboarding board and activate tour context
+    useEffect(() => {
+        if (board?.title === 'Welcome to Focalboard!') {
+            setOnboardingBoard(true)
+        } else {
+            setOnboardingBoard(false)
+        }
+
+        // Cleanup when component unmounts or board changes
+        return () => {
+            setOnboardingBoard(false)
+        }
+    }, [board?.title, setOnboardingBoard])
 
     // Active view: use first view or URL param
     const [activeViewId, setActiveViewId] = useState<string | null>(null)
