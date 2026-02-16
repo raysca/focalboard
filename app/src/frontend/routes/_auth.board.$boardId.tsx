@@ -15,6 +15,7 @@ import {CalendarView} from '../components/board/CalendarView'
 import {SkeletonKanban} from '../components/ui/Skeleton'
 import {ErrorBoundary} from '../components/ui/ErrorBoundary'
 import {ConnectionStatus} from '../components/ConnectionStatus'
+import {TourStepManager} from '../components/onboarding/TourStepManager'
 import {applyFilterGroup} from '../lib/cardFilter'
 import type {BoardView, Card} from '../api/types'
 
@@ -175,6 +176,9 @@ function BoardPage() {
 
             {/* Card dialog outlet (for nested card route) */}
             <Outlet />
+
+            {/* Tour overlay - renders when tour is active */}
+            <TourStepManager />
         </div>
     )
 }

@@ -34,7 +34,7 @@ export function TourStepManager() {
         // Set up MutationObserver to watch for DOM changes
         const observer = new MutationObserver(() => {
             const element = document.querySelector<HTMLElement>(currentStepData.targetSelector)
-            if (element && element !== targetElement) {
+            if (element) {
                 setTargetElement(element)
             }
         })
