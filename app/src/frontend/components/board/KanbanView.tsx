@@ -19,6 +19,7 @@ import {PropertyValue} from './PropertyValue'
 import {DependencyBadge} from '../dependencies/DependencyBadge'
 import {QuickLabelEditor} from './QuickLabelEditor'
 import {useInsertBlocksMutation, usePatchBlockMutation} from '../../hooks/useBlocks'
+import {useTourContext} from '../../contexts/TourContext'
 import type {Board, BoardView, Card, Block, IPropertyTemplate, IPropertyOption} from '../../api/types'
 
 interface KanbanViewProps {
@@ -29,8 +30,9 @@ interface KanbanViewProps {
 }
 
 // --- Sortable card wrapper ---
-function SortableCard({card, visibleProps, board, onClick}: {card: Card; visibleProps: IPropertyTemplate[]; board: Board; onClick: () => void}) {
+function SortableCard({card, visibleProps, board, onClick, cardIndex}: {card: Card; visibleProps: IPropertyTemplate[]; board: Board; onClick: () => void; cardIndex?: number}) {
     const patchBlock = usePatchBlockMutation(board?.id || '')
+    const {isOnboardingBoard} = useTourContext()
     const {attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({
         id: card.id,
         data: {type: 'card', card},
@@ -55,6 +57,7 @@ function SortableCard({card, visibleProps, board, onClick}: {card: Card; visible
                 isDragging && 'opacity-30'
             )}
             data-testid="card"
+            data-tour-target={isOnboardingBoard && cardIndex !== undefined ? `onboarding-card-${cardIndex}` : undefined}
         >
             <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1 flex-1">
@@ -175,6 +178,7 @@ function DroppableColumn({groupId, children}: {groupId: string; children: React.
 
 export function KanbanView({board, cards, activeView, contents}: KanbanViewProps) {
     const navigate = useNavigate()
+    const {advanceTour, tourCategory, isOnboardingBoard} = useTourContext()
     const insertBlocks = useInsertBlocksMutation(board?.id || '')
     const patchBlock = usePatchBlockMutation(board?.id || '')
     const [activeCard, setActiveCard] = useState<Card | null>(null)
@@ -262,6 +266,12 @@ export function KanbanView({board, cards, activeView, contents}: KanbanViewProps
     }, [cards, effectiveGroupBy, activeView])
 
     const handleCardClick = (card: Card) => {
+        // Advance tour if on onboarding board during onboarding category
+        if (isOnboardingBoard && tourCategory === 'onboarding') {
+            advanceTour()
+        }
+
+        // Navigate to card detail
         navigate({
             to: '/board/$boardId/$viewId/$cardId',
             params: {
@@ -396,13 +406,14 @@ export function KanbanView({board, cards, activeView, contents}: KanbanViewProps
                             strategy={verticalListSortingStrategy}
                         >
                             <DroppableColumn groupId={group.id}>
-                                {group.cards.map((card) => (
+                                {group.cards.map((card, index) => (
                                     <SortableCard
                                         key={card.id}
                                         card={card}
                                         visibleProps={visibleProps}
                                         board={board}
                                         onClick={() => handleCardClick(card)}
+                                        cardIndex={index}
                                     />
                                 ))}
                             </DroppableColumn>
