@@ -9,7 +9,10 @@ export const Route = createRoute({
     id: 'auth',
     beforeLoad: async () => {
         try {
-            await auth.getMe()
+            const user = await auth.getMe()
+            return {
+                auth: { user }
+            }
         } catch (error) {
             throw redirect({to: '/login'})
         }

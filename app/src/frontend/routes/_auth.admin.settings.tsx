@@ -9,12 +9,14 @@ import { FileSettings } from '../components/admin/FileSettings'
 import { IntegrationSettings } from '../components/admin/IntegrationSettings'
 import { SystemSettings } from '../components/admin/SystemSettings'
 import { UserManagement } from '../components/admin/UserManagement'
+import { auth } from '../api/auth'
 
 export const Route = createRoute({
     getParentRoute: () => authRoute,
     path: '/admin/settings',
-    beforeLoad: ({ context }) => {
-        const user = context.auth?.user
+    beforeLoad: async () => {
+        // Fetch user directly to check admin role
+        const user = await auth.getMe()
         if (!user?.roles?.includes('admin')) {
             throw redirect({ to: '/dashboard' })
         }
