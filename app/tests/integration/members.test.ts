@@ -174,4 +174,108 @@ describe("Member routes", () => {
       expect(found).toBeUndefined();
     });
   });
+
+  describe("Authorization and edge cases", () => {
+    let secondUserId: string;
+    let secondAuthToken: string;
+
+    beforeAll(async () => {
+      const reg2Res = await testRequest(app, "/api/v2/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "nonadmin@example.com",
+          username: "nonadmin",
+          password: "password123",
+        }),
+      });
+      const reg2Body = await reg2Res.json();
+      secondAuthToken = reg2Body.token;
+
+      const me2Headers = new Headers();
+      me2Headers.set("X-Requested-With", "XMLHttpRequest");
+      me2Headers.set("Authorization", `Bearer ${secondAuthToken}`);
+      const me2Res = await app.request("/api/v2/users/me", { headers: me2Headers });
+      secondUserId = (await me2Res.json()).id;
+    });
+
+    function nonAdminRequest(path: string, options: RequestInit = {}) {
+      const headers = new Headers(options.headers);
+      headers.set("X-Requested-With", "XMLHttpRequest");
+      headers.set("Authorization", `Bearer ${secondAuthToken}`);
+      if (!headers.has("Content-Type") && options.body) {
+        headers.set("Content-Type", "application/json");
+      }
+      return app.request(path, { ...options, headers });
+    }
+
+    async function createTestBoard(title: string) {
+      const res = await authRequest("/api/v2/boards", {
+        method: "POST",
+        body: JSON.stringify({ teamId: "team-1", title, type: "O" }),
+      });
+      return (await res.json()).id as string;
+    }
+
+    test("non-admin cannot add member", async () => {
+      const testBoardId = await createTestBoard("AuthTest Board 1");
+      await authRequest(`/api/v2/boards/${testBoardId}/members`, {
+        method: "POST",
+        body: JSON.stringify({ userId: secondUserId, schemeEditor: true }),
+      });
+      const res = await nonAdminRequest(`/api/v2/boards/${testBoardId}/members`, {
+        method: "POST",
+        body: JSON.stringify({ userId: "some-other-user", schemeEditor: true }),
+      });
+      expect(res.status).toBe(403);
+    });
+
+    test("non-admin cannot update member role", async () => {
+      const testBoardId = await createTestBoard("AuthTest Board 2");
+      await authRequest(`/api/v2/boards/${testBoardId}/members`, {
+        method: "POST",
+        body: JSON.stringify({ userId: secondUserId, schemeEditor: true }),
+      });
+      const res = await nonAdminRequest(`/api/v2/boards/${testBoardId}/members/${userId}`, {
+        method: "PUT",
+        body: JSON.stringify({ schemeAdmin: true }),
+      });
+      expect(res.status).toBe(403);
+    });
+
+    test("non-admin cannot remove member", async () => {
+      const testBoardId = await createTestBoard("AuthTest Board 3");
+      await authRequest(`/api/v2/boards/${testBoardId}/members`, {
+        method: "POST",
+        body: JSON.stringify({ userId: secondUserId, schemeEditor: true }),
+      });
+      const res = await nonAdminRequest(`/api/v2/boards/${testBoardId}/members/${userId}`, {
+        method: "DELETE",
+      });
+      expect(res.status).toBe(403);
+    });
+
+    test("cannot remove last admin", async () => {
+      const testBoardId = await createTestBoard("LastAdmin Board");
+      // Attempt to remove self (the only admin)
+      const res = await authRequest(`/api/v2/boards/${testBoardId}/members/${userId}`, {
+        method: "DELETE",
+      });
+      expect(res.status).toBe(400);
+    });
+
+    test("adding duplicate member returns error", async () => {
+      const testBoardId = await createTestBoard("Duplicate Board");
+      await authRequest(`/api/v2/boards/${testBoardId}/members`, {
+        method: "POST",
+        body: JSON.stringify({ userId: secondUserId, schemeEditor: true }),
+      });
+      // Add same user again
+      const res = await authRequest(`/api/v2/boards/${testBoardId}/members`, {
+        method: "POST",
+        body: JSON.stringify({ userId: secondUserId, schemeEditor: true }),
+      });
+      expect(res.status).toBe(400);
+    });
+  });
 });

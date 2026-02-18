@@ -9,6 +9,29 @@ import { recordMemberHistory } from "../services/history.ts";
 
 const memberRoutes = new Hono();
 
+function getCallerMember(db: BunSQLiteDatabase<typeof schemaType>, boardId: string, callerId: string) {
+  return db
+    .select()
+    .from(boardMembers)
+    .where(and(eq(boardMembers.boardId, boardId), eq(boardMembers.userId, callerId)))
+    .get();
+}
+
+function requireBoardAdmin(db: BunSQLiteDatabase<typeof schemaType>, boardId: string, callerId: string) {
+  const callerMember = getCallerMember(db, boardId, callerId);
+  if (!callerMember?.schemeAdmin) {
+    throw new ForbiddenError("must be board admin");
+  }
+}
+
+function countAdmins(db: BunSQLiteDatabase<typeof schemaType>, boardId: string): number {
+  return db
+    .select()
+    .from(boardMembers)
+    .where(and(eq(boardMembers.boardId, boardId), eq(boardMembers.schemeAdmin, true)))
+    .all().length;
+}
+
 // GET /boards/:boardID/members
 memberRoutes.get("/boards/:boardID/members", sessionRequired, async (c) => {
   const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
@@ -27,7 +50,20 @@ memberRoutes.get("/boards/:boardID/members", sessionRequired, async (c) => {
 memberRoutes.post("/boards/:boardID/members", sessionRequired, async (c) => {
   const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
   const boardId = c.req.param("boardID");
+  const callerId = c.get("userId") as string;
   const body = await c.req.json();
+
+  requireBoardAdmin(db, boardId, callerId);
+
+  // Check for duplicate member
+  const existing = db
+    .select()
+    .from(boardMembers)
+    .where(and(eq(boardMembers.boardId, boardId), eq(boardMembers.userId, body.userId)))
+    .get();
+  if (existing) {
+    throw new BadRequestError("user is already a member of this board");
+  }
 
   const member = {
     boardId,
@@ -54,7 +90,10 @@ memberRoutes.put(
     const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
     const boardId = c.req.param("boardID");
     const userId = c.req.param("userID");
+    const callerId = c.get("userId") as string;
     const body = await c.req.json();
+
+    requireBoardAdmin(db, boardId, callerId);
 
     const updates: Record<string, unknown> = {};
     if (body.roles !== undefined) updates.roles = body.roles;
@@ -98,6 +137,20 @@ memberRoutes.delete(
     const db = c.get("db") as BunSQLiteDatabase<typeof schemaType>;
     const boardId = c.req.param("boardID");
     const userId = c.req.param("userID");
+    const callerId = c.get("userId") as string;
+
+    requireBoardAdmin(db, boardId, callerId);
+
+    // Protect last admin: if target is admin and would be the last one, block removal
+    const targetMember = db
+      .select()
+      .from(boardMembers)
+      .where(and(eq(boardMembers.boardId, boardId), eq(boardMembers.userId, userId)))
+      .get();
+
+    if (targetMember?.schemeAdmin && countAdmins(db, boardId) <= 1) {
+      throw new BadRequestError("cannot remove the last admin from the board");
+    }
 
     recordMemberHistory(db, boardId, userId, "delete");
     db.delete(boardMembers)
