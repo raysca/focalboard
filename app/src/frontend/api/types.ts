@@ -15,6 +15,7 @@ export interface User {
 export interface Board {
     id: string
     isFavorite?: boolean
+    cardCount?: number
     teamId: string
     channelId?: string
     createdBy: string

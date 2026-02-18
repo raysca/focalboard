@@ -63,3 +63,13 @@ export function useToggleFavoriteMutation() {
         },
     })
 }
+
+export function useDuplicateBoardMutation(teamId: string) {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (boardId: string) => boardsApi.duplicateBoard(boardId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['boards', teamId]})
+        },
+    })
+}
