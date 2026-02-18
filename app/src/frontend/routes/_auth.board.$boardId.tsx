@@ -17,6 +17,7 @@ import {ErrorBoundary} from '../components/ui/ErrorBoundary'
 import {ConnectionStatus} from '../components/ConnectionStatus'
 import {TourStepManager} from '../components/onboarding/TourStepManager'
 import {applyFilterGroup} from '../lib/cardFilter'
+import {addRecentlyViewed} from '../hooks/useRecentlyViewed'
 import type {BoardView, Card} from '../api/types'
 
 export const Route = createRoute({
@@ -41,6 +42,13 @@ function BoardPage() {
     const views = blockData?.views || []
     const cards = blockData?.cards || []
     const contents = blockData?.contents || []
+
+    // Track recently viewed boards
+    useEffect(() => {
+        if (boardId) {
+            addRecentlyViewed(boardId)
+        }
+    }, [boardId])
 
     // Detect onboarding board and activate tour context
     useEffect(() => {
