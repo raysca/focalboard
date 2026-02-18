@@ -151,5 +151,35 @@ describe("Board routes", () => {
       expect(Array.isArray(body)).toBe(true);
       expect(body.length).toBeGreaterThan(0);
     });
+
+    test("returns cardCount for each board", async () => {
+      // Create a board
+      const boardRes = await authRequest("/api/v2/boards", {
+        method: "POST",
+        body: JSON.stringify({title: "Count Test Board", type: "O", teamId: "team-1"}),
+      })
+      const board = await boardRes.json()
+
+      // Add a card block to the board
+      await authRequest(`/api/v2/boards/${board.id}/blocks`, {
+        method: "POST",
+        body: JSON.stringify([{
+          type: "card",
+          title: "Test Card",
+          parentId: board.id,
+          boardId: board.id,
+          fields: {properties: {}},
+          schema: 1,
+        }]),
+      })
+
+      // List boards and check cardCount
+      const listRes = await authRequest(`/api/v2/teams/team-1/boards`)
+      const boards = await listRes.json()
+      const testBoard = boards.find((b: any) => b.id === board.id)
+
+      expect(testBoard).toBeDefined()
+      expect(testBoard.cardCount).toBe(1)
+    })
   });
 });

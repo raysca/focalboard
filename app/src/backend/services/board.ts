@@ -248,6 +248,7 @@ export class BoardService {
     listByTeam(userId: string, teamId: string): Board[] {
         const boardRepo = createBoardRepository(this.db)
         const memberRepo = createMembershipRepository(this.db)
+        const blockRepo = createBlockRepository(this.db)
 
         // Get boards user is a member of
         const members = memberRepo.findByUser(userId)
@@ -258,12 +259,16 @@ export class BoardService {
         const boardIds = members.map(m => m.boardId)
         const boards = boardRepo.findByTeamAndUser(teamId, boardIds)
 
-        // Attach isFavorite status
+        // Count cards per board (type='card', deleteAt=0)
+        const cardCounts = blockRepo.countCardsByBoards(boardIds)
+
+        // Attach isFavorite and cardCount
         const result = boards.map(board => {
             const member = members.find(m => m.boardId === board.id)
             return {
                 ...board,
-                isFavorite: member?.isFavorite ?? false
+                isFavorite: member?.isFavorite ?? false,
+                cardCount: cardCounts[board.id] ?? 0,
             }
         })
 

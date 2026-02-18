@@ -1,4 +1,4 @@
-import { eq, and, inArray } from "drizzle-orm"
+import { eq, and, inArray, count } from "drizzle-orm"
 import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite"
 import * as schema from "../db/schema.ts"
 import { blocks, blocksHistory } from "../db/schema.ts"
@@ -122,6 +122,24 @@ export class BlockRepository extends Repository<typeof blocks, Block> {
 
         // Perform soft delete
         this.softDelete(id)
+    }
+
+    /**
+     * Count cards (type='card') per board for multiple boards
+     */
+    countCardsByBoards(boardIds: string[]): Record<string, number> {
+        if (boardIds.length === 0) return {}
+        const rows = this.db
+            .select({boardId: blocks.boardId, count: count()})
+            .from(blocks)
+            .where(and(inArray(blocks.boardId, boardIds), eq(blocks.type, 'card'), eq(blocks.deleteAt, 0)))
+            .groupBy(blocks.boardId)
+            .all()
+        const result: Record<string, number> = {}
+        for (const row of rows) {
+            result[row.boardId] = Number(row.count)
+        }
+        return result
     }
 
     /**
