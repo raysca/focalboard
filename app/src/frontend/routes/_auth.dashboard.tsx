@@ -1,163 +1,259 @@
 import React, {useState, useMemo} from 'react'
-import {createRoute, Link} from '@tanstack/react-router'
+import {createRoute} from '@tanstack/react-router'
 import {Route as authRoute} from './_auth'
-import {Layout, Plus, User as UserIcon} from 'lucide-react'
+import {Layout} from 'lucide-react'
 import {useMeQuery} from '../hooks/useAuth'
-import {useBoardsQuery} from '../hooks/useBoards'
-import {useQueries} from '@tanstack/react-query'
-import {blocksApi} from '../api/blocks'
+import {useBoardsQuery, useToggleFavoriteMutation, useDeleteBoardMutation, useDuplicateBoardMutation} from '../hooks/useBoards'
+import {useRecentlyViewed} from '../hooks/useRecentlyViewed'
 import {DEFAULT_TEAM_ID} from '../lib/constants'
 import {Skeleton} from '../components/ui/Skeleton'
 import {CreateBoardDialog} from '../components/board/CreateBoardDialog'
-import {DashboardStats} from '../components/dashboard/DashboardStats'
-import {AssignedCards} from '../components/dashboard/AssignedCards'
-import type {Block} from '../api/types'
+import {BoardListControls, type LayoutMode, type FilterMode, type SortMode} from '../components/board-list/BoardListControls'
+import {BoardListSection} from '../components/board-list/BoardListSection'
+import type {Board} from '../api/types'
 
 export const Route = createRoute({
     getParentRoute: () => authRoute,
     path: '/dashboard',
-    component: DashboardComponent,
+    component: BoardListPage,
 })
 
-function DashboardComponent() {
-    const {data: user, isLoading: isUserLoading} = useMeQuery()
-    const {data: boards, isLoading: isBoardsLoading} = useBoardsQuery(DEFAULT_TEAM_ID)
-    const [showCreateDialog, setShowCreateDialog] = useState(false)
-
-    // Fetch cards from all boards
-    const cardQueries = useQueries({
-        queries: (boards || []).map((board) => ({
-            queryKey: ['blocks', board.id],
-            queryFn: () => blocksApi.getBlocks(board.id, {type: 'card'}),
-            enabled: !!board.id,
-        })),
+function applySort(boards: Board[], sort: SortMode): Board[] {
+    return [...boards].sort((a, b) => {
+        switch (sort) {
+            case 'name-asc': return a.title.localeCompare(b.title)
+            case 'name-desc': return b.title.localeCompare(a.title)
+            case 'created': return b.createAt - a.createAt
+            case 'activity':
+            default: return b.updateAt - a.updateAt
+        }
     })
+}
 
-    const allCards = useMemo(() => {
-        return cardQueries.flatMap((query) => (query.data || []) as Block[])
-    }, [cardQueries])
+function BoardListPage() {
+    const {data: user} = useMeQuery()
+    const {data: allBoards = [], isLoading} = useBoardsQuery(DEFAULT_TEAM_ID)
+    const {recentlyViewed} = useRecentlyViewed()
+    const toggleFavorite = useToggleFavoriteMutation()
+    const deleteBoard = useDeleteBoardMutation(DEFAULT_TEAM_ID)
+    const duplicateBoard = useDuplicateBoardMutation(DEFAULT_TEAM_ID)
 
-    const isCardsLoading = cardQueries.some((q) => q.isLoading)
-    const isLoading = isUserLoading || isBoardsLoading
+    const [showCreateDialog, setShowCreateDialog] = useState(false)
+    const [search, setSearch] = useState('')
+    const [filter, setFilter] = useState<FilterMode>('all')
+    const [sort, setSort] = useState<SortMode>('activity')
+    const [layout, setLayout] = useState<LayoutMode>('grid')
+
+    const nonTemplateBoards = useMemo(
+        () => allBoards.filter((b: Board) => !b.isTemplate && b.deleteAt === 0),
+        [allBoards]
+    )
+
+    const searchFiltered = useMemo(() => {
+        const term = search.toLowerCase().trim()
+        if (!term) return nonTemplateBoards
+        return nonTemplateBoards.filter(b =>
+            b.title.toLowerCase().includes(term) || b.description.toLowerCase().includes(term)
+        )
+    }, [nonTemplateBoards, search])
+
+    const handleStar = (boardId: string) => toggleFavorite.mutate({boardId})
+    const handleCopy = (boardId: string) => duplicateBoard.mutate(boardId)
+    const handleDelete = (boardId: string) => {
+        if (window.confirm('Delete this board? This cannot be undone.')) {
+            deleteBoard.mutate(boardId)
+        }
+    }
+
+    const sharedHandlers = {onStar: handleStar, onCopy: handleCopy, onDelete: handleDelete}
+
+    const sections = useMemo(() => {
+        if (filter === 'starred') {
+            return {starred: applySort(searchFiltered.filter(b => b.isFavorite), sort)}
+        }
+        if (filter === 'mine') {
+            return {mine: applySort(searchFiltered.filter(b => b.createdBy === user?.id), sort)}
+        }
+        if (filter === 'recent') {
+            const recentIds = new Set(recentlyViewed.map(r => r.boardId))
+            return {recent: applySort(searchFiltered.filter(b => recentIds.has(b.id)), sort)}
+        }
+        // Default 'all' — show grouped sections
+        const starredBoards = applySort(searchFiltered.filter(b => b.isFavorite), sort)
+        const recentIds = new Set(recentlyViewed.slice(0, 8).map(r => r.boardId))
+        const recentBoards = recentlyViewed
+            .map(r => searchFiltered.find(b => b.id === r.boardId))
+            .filter((b): b is Board => !!b)
+        const myBoards = applySort(
+            searchFiltered.filter(b => b.createdBy === user?.id && !b.isFavorite),
+            sort
+        )
+        const otherBoards = applySort(
+            searchFiltered.filter(b => b.createdBy !== user?.id && !b.isFavorite && !recentIds.has(b.id)),
+            sort
+        )
+        return {starred: starredBoards, recent: recentBoards, mine: myBoards, other: otherBoards}
+    }, [searchFiltered, filter, sort, recentlyViewed, user?.id])
 
     if (isLoading) {
         return (
-            <div className="flex-1 p-8 max-w-5xl mx-auto w-full">
-                <Skeleton className="h-10 w-64 mb-8" />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
-                    {[1, 2, 3].map((i) => (
-                        <Skeleton key={i} className="h-32 rounded-[var(--radius-default)]" />
-                    ))}
+            <div className="flex-1 p-8 max-w-6xl mx-auto w-full">
+                <Skeleton className="h-9 w-64 mb-6" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="h-36 rounded-[var(--radius-default)]" />)}
                 </div>
-                <Skeleton className="h-8 w-48 mb-6" />
-                <Skeleton className="h-40 w-full rounded-[var(--radius-default)]" />
             </div>
         )
     }
 
-    const username = user?.username || user?.nickname || 'User'
+    const hasBoards = nonTemplateBoards.length > 0
+    const hasResults = searchFiltered.length > 0
 
     return (
         <div className="flex-1 p-8 max-w-6xl mx-auto w-full overflow-y-auto">
-            <header className="mb-8">
-                <h1 className="text-3xl font-semibold text-center-fg mb-2">
-                    Welcome back, {username}
-                </h1>
-                <p className="text-center-fg/60">
-                    Here's what's happening in your workspace.
-                </p>
+            <header className="mb-6 flex items-center gap-3">
+                <Layout className="w-6 h-6 text-center-fg/50" />
+                <h1 className="text-2xl font-semibold text-center-fg">All Boards</h1>
             </header>
 
-            {/* Dashboard Stats */}
-            {boards && boards.length > 0 && !isCardsLoading && (
-                <DashboardStats boards={boards} cards={allCards} />
+            {/* Empty state - no boards at all */}
+            {!hasBoards && (
+                <div
+                    className="text-center py-16 bg-black/[0.02] rounded-[var(--radius-default)] border border-dashed border-black/10"
+                    data-testid="empty-state"
+                >
+                    <Layout className="w-12 h-12 mx-auto text-center-fg/20 mb-3" />
+                    <h3 className="text-lg font-medium text-center-fg/70 mb-1">No boards yet</h3>
+                    <p className="text-center-fg/50 mb-5">Create your first board to get started.</p>
+                    <button
+                        onClick={() => setShowCreateDialog(true)}
+                        className="px-5 py-2 bg-button-bg text-button-fg rounded-[var(--radius-default)] hover:opacity-90 font-medium"
+                        data-testid="create-board-button"
+                    >
+                        Create Board
+                    </button>
+                </div>
             )}
 
-            {/* Assigned Cards */}
-            {user && boards && boards.length > 0 && !isCardsLoading && allCards.length > 0 && (
-                <AssignedCards cards={allCards} boards={boards} userId={user.id} />
+            {/* Controls - only shown when boards exist */}
+            {hasBoards && (
+                <BoardListControls
+                    search={search}
+                    onSearchChange={setSearch}
+                    filter={filter}
+                    onFilterChange={setFilter}
+                    sort={sort}
+                    onSortChange={setSort}
+                    layout={layout}
+                    onLayoutChange={setLayout}
+                />
             )}
 
-            <section className="mb-12">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-center-fg flex items-center gap-2">
-                        <Layout className="w-5 h-5 opacity-70" />
-                        Your Boards
-                    </h2>
+            {/* No search results */}
+            {hasBoards && !hasResults && (
+                <div className="text-center py-12" data-testid="no-results-state">
+                    <p className="text-center-fg/50 mb-2">No boards found for "{search}"</p>
+                    <button
+                        onClick={() => setSearch('')}
+                        className="text-sm text-blue-600 hover:underline"
+                    >
+                        Clear search
+                    </button>
                 </div>
+            )}
 
-                {boards && boards.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {boards.map((board) => (
-                            <Link
-                                key={board.id}
-                                to="/board/$boardId"
-                                params={{boardId: board.id}}
-                                className="group block p-5 rounded-[var(--radius-default)] bg-white border border-black/5 hover:border-black/10 shadow-sm hover:shadow-md transition-all duration-200"
-                                data-testid="board-item"
-                            >
-                                <div className="flex items-start justify-between mb-3">
-                                    <span className="text-2xl">{board.icon || '📋'}</span>
-                                </div>
-                                <h3 className="font-medium text-lg text-center-fg group-hover:text-blue-600 transition-colors mb-1 truncate">
-                                    {board.title}
-                                </h3>
-                                <p className="text-sm text-center-fg/50 truncate">
-                                    {board.description || 'No description'}
-                                </p>
-                            </Link>
-                        ))}
+            {/* Sections */}
+            {hasBoards && hasResults && (
+                <>
+                    {filter === 'starred' && (
+                        <BoardListSection
+                            title="Starred"
+                            boards={sections.starred ?? []}
+                            layout={layout}
+                            {...sharedHandlers}
+                            testId="section-starred"
+                        />
+                    )}
+                    {filter === 'mine' && (
+                        <BoardListSection
+                            title="My Boards"
+                            boards={sections.mine ?? []}
+                            layout={layout}
+                            {...sharedHandlers}
+                            showCreateButton
+                            onCreateClick={() => setShowCreateDialog(true)}
+                            testId="section-mine"
+                        />
+                    )}
+                    {filter === 'recent' && (
+                        <BoardListSection
+                            title="Recently Viewed"
+                            boards={sections.recent ?? []}
+                            layout={layout}
+                            {...sharedHandlers}
+                            testId="section-recent"
+                        />
+                    )}
+                    {filter === 'all' && (
+                        <>
+                            {(sections.starred?.length ?? 0) > 0 && (
+                                <BoardListSection
+                                    title="Starred"
+                                    boards={sections.starred!}
+                                    layout={layout}
+                                    {...sharedHandlers}
+                                    testId="section-starred"
+                                />
+                            )}
+                            {(sections.recent?.length ?? 0) > 0 && (
+                                <BoardListSection
+                                    title="Recently Viewed"
+                                    boards={sections.recent!}
+                                    layout={layout}
+                                    {...sharedHandlers}
+                                    testId="section-recent"
+                                />
+                            )}
+                            {(sections.mine?.length ?? 0) > 0 && (
+                                <BoardListSection
+                                    title="My Boards"
+                                    boards={sections.mine!}
+                                    layout={layout}
+                                    {...sharedHandlers}
+                                    testId="section-mine"
+                                />
+                            )}
+                            {(sections.other?.length ?? 0) > 0 && (
+                                <BoardListSection
+                                    title="All Boards"
+                                    boards={sections.other!}
+                                    layout={layout}
+                                    {...sharedHandlers}
+                                    testId="section-all"
+                                />
+                            )}
+                            {/* Create button shown when no personal sections exist */}
+                            {(sections.mine?.length ?? 0) === 0 && (sections.starred?.length ?? 0) === 0 && (
+                                <BoardListSection
+                                    title="All Boards"
+                                    boards={searchFiltered}
+                                    layout={layout}
+                                    {...sharedHandlers}
+                                    showCreateButton
+                                    onCreateClick={() => setShowCreateDialog(true)}
+                                    testId="section-all"
+                                />
+                            )}
+                        </>
+                    )}
+                </>
+            )}
 
-                        {/* New Board Button */}
-                        <button
-                            onClick={() => setShowCreateDialog(true)}
-                            className="flex flex-col items-center justify-center p-5 rounded-[var(--radius-default)] border border-dashed border-black/20 hover:border-blue-500/50 hover:bg-blue-50/50 transition-all duration-200 group h-full min-h-[140px]"
-                            data-testid="create-board-button"
-                        >
-                            <div className="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center mb-3 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
-                                <Plus size={20} />
-                            </div>
-                            <span className="font-medium text-center-fg/70 group-hover:text-blue-600">Create New Board</span>
-                        </button>
-                    </div>
-                ) : (
-                    <div className="text-center py-12 bg-black/5 rounded-[var(--radius-default)] border border-dashed border-black/10">
-                        <Layout className="w-12 h-12 mx-auto text-center-fg/20 mb-3" />
-                        <h3 className="text-lg font-medium text-center-fg/70 mb-1">No boards yet</h3>
-                        <p className="text-center-fg/50 mb-4">Create your first board to get started.</p>
-                        <button
-                            onClick={() => setShowCreateDialog(true)}
-                            className="px-4 py-2 bg-button-bg text-button-fg rounded-[var(--radius-default)] hover:opacity-90 transition-opacity font-medium"
-                            data-testid="create-board-button"
-                        >
-                            Create Board
-                        </button>
-                    </div>
-                )}
-            </section>
-
-            <section>
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-center-fg flex items-center gap-2">
-                        <UserIcon className="w-5 h-5 opacity-70" />
-                        Recent Mentions
-                    </h2>
-                    <span className="text-xs font-medium px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full">Coming Soon</span>
-                </div>
-
-                <div className="bg-white rounded-[var(--radius-default)] border border-black/5 p-8 text-center">
-                    <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-2xl">@</span>
-                    </div>
-                    <h3 className="text-lg font-medium text-center-fg mb-2">Stay in the loop</h3>
-                    <p className="text-center-fg/60 max-w-md mx-auto">
-                        Soon you'll see all your mentions and notifications right here, so you never miss an important update from your team.
-                    </p>
-                </div>
-            </section>
-
-            {/* Create Board Dialog */}
-            <CreateBoardDialog open={showCreateDialog} onClose={() => setShowCreateDialog(false)} teamId={DEFAULT_TEAM_ID} />
+            <CreateBoardDialog
+                open={showCreateDialog}
+                onClose={() => setShowCreateDialog(false)}
+                teamId={DEFAULT_TEAM_ID}
+            />
         </div>
     )
 }
