@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 import {Link, useNavigate} from '@tanstack/react-router'
-import {Plus, Search, ChevronLeft, ChevronRight, Home} from 'lucide-react'
+import {Plus, Search, ChevronLeft, ChevronRight, Layout} from 'lucide-react'
 import {cn} from '../../lib/cn'
 import {DEFAULT_TEAM_ID} from '../../lib/constants'
 import {useBoardsQuery, useCreateBoardMutation} from '../../hooks/useBoards'
@@ -158,8 +158,8 @@ export function Sidebar({activeBoardId}: SidebarProps) {
                     !activeBoardId && 'bg-white/20 text-sidebar-fg font-medium'
                 )}
             >
-                <Home size={16} className="mr-2 shrink-0" />
-                <span className="text-sm">Dashboard</span>
+                <Layout size={16} className="mr-2 shrink-0" />
+                <span className="text-sm">All Boards</span>
             </Link>
 
             {/* Board list */}
