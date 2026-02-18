@@ -4,9 +4,16 @@ import { BasePage } from './BasePage'
 export class DashboardPage extends BasePage {
     async goto() {
         await this.page.goto('/dashboard')
+        await this.page.waitForSelector('[data-testid="board-list-controls"], [data-testid="empty-state"]')
     }
 
     async createBoard(title: string) {
+        // Switch to 'My Boards' filter to ensure create button is always visible
+        const filterSelect = this.page.getByTestId('board-filter-select')
+        if (await filterSelect.isVisible()) {
+            await filterSelect.selectOption('mine')
+        }
+
         // Click "Create New Board" button or "Create Board" button
         await this.page.getByRole('button', { name: /create.*board/i }).first().click()
 
@@ -21,9 +28,8 @@ export class DashboardPage extends BasePage {
     }
 
     async getBoardByTitle(title: string): Promise<Locator> {
-        // Find board cards in the main content area only (not sidebar)
-        // Use data-testid to specifically target board items in dashboard grid
-        return this.page.locator('[data-testid="board-item"]').filter({ hasText: title })
+        // Find board cards in main content area using the new board-card testid
+        return this.page.locator('[data-testid="board-card"]').filter({ hasText: title })
     }
 
     async openUserMenu() {
