@@ -57,6 +57,8 @@ export function MembersDialog({open, onClose, boardId}: MembersDialogProps) {
 
     const currentUserMember = members.find(m => m.userId === me?.id)
     const isAdmin = currentUserMember?.schemeAdmin ?? false
+    const adminCount = members.filter(m => m.schemeAdmin).length
+    const isOnlyAdmin = isAdmin && adminCount <= 1
 
     const loadMembers = async () => {
         setLoading(true)
@@ -277,14 +279,20 @@ export function MembersDialog({open, onClose, boardId}: MembersDialogProps) {
                 {/* Leave board */}
                 {me && currentUserMember && (
                     <div className="mt-4 pt-4 border-t border-border-default">
-                        <button
-                            onClick={handleLeave}
-                            className="flex items-center gap-2 text-sm text-error/80 hover:text-error transition-colors"
-                            data-testid="leave-board-button"
-                        >
-                            <LogOut size={14} />
-                            Leave board
-                        </button>
+                        {isOnlyAdmin ? (
+                            <p className="text-xs text-center-fg/40" data-testid="leave-board-disabled">
+                                Assign another admin before leaving
+                            </p>
+                        ) : (
+                            <button
+                                onClick={handleLeave}
+                                className="flex items-center gap-2 text-sm text-error/80 hover:text-error transition-colors"
+                                data-testid="leave-board-button"
+                            >
+                                <LogOut size={14} />
+                                Leave board
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

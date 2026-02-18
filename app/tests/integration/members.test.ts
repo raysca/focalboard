@@ -161,7 +161,34 @@ describe("Member routes", () => {
   });
 
   describe("POST /api/v2/boards/:boardID/leave", () => {
-    test("leaves a board", async () => {
+    test("last admin cannot leave board", async () => {
+      // Create a fresh board where userId is the only admin
+      const freshRes = await authRequest("/api/v2/boards", {
+        method: "POST",
+        body: JSON.stringify({ teamId: "team-1", title: "Last Admin Leave Test", type: "O" }),
+      });
+      const freshBoardId = (await freshRes.json()).id;
+
+      // Attempt to leave — should fail since userId is the only admin
+      const res = await authRequest(`/api/v2/boards/${freshBoardId}/leave`, {
+        method: "POST",
+      });
+      expect(res.status).toBe(400);
+
+      // Verify still a member
+      const listRes = await authRequest(`/api/v2/boards/${freshBoardId}/members`);
+      const listBody = await listRes.json();
+      const found = listBody.find((m: any) => m.userId === userId);
+      expect(found).toBeDefined();
+    });
+
+    test("leaves a board when another admin exists", async () => {
+      // Promote a second member to admin so userId is not the last admin
+      await authRequest(`/api/v2/boards/${boardId}/members`, {
+        method: "POST",
+        body: JSON.stringify({ userId: "co-admin", schemeAdmin: true }),
+      });
+
       const res = await authRequest(`/api/v2/boards/${boardId}/leave`, {
         method: "POST",
       });

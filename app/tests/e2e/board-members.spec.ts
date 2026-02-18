@@ -117,6 +117,16 @@ test.describe('Board Members', () => {
         await boardPage.changeRole('bob', 'editor')
     })
 
+    test('sole admin sees disabled leave message instead of leave button', async ({adminPage}) => {
+        // Fresh board — alice is the only admin, so leave button must not appear
+        const boardPage = await createFreshBoard(adminPage)
+        await boardPage.openMembersDialog()
+
+        await expect(adminPage.getByTestId('leave-board-button')).not.toBeVisible()
+        await expect(adminPage.getByTestId('leave-board-disabled')).toBeVisible()
+        await expect(adminPage.getByTestId('leave-board-disabled')).toContainText('Assign another admin')
+    })
+
     test('admin can remove a member', async ({adminPage}) => {
         // Fresh board — add bob then remove him
         const boardPage = await createFreshBoard(adminPage)

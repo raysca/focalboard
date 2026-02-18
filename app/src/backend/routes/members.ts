@@ -219,6 +219,17 @@ memberRoutes.post("/boards/:boardID/leave", sessionRequired, async (c) => {
   const boardId = c.req.param("boardID");
   const userId = c.get("userId") as string;
 
+  // Block the last admin from leaving — board must always have an admin
+  const leavingMember = db
+    .select()
+    .from(boardMembers)
+    .where(and(eq(boardMembers.boardId, boardId), eq(boardMembers.userId, userId)))
+    .get();
+
+  if (leavingMember?.schemeAdmin && countAdmins(db, boardId) <= 1) {
+    throw new BadRequestError("cannot leave board as the only admin");
+  }
+
   recordMemberHistory(db, boardId, userId, "leave");
   db.delete(boardMembers)
     .where(
