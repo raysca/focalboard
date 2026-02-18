@@ -1,5 +1,8 @@
 Feature: Board List
 
+  The Board List is a dedicated view at `/boards` for browsing, searching, filtering, and managing all boards.
+  It is separate from the Dashboard (`/dashboard`), which shows user-specific info (stats, assigned cards, recent mentions).
+
   As a user, I want to see a dedicated list of boards so that I can select one to view and manage my workspace.
 
   Background:
@@ -8,9 +11,9 @@ Feature: Board List
 
   Scenario: Access Board List from Sidebar
     Given I am viewing any page in the app
-    Then I should see a "Boards" or "All Boards" link in the sidebar
-    When I click the Boards link in the sidebar
-    Then I should navigate to the dedicated board list view
+    Then I should see an "All Boards" link in the sidebar
+    When I click the All Boards link in the sidebar
+    Then I should navigate to the board list view at `/boards`
     And the sidebar should indicate the Boards view is active (e.g. highlighted state)
 
   Scenario: View Board List (Default Layout)

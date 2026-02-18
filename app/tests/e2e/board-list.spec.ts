@@ -140,7 +140,7 @@ test.describe('Board List', () => {
     })
 
     test('sidebar should show All Boards link', async ({authenticatedPage}) => {
-        await authenticatedPage.goto('/dashboard')
+        await authenticatedPage.goto('/boards')
         await expect(authenticatedPage.getByText('All Boards').first()).toBeVisible()
     })
 

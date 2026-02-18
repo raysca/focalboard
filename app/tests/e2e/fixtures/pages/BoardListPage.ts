@@ -7,7 +7,7 @@ export class BoardListPage extends BasePage {
     }
 
     async goto() {
-        await this.page.goto('/dashboard')
+        await this.page.goto('/boards')
         await this.page.waitForSelector('[data-testid="board-list-controls"], [data-testid="empty-state"]')
     }
 

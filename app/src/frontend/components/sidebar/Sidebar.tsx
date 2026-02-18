@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 import {Link, useNavigate} from '@tanstack/react-router'
-import {Plus, Search, ChevronLeft, ChevronRight, Layout} from 'lucide-react'
+import {Plus, Search, ChevronLeft, ChevronRight, Layout, LayoutDashboard} from 'lucide-react'
 import {cn} from '../../lib/cn'
 import {DEFAULT_TEAM_ID} from '../../lib/constants'
 import {useBoardsQuery, useCreateBoardMutation} from '../../hooks/useBoards'
@@ -149,14 +149,19 @@ export function Sidebar({activeBoardId}: SidebarProps) {
                 </div>
             </div>
 
-            {/* Dashboard link */}
+            {/* Nav links */}
             <Link
                 to="/dashboard"
-                className={cn(
-                    'flex items-center h-8 px-5 mx-3 mb-2 rounded-[var(--radius-default)] cursor-pointer transition-colors no-underline',
-                    'text-sidebar-fg/80 hover:bg-white/10 hover:text-sidebar-fg',
-                    !activeBoardId && 'bg-white/20 text-sidebar-fg font-medium'
-                )}
+                className="flex items-center h-8 px-5 mx-3 mb-1 rounded-[var(--radius-default)] cursor-pointer transition-colors no-underline text-sidebar-fg/80 hover:bg-white/10 hover:text-sidebar-fg"
+                activeProps={{className: 'bg-white/20 text-sidebar-fg font-medium'}}
+            >
+                <LayoutDashboard size={16} className="mr-2 shrink-0" />
+                <span className="text-sm">Dashboard</span>
+            </Link>
+            <Link
+                to="/boards"
+                className="flex items-center h-8 px-5 mx-3 mb-2 rounded-[var(--radius-default)] cursor-pointer transition-colors no-underline text-sidebar-fg/80 hover:bg-white/10 hover:text-sidebar-fg"
+                activeProps={{className: 'bg-white/20 text-sidebar-fg font-medium'}}
             >
                 <Layout size={16} className="mr-2 shrink-0" />
                 <span className="text-sm">All Boards</span>
