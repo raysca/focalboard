@@ -222,6 +222,7 @@ export function ViewHeader({board, views, activeView, onViewChange, cards, curre
                     onClick={() => setShowMembersDialog(true)}
                     className="flex items-center gap-1.5 h-8 px-2 rounded text-center-fg/50 hover:text-center-fg hover:bg-hover text-sm transition-colors cursor-pointer"
                     title="Members"
+                    data-testid="members-button"
                 >
                     <Users size={14} />
                 </button>
