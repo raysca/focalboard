@@ -7,13 +7,13 @@ interface SkeletonProps {
 
 export function Skeleton({className}: SkeletonProps) {
     return (
-        <div className={cn('animate-pulse bg-center-fg/10 rounded', className)} />
+        <div className={cn('animate-pulse bg-muted rounded', className)} />
     )
 }
 
 export function SkeletonCard() {
     return (
-        <div className="rounded-[var(--radius-default)] p-3 px-4 shadow-card bg-center-bg">
+        <div className="rounded-[var(--radius-default)] p-3 px-4 shadow-card bg-card">
             <Skeleton className="h-4 w-3/4 mb-3" />
             <div className="flex gap-1">
                 <Skeleton className="h-5 w-16 rounded-sm" />
@@ -43,7 +43,7 @@ export function SkeletonKanban() {
 export function SkeletonTable() {
     return (
         <div className="p-4">
-            <div className="border-b border-border-default pb-2 mb-2 flex gap-4">
+            <div className="border-b border-border pb-2 mb-2 flex gap-4">
                 <Skeleton className="h-4 w-40" />
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-4 w-24" />
@@ -63,7 +63,7 @@ export function SkeletonTable() {
 
 export function SkeletonSidebar() {
     return (
-        <div className="w-[var(--sidebar-width)] bg-sidebar-bg p-4">
+        <div className="w-[var(--sidebar-width)] bg-sidebar p-4">
             <Skeleton className="h-5 w-24 mb-6 bg-white/10" />
             <Skeleton className="h-8 w-full mb-4 bg-white/10" />
             {[1, 2, 3, 4, 5].map((i) => (
