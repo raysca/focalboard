@@ -1,4 +1,5 @@
-import React, {createContext, useContext, useState, useCallback, useEffect} from 'react'
+import React, {createContext, useContext, useState, useCallback} from 'react'
+import * as RadixToast from '@radix-ui/react-toast'
 import {X, CheckCircle, AlertCircle, AlertTriangle, Info} from 'lucide-react'
 import {cn} from '../../lib/cn'
 
@@ -17,6 +18,27 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined)
 
+const ICONS: Record<ToastType, React.ElementType> = {
+    success: CheckCircle,
+    error: AlertCircle,
+    warning: AlertTriangle,
+    info: Info,
+}
+
+const VARIANT_CLASSES: Record<ToastType, string> = {
+    success: 'border-l-4 border-l-success',
+    error: 'border-l-4 border-l-destructive',
+    warning: 'border-l-4 border-l-warning',
+    info: 'border-l-4 border-l-primary',
+}
+
+const ICON_CLASSES: Record<ToastType, string> = {
+    success: 'text-success',
+    error: 'text-destructive',
+    warning: 'text-warning',
+    info: 'text-primary',
+}
+
 export function ToastProvider({children}: {children: React.ReactNode}) {
     const [toasts, setToasts] = useState<Toast[]>([])
 
@@ -25,19 +47,40 @@ export function ToastProvider({children}: {children: React.ReactNode}) {
         setToasts((prev) => [...prev, {id, message, type, duration}])
     }, [])
 
-    const removeToast = useCallback((id: string) => {
-        setToasts((prev) => prev.filter((t) => t.id !== id))
-    }, [])
+    const dismiss = (id: string) => setToasts((prev) => prev.filter((t) => t.id !== id))
 
     return (
         <ToastContext.Provider value={{addToast}}>
-            {children}
-            {/* Toast container */}
-            <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 max-w-sm">
-                {toasts.map((toast) => (
-                    <ToastItem key={toast.id} toast={toast} onDismiss={() => removeToast(toast.id)} />
-                ))}
-            </div>
+            <RadixToast.Provider swipeDirection="right">
+                {children}
+                {toasts.map((toast) => {
+                    const Icon = ICONS[toast.type]
+                    return (
+                        <RadixToast.Root
+                            key={toast.id}
+                            duration={toast.duration}
+                            onOpenChange={(open) => !open && dismiss(toast.id)}
+                            className={cn(
+                                'bg-card text-card-foreground rounded-[var(--radius-modal)] shadow-elevation-3 px-4 py-3 flex items-start gap-3',
+                                'border border-border',
+                                VARIANT_CLASSES[toast.type]
+                            )}
+                        >
+                            <Icon size={16} className={cn('shrink-0 mt-0.5', ICON_CLASSES[toast.type])} />
+                            <RadixToast.Description className="flex-1 text-sm text-foreground">
+                                {toast.message}
+                            </RadixToast.Description>
+                            <RadixToast.Close
+                                onClick={() => dismiss(toast.id)}
+                                className="shrink-0 p-0.5 rounded hover:bg-accent text-foreground/40 hover:text-foreground cursor-pointer transition-colors"
+                            >
+                                <X size={14} />
+                            </RadixToast.Close>
+                        </RadixToast.Root>
+                    )
+                })}
+                <RadixToast.Viewport className="fixed bottom-4 right-4 flex flex-col gap-2 w-80 z-[100] outline-none" />
+            </RadixToast.Provider>
         </ToastContext.Provider>
     )
 }
@@ -46,47 +89,4 @@ export function useToast() {
     const context = useContext(ToastContext)
     if (!context) throw new Error('useToast must be used within a ToastProvider')
     return context
-}
-
-const toastIcons: Record<ToastType, React.ElementType> = {
-    success: CheckCircle,
-    error: AlertCircle,
-    warning: AlertTriangle,
-    info: Info,
-}
-
-const toastColors: Record<ToastType, string> = {
-    success: 'border-l-success text-success',
-    error: 'border-l-error text-error',
-    warning: 'border-l-warning text-warning',
-    info: 'border-l-button-bg text-button-bg',
-}
-
-function ToastItem({toast, onDismiss}: {toast: Toast; onDismiss: () => void}) {
-    const Icon = toastIcons[toast.type]
-
-    useEffect(() => {
-        if (toast.duration && toast.duration > 0) {
-            const timer = setTimeout(onDismiss, toast.duration)
-            return () => clearTimeout(timer)
-        }
-    }, [toast.duration, onDismiss])
-
-    return (
-        <div
-            className={cn(
-                'flex items-start gap-3 px-4 py-3 bg-center-bg rounded-[var(--radius-modal)] shadow-elevation-3 border border-border-default border-l-4 animate-in slide-in-from-right-5',
-                toastColors[toast.type]
-            )}
-        >
-            <Icon size={16} className="shrink-0 mt-0.5" />
-            <span className="flex-1 text-sm text-center-fg">{toast.message}</span>
-            <button
-                onClick={onDismiss}
-                className="shrink-0 p-0.5 rounded hover:bg-hover text-center-fg/40 hover:text-center-fg cursor-pointer"
-            >
-                <X size={14} />
-            </button>
-        </div>
-    )
 }
