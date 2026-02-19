@@ -64,7 +64,7 @@
 
     /* Layout */
     --sidebar-width: 240px;
-    --kanban-column-width: 260px;
+    --kanban-column-width: 300px;
 }
 
 /* Dark theme overrides — wired to theme.css .dark vars */
