@@ -1,71 +1,73 @@
 import React, {type ButtonHTMLAttributes, forwardRef} from 'react'
+import {Slot} from '@radix-ui/react-slot'
+import {cva, type VariantProps} from 'class-variance-authority'
 import {cn} from '../../lib/cn'
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+const buttonVariants = cva(
+    'inline-flex items-center justify-center rounded-[4px] font-semibold transition-all duration-100 ease-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none cursor-pointer',
+    {
+        variants: {
+            variant: {
+                default: 'bg-transparent text-inherit hover:text-foreground/80',
+                filled: 'bg-primary text-primary-foreground hover:bg-primary/80 active:bg-primary/90',
+                danger: 'bg-destructive text-destructive-foreground hover:bg-destructive/80 active:bg-destructive/90',
+                primary: 'bg-primary text-primary-foreground hover:bg-primary/80',
+                secondary: 'border border-primary text-primary hover:bg-primary/10 active:bg-primary/20',
+                tertiary: 'bg-primary/10 text-primary hover:bg-primary/20 active:bg-primary/20',
+                quaternary: 'bg-transparent text-primary hover:bg-primary/10 active:bg-primary/20',
+                gray: 'bg-transparent text-foreground/60 hover:bg-foreground/10 hover:text-foreground/80',
+                link: 'bg-transparent text-primary hover:underline',
+            },
+            size: {
+                xsmall: 'h-6 px-2.5 text-xs',
+                small: 'h-8 px-4 text-xs',
+                medium: 'h-10 px-5 text-sm',
+                large: 'h-12 px-6 text-base',
+            },
+        },
+        defaultVariants: {
+            variant: 'default',
+            size: 'medium',
+        },
+    }
+)
+
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
     filled?: boolean
     danger?: boolean
     emphasis?: 'primary' | 'secondary' | 'tertiary' | 'quaternary' | 'gray' | 'default' | 'link'
-    size?: 'xsmall' | 'small' | 'medium' | 'large'
     active?: boolean
     icon?: React.ReactNode
     rightIcon?: boolean
+    asChild?: boolean
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-    ({className, filled, danger, emphasis, size = 'medium', active, icon, rightIcon, children, ...props}, ref) => {
+    ({className, filled, danger, emphasis, size = 'medium', active, icon, rightIcon, asChild, children, ...props}, ref) => {
+        const Comp = asChild ? Slot : 'button'
 
-        const variants = {
-            base: "inline-flex items-center justify-center rounded-[4px] font-semibold transition-all duration-100 ease-out focus:outline-none focus:ring-2 focus:ring-button-bg focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none cursor-pointer",
-
-            size: {
-                xsmall: "h-6 px-2.5 text-xs",
-                small: "h-8 px-4 text-xs",
-                medium: "h-10 px-5 text-sm",
-                large: "h-12 px-6 text-base",
-            },
-
-            filled: "bg-button-bg text-button-fg hover:bg-button-bg/80 active:bg-button-bg/90",
-            danger: "bg-button-danger text-white hover:bg-button-danger/80 active:bg-button-danger/90",
-
-            emphasis: {
-                primary: "bg-button-bg text-button-fg hover:bg-button-bg/80",
-                secondary: "border border-button-bg text-button-bg hover:bg-button-bg/10 active:bg-button-bg/20",
-                tertiary: "bg-button-bg/10 text-button-bg hover:bg-button-bg/20 active:bg-button-bg/20",
-                quaternary: "bg-transparent text-button-bg hover:bg-button-bg/10 active:bg-button-bg/20",
-                gray: "bg-transparent text-center-fg/60 hover:bg-center-fg/10 hover:text-center-fg/80",
-                default: "bg-transparent text-inherit hover:text-center-fg/80",
-                link: "bg-transparent text-button-bg hover:underline",
-            }
-        }
-
-        let variantClass = variants.emphasis.default;
-        if (filled) variantClass = variants.filled;
-        if (danger) variantClass = variants.danger;
-        if (emphasis && variants.emphasis[emphasis]) variantClass = variants.emphasis[emphasis];
-
-        if (filled) variantClass = variants.filled;
-        if (danger && filled) variantClass = variants.danger;
+        let variant: string = emphasis ?? 'default'
+        if (filled) variant = 'filled'
+        if (danger) variant = 'danger'
 
         return (
-            <button
-                ref={ref}
+            <Comp
+                ref={ref as React.Ref<HTMLButtonElement>}
                 className={cn(
-                    variants.base,
-                    variants.size[size],
-                    variantClass,
-                    active && "bg-button-bg/10 text-button-bg",
+                    buttonVariants({variant: variant as Parameters<typeof buttonVariants>[0]['variant'], size}),
+                    active && 'bg-primary/10 text-primary',
                     className
                 )}
                 {...props}
             >
-                {!rightIcon && icon && <span className={cn("inline-flex", children ? "mr-2" : "")}>{icon}</span>}
+                {!rightIcon && icon && <span className={cn('inline-flex', children ? 'mr-2' : '')}>{icon}</span>}
                 {children}
-                {rightIcon && icon && <span className={cn("inline-flex", children ? "ml-2" : "")}>{icon}</span>}
-            </button>
+                {rightIcon && icon && <span className={cn('inline-flex', children ? 'ml-2' : '')}>{icon}</span>}
+            </Comp>
         )
     }
 )
 
-Button.displayName = "Button"
+Button.displayName = 'Button'
 
-export {Button}
+export {Button, buttonVariants}
