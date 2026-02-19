@@ -1,33 +1,32 @@
 @import "tailwindcss";
+@import "./theme.css";
 
 @theme {
-    /* Core backgrounds */
-    --color-center-bg: #ffffff;
-    --color-center-fg: #3f4350;
-    --color-sidebar-bg: #1e3254;
-    --color-sidebar-fg: #ffffff;
-    --color-sidebar-text-primary: rgba(255, 255, 255, 0.9);
-    --color-sidebar-text-secondary: rgba(255, 255, 255, 0.64);
+    /* Bridge: old utility names → new theme vars */
+    /* Preserves all existing className usages across the codebase */
+    --color-button-bg: var(--primary);
+    --color-button-fg: var(--primary-foreground);
+    --color-button-hover: var(--primary);
+    --color-button-danger: var(--destructive);
+    --color-link: var(--primary);
+    --color-error: var(--destructive);
+    --color-success: oklch(0.6 0.2 160);
+    --color-warning: oklch(0.8 0.18 80);
 
-    /* Interactive */
-    --color-button-bg: #1c58d9;
-    --color-button-fg: #ffffff;
-    --color-button-hover: #1850c5;
-    --color-button-danger: #d24b4e;
-    --color-link: #386fe5;
-    --color-error: #d24b4e;
-    --color-success: #3db887;
-    --color-warning: #f5ab00;
+    --color-center-bg: var(--background);
+    --color-center-fg: var(--foreground);
+    --color-sidebar-bg: var(--sidebar);
+    --color-sidebar-fg: var(--sidebar-foreground);
+    --color-sidebar-text-primary: var(--sidebar-foreground);
+    --color-sidebar-text-secondary: var(--muted-foreground);
 
-    /* Borders */
-    --color-border-default: rgba(63, 67, 80, 0.12);
-    --color-border-subtle: rgba(63, 67, 80, 0.08);
+    --color-border-default: var(--border);
+    --color-border-subtle: var(--border);
 
-    /* Hover / active states */
-    --color-hover: rgba(63, 67, 80, 0.08);
-    --color-active: rgba(63, 67, 80, 0.16);
+    --color-hover: var(--accent);
+    --color-active: var(--accent);
 
-    /* Property label colors */
+    /* Property label colors — keep as-is (not theme-dependent) */
     --color-prop-default: #ffffff;
     --color-prop-gray: #ededed;
     --color-prop-brown: #f7ddc3;
@@ -39,7 +38,6 @@
     --color-prop-pink: #ffd6e9;
     --color-prop-red: #ffa9a9;
 
-    /* Property text colors */
     --color-prop-text-default: #3f4350;
     --color-prop-text-gray: #3f4350;
     --color-prop-text-brown: #64370b;
@@ -56,8 +54,6 @@
     --shadow-elevation-2: 0 4px 6px 0 rgba(0, 0, 0, 0.12);
     --shadow-elevation-3: 0 6px 14px 0 rgba(0, 0, 0, 0.12);
     --shadow-elevation-4: 0 8px 24px 0 rgba(0, 0, 0, 0.12);
-
-    /* Card shadow */
     --shadow-card: rgba(63, 67, 80, 0.1) 0 0 0 1px, rgba(63, 67, 80, 0.1) 0 2px 4px;
     --shadow-login-card: rgba(63, 67, 80, 0.1) 0 0 0 1px, rgba(63, 67, 80, 0.3) 0 4px 8px;
 
@@ -66,37 +62,17 @@
     --radius-modal: 8px;
     --radius-pill: 20px;
 
-    /* Layout sizes */
+    /* Layout */
     --sidebar-width: 240px;
     --kanban-column-width: 260px;
-
-    /* Font */
-    --font-sans: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-        Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
 }
 
-/* Dark theme overrides */
+/* Dark theme overrides — wired to theme.css .dark vars */
 [data-theme="dark"] {
-    --color-center-bg: #373535;
-    --color-center-fg: #dcdcdc;
-    --color-sidebar-bg: #4b4943;
-    --color-sidebar-fg: #ffffff;
-    --color-border-default: rgba(255, 255, 255, 0.16);
-    --color-border-subtle: rgba(255, 255, 255, 0.08);
-    --color-hover: rgba(255, 255, 255, 0.08);
-    --color-active: rgba(255, 255, 255, 0.16);
     --color-prop-default: #4a4a4a;
     --color-prop-gray: #5a5a5a;
     --shadow-card: rgba(255, 255, 255, 0.06) 0 0 0 1px, rgba(0, 0, 0, 0.3) 0 2px 4px;
     --shadow-login-card: rgba(255, 255, 255, 0.06) 0 0 0 1px, rgba(0, 0, 0, 0.4) 0 4px 8px;
-}
-
-/* Light theme overrides */
-[data-theme="light"] {
-    --color-sidebar-bg: #f7f6f3;
-    --color-sidebar-fg: #373535;
-    --color-sidebar-text-primary: rgba(55, 53, 53, 0.9);
-    --color-sidebar-text-secondary: rgba(55, 53, 53, 0.56);
 }
 
 /* Base reset */
